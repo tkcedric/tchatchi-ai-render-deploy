@@ -18,8 +18,7 @@ services:
         
       - key: PYTHON_VERSION
         value: 3.11.4
-
-    disks:
+    disk:
       # Ce bloc est une propriété de 'disks', donc il est indenté plus loin.
       - name: data-disk
         mountPath: /var/data/tchatchi-data
