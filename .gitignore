@@ -1,0 +1,14 @@
+# Fichiers d'environnement
+.env
+
+# Fichiers de cache Python
+__pycache__/
+*.pyc
+
+# Fichiers générés
+*.pdf
+
+# .gitignore
+venv/
+
+stats.db

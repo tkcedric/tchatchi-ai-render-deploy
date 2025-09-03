@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: tchatchi-ai
+    env: python
+    plan: free # Ou "starter" si vous avez besoin de plus de puissance
+    region: frankfurt # Une bonne région pour une audience au Cameroun/Europe
+
+    # C'est ici que la magie opère pour la base de données
+    disks:
+      - name: data-disk
+        mountPath: /var/data/tchatchi-data # Le dossier où le disque sera accessible
+        sizeGB: 1 # 1 Go est largement suffisant
+
+    # Variables d'environnement pour l'application
+    envVars:
+      # On dit à notre code Python où trouver le disque
+      - key: RENDER_DISK_PATH
+        value: /var/data/tchatchi-data
+      
+      # IMPORTANT: Ajoutez votre clé OpenAI ici
+      - key: OPENAI_API_KEY
+        fromSecret: true # Indique que c'est une valeur secrète
+        
+      # Recommandé pour Python sur Render
+      - key: PYTHON_VERSION
+        value: 3.11.4
+
+    # Commandes pour construire le projet
+    buildCommand: "./build.sh"
+
+    # Commande pour lancer l'application en production
+    startCommand: "gunicorn --worker-tmp-dir /dev/shm app:app"

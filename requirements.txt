@@ -1,0 +1,8 @@
+# requirements.txt
+Flask
+gunicorn
+requests
+flask-cors
+openai
+python-dotenv
+pypandoc

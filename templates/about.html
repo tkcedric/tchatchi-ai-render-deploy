@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - TCHATCHI AI Pedagogical Assistant</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        :root {
+            --primary-color: #0b57d0;
+            --secondary-color: #d3e3fd;
+            --accent-color: #34a853;
+            --text-dark: #1f1f1f;
+            --text-light: #444746;
+            --bg-light: #f8f9fa;
+        }
+        
+        #main-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            border-bottom: 1px solid #dee2e6;
+            background-color: #f8f9fa;
+        }
+
+        #main-header .app-title-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        #main-header .app-icon {
+            font-size: 1.5rem;
+            color: #0b57d0;
+        }
+
+        #main-header .app-title {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #1f1f1f;
+        }
+        
+        #main-header .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .lang-selector {
+            font-size: 0.9rem;
+            font-weight: 500;
+            padding: 0.375rem 0.75rem;
+            background-color: #e9ecef;
+            border-radius: 25px;
+        }
+        
+        .lang-selector .lang-btn {
+            text-decoration: none;
+            color: #6c757d;
+            padding: 0.2rem 0.4rem;
+            border-radius: 20px;
+        }
+
+        .lang-selector .lang-btn.active {
+            color: var(--primary-color);
+            background-color: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .hero-section {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1976d2 100%);
+            color: white;
+            padding: 100px 0 80px;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+        
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="1" fill="white" opacity="0.1"/><circle cx="10" cy="60" r="1" fill="white" opacity="0.1"/><circle cx="90" cy="40" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        }
+        
+        .feature-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: none;
+            border-radius: 15px;
+            padding: 1.5rem;
+            height: 100%;
+            background: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 1.5rem;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .stats-section {
+            background: var(--bg-light);
+            padding: 80px 0;
+        }
+        
+        .stat-card {
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            display: block;
+        }
+        
+        .tech-badge {
+            background: var(--secondary-color);
+            color: var(--primary-color);
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            margin: 0.25rem;
+            display: inline-block;
+            font-weight: 500;
+        }
+        
+        .mission-section {
+            padding: 60px 0;
+            background: white;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            overflow-x: hidden;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="main-container">
+        <div id="main-header">
+            <div class="app-title-container">
+                <i class="bi bi-robot app-icon"></i>
+                <span id="app-title" class="app-title">TCHATCHI AI Pedagogical Assistant</span>
+            </div>
+            <div class="nav-menu">
+                <div class="lang-selector">
+                    <a href="#" class="lang-btn" data-lang="en">🇬🇧 EN</a>
+                    <a href="#" class="lang-btn" data-lang="fr">🇫🇷 FR</a>
+                </div>
+                <a href="/" class="btn btn-light btn-sm" data-lang-en="Home" data-lang-fr="Accueil">Home</a>
+                <a href="/about" class="btn btn-light btn-sm active" data-lang-en="About" data-lang-fr="À Propos">About</a>
+                <a href="/donate" class="btn btn-success btn-sm"><i class="bi bi-heart"></i> <span data-lang-en="Donate" data-lang-fr="Soutenir">Donate</span></a>
+            </div>
+        </div>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container position-relative">
+            <div class="row align-items-center">
+                <div class="col-lg-8 mx-auto text-center">
+                    <h1 class="display-4 fw-bold mb-4" data-lang-en="About TCHATCHI AI" data-lang-fr="À Propos de TCHATCHI AI">About TCHATCHI AI</h1>
+                    <p class="lead mb-4" data-lang-en="Revolutionizing education in Cameroon through AI-powered pedagogical assistance" data-lang-fr="Révolutionner l'éducation au Cameroun grâce à une assistance pédagogique basée sur l'IA">Revolutionizing education in Cameroon through AI-powered pedagogical assistance</p>
+                    <div class="d-flex justify-content-center gap-3 flex-wrap">
+                        <span class="badge bg-light text-dark px-3 py-2" data-lang-en="🇨🇲 Made for Cameroon" data-lang-fr="🇨🇲 Conçu pour le Cameroun">🇨🇲 Made for Cameroon</span>
+                        <span class="badge bg-light text-dark px-3 py-2" data-lang-en="🤖 AI-Powered" data-lang-fr="🤖 Propulsé par l'IA">🤖 AI-Powered</span>
+                        <span class="badge bg-light text-dark px-3 py-2" data-lang-en="🌍 Bilingual" data-lang-fr="🌍 Bilingue">🌍 Bilingual</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mission Section -->
+    <section class="mission-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <h2 class="text-center mb-5" data-lang-en="Our Mission" data-lang-fr="Notre Mission">Our Mission</h2>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h4 class="text-primary mb-3" data-lang-en="🎯 Empowering Educators" data-lang-fr="🎯 Autonomiser les Enseignants">🎯 Empowering Educators</h4>
+                            <p data-lang-en="We believe every teacher deserves access to cutting-edge tools that enhance their pedagogical impact. TCHATCHI AI provides intelligent assistance for creating comprehensive lesson plans, integration activities, and evaluations tailored to Cameroon's educational standards." data-lang-fr="Nous croyons que chaque enseignant mérite d'avoir accès à des outils de pointe qui améliorent son impact pédagogique. TCHATCHI AI fournit une assistance intelligente pour créer des fiches de leçons complètes, des activités d'intégration et des évaluations adaptées aux normes éducatives du Cameroun.">We believe every teacher deserves access to cutting-edge tools that enhance their pedagogical impact. TCHATCHI AI provides intelligent assistance for creating comprehensive lesson plans, integration activities, and evaluations tailored to Cameroon's educational standards.</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h4 class="text-primary mb-3" data-lang-en="🌟 Quality Education" data-lang-fr="🌟 Éducation de Qualité">🌟 Quality Education</h4>
+                            <p data-lang-en="Our AI assistant understands the unique challenges of Cameroon's bilingual education system, supporting both ESG (General Education) and EST (Technical Education) pathways with culturally appropriate, curriculum-aligned content." data-lang-fr="Notre assistant IA comprend les défis uniques du système éducatif bilingue du Cameroun, soutenant à la fois les filières ESG (Enseignement Secondaire Général) et EST (Enseignement Secondaire Technique) avec un contenu culturellement approprié et aligné sur le programme.">Our AI assistant understands the unique challenges of Cameroon's bilingual education system, supporting both ESG (General Education) and EST (Technical Education) pathways with culturally appropriate, curriculum-aligned content.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-5 bg-light">
+        <div class="container">
+            <h2 class="text-center mb-5" data-lang-en="Key Features" data-lang-fr="Fonctionnalités Clés">Key Features</h2>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card feature-card h-100">
+                        <div class="feature-icon bg-primary text-white"><i class="bi bi-book"></i></div>
+                        <h5 class="card-title" data-lang-en="Smart Lesson Planning" data-lang-fr="Planification de Leçons Intelligente">Smart Lesson Planning</h5>
+                        <p class="card-text" data-lang-en="Generate comprehensive lesson plans with structured activities, learning objectives, and assessment strategies aligned with MINESEC standards." data-lang-fr="Générez des fiches de leçons complètes avec des activités structurées, des objectifs d'apprentissage et des stratégies d'évaluation conformes aux normes du MINESEC.">Generate comprehensive lesson plans with structured activities, learning objectives, and assessment strategies aligned with MINESEC standards.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card feature-card h-100">
+                        <div class="feature-icon bg-success text-white"><i class="bi bi-puzzle"></i></div>
+                        <h5 class="card-title" data-lang-en="Integration Activities" data-lang-fr="Activités d'Intégration">Integration Activities</h5>
+                        <p class="card-text" data-lang-en="Create competency-based integration activities that help students apply knowledge across different subjects and real-world contexts." data-lang-fr="Créez des activités d'intégration basées sur les compétences qui aident les élèves à appliquer leurs connaissances dans différentes matières et contextes réels.">Create competency-based integration activities that help students apply knowledge across different subjects and real-world contexts.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card feature-card h-100">
+                        <div class="feature-icon bg-warning text-white"><i class="bi bi-clipboard-check"></i></div>
+                        <h5 class="card-title" data-lang-en="Comprehensive Evaluations" data-lang-fr="Évaluations Complètes">Comprehensive Evaluations</h5>
+                        <p class="card-text" data-lang-en="Design balanced assessments with multiple choice questions, structured problems, and competency evaluations." data-lang-fr="Concevez des évaluations équilibrées avec des questions à choix multiples, des problèmes structurés et des évaluations de compétences.">Design balanced assessments with multiple choice questions, structured problems, and competency evaluations.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card feature-card h-100">
+                        <div class="feature-icon bg-info text-white"><i class="bi bi-translate"></i></div>
+                        <h5 class="card-title" data-lang-en="Bilingual Support" data-lang-fr="Support Bilingue">Bilingual Support</h5>
+                        <p class="card-text" data-lang-en="Full support for both French and English, respecting Cameroon's bilingual education system and cultural context." data-lang-fr="Prise en charge complète du français et de l'anglais, respectant le système éducatif bilingue et le contexte culturel du Cameroun.">Full support for both French and English, respecting Cameroon's bilingual education system and cultural context.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card feature-card h-100">
+                        <div class="feature-icon bg-danger text-white"><i class="bi bi-file-pdf"></i></div>
+                        <h5 class="card-title" data-lang-en="PDF Export" data-lang-fr="Exportation PDF">PDF Export</h5>
+                        <p class="card-text" data-lang-en="Export all generated content as professionally formatted PDF documents ready for classroom use." data-lang-fr="Exportez tout le contenu généré sous forme de documents PDF professionnels prêts à être utilisés en classe.">Export all generated content as professionally formatted PDF documents ready for classroom use.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card feature-card h-100">
+                        <div class="feature-icon bg-secondary text-white"><i class="bi bi-chat-dots"></i></div>
+                        <h5 class="card-title" data-lang-en="Conversational Interface" data-lang-fr="Interface Conversationnelle">Conversational Interface</h5>
+                        <p class="card-text" data-lang-en="Intuitive chat-based interaction that guides you through the content creation process step by step." data-lang-fr="Une interaction intuitive de type chat qui vous guide pas à pas dans le processus de création de contenu.">Intuitive chat-based interaction that guides you through the content creation process step by step.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <div class="container">
+            <h2 class="text-center mb-5" data-lang-en="Impact & Reach" data-lang-fr="Impact et Portée">Impact & Reach</h2>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <span class="stat-number">2</span>
+                        <h6 class="text-muted" data-lang-en="Education Systems" data-lang-fr="Systèmes Éducatifs">Education Systems</h6>
+                        <small>ESG & EST Support</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <span class="stat-number">12+</span>
+                        <h6 class="text-muted" data-lang-en="Grade Levels" data-lang-fr="Niveaux Scolaires">Grade Levels</h6>
+                        <small data-lang-en="From 6ème to Terminale" data-lang-fr="De la 6ème à la Terminale">From 6ème to Terminale</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <span class="stat-number">2</span>
+                        <h6 class="text-muted" data-lang-en="Languages" data-lang-fr="Langues">Languages</h6>
+                        <small data-lang-en="French & English" data-lang-fr="Français & Anglais">French & English</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <span class="stat-number">∞</span>
+                        <h6 class="text-muted" data-lang-en="Possibilities" data-lang-fr="Possibilités">Possibilities</h6>
+                        <small data-lang-en="Unlimited Content" data-lang-fr="Contenu Illimité">Unlimited Content</small>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 col-6">
+                    <div class="stat-card">
+                        <!-- ID ajouté ici -->
+                        <span class="stat-number" id="stats-lessons">0</span>
+                        <h6 class="text-muted" data-lang-en="Lessons Generated" data-lang-fr="Leçons Générées">Lessons Generated</h6>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="stat-card">
+                        <!-- ID ajouté ici -->
+                        <span class="stat-number" id="stats-integrations">0</span>
+                        <h6 class="text-muted" data-lang-en="Integrations" data-lang-fr="Intégrations">Integrations</h6>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="stat-card">
+                        <!-- ID ajouté ici -->
+                        <span class="stat-number" id="stats-evaluations">0</span>
+                        <h6 class="text-muted" data-lang-en="Assessments" data-lang-fr="Évaluations">Assessments</h6>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="stat-card">
+                        <!-- ID ajouté ici -->
+                        <span class="stat-number" id="stats-total-users">0</span>
+                        <h6 class="text-muted" data-lang-en="Total Documents" data-lang-fr="Documents au Total">Total Documents</h6>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Technology Section -->
+    <section class="py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto text-center">
+                    <h2 class="mb-4" data-lang-en="Built with Modern Technology" data-lang-fr="Construit avec des Technologies Modernes">Built with Modern Technology</h2>
+                    <p class="lead mb-4" data-lang-en="Our platform leverages cutting-edge AI and web technologies to deliver a seamless experience." data-lang-fr="Notre plateforme exploite des technologies web et d'IA de pointe pour offrir une expérience fluide.">Our platform leverages cutting-edge AI and web technologies to deliver a seamless experience.</p>
+                    <div class="tech-stack">
+                        <span class="tech-badge">OpenAI GPT</span><span class="tech-badge">Flask</span><span class="tech-badge">Python</span><span class="tech-badge">Bootstrap</span><span class="tech-badge">JavaScript</span><span class="tech-badge">Pandoc</span><span class="tech-badge">HTML5</span><span class="tech-badge">CSS3</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section class="py-5 bg-primary text-white">
+        <div class="container text-center">
+            <h2 class="mb-4" data-lang-en="Ready to Transform Your Teaching?" data-lang-fr="Prêt(e) à Transformer Votre Enseignement ?">Ready to Transform Your Teaching?</h2>
+            <p class="lead mb-4" data-lang-en="Join educators across Cameroon who are already using TCHATCHI AI to create better learning experiences." data-lang-fr="Rejoignez les éducateurs à travers le Cameroun qui utilisent déjà TCHATCHI AI pour créer de meilleures expériences d'apprentissage.">Join educators across Cameroon who are already using TCHATCHI AI to create better learning experiences.</p>
+            <div class="d-flex justify-content-center gap-3 flex-wrap">
+                <a href="/donate" class="btn btn-outline-light btn-lg" data-lang-en="Support the Project" data-lang-fr="Soutenir le Projet">Support the Project</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- stats section-->
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <footer id="main-footer" style="text-align: center; font-size: 0.8rem; color: #999; padding: 0.5rem; background-color: #f8f9fa; border-top: 1px solid #dee2e6;">
+        <p data-lang-en="© 2025 TCHATCHI AI Project - All rights reserved." data-lang-fr="© 2025 Projet TCHATCHI AI - Tous droits réservés.">© 2025 TCHATCHI AI Project - All rights reserved.</p>
+        <p>Powered by TKC@Co</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const langButtons = document.querySelectorAll('.lang-btn');
+            const translatableElements = document.querySelectorAll('[data-lang-en]');
+
+            const switchLanguage = (lang) => {
+                // Set the text content for all translatable elements
+                translatableElements.forEach(el => {
+                    el.innerHTML = el.dataset[lang === 'fr' ? 'langFr' : 'langEn'];
+                });
+
+                // Update the active state of the language buttons
+                langButtons.forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.lang === lang);
+                });
+
+                // Store the preference
+                localStorage.setItem('selectedLanguage', lang);
+            };
+
+            // Add click event listeners to buttons
+            langButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    switchLanguage(button.dataset.lang);
+                });
+            });
+
+            // On page load, check for a saved language preference
+            const savedLang = localStorage.getItem('selectedLanguage') || 'en';
+            switchLanguage(savedLang);
+        
+        
+        
+        // --- NOUVEAU CODE POUR LES STATISTIQUES ---
+        const fetchStats = async () => {
+            try {
+                const response = await fetch('/api/stats');
+                if (!response.ok) return; // Ne rien faire si l'API ne répond pas
+                
+                const stats = await response.json();
+                
+                // Mettre à jour les éléments HTML avec les données reçues
+                document.getElementById('stats-lessons').textContent = stats.lessons || 0;
+                document.getElementById('stats-integrations').textContent = stats.integrations || 0;
+                document.getElementById('stats-evaluations').textContent = stats.evaluations || 0;
+                document.getElementById('stats-total-users').textContent = stats.total_documents || 0;
+
+            } catch (error) {
+                console.error("Could not fetch stats:", error);
+            }
+        };
+
+        // Appeler la fonction au chargement de la page
+        fetchStats();
+        
+        });
+
+        
+    </script>
+    
+</body>
+</html>
