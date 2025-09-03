@@ -2,35 +2,26 @@ services:
   - type: web
     name: tchatchi-ai
     env: python
-    plan: free # Ou "starter" si vous avez besoin de plus de puissance
-    region: frankfurt # Une bonne région pour une audience au Cameroun/Europe
+    plan: free
+    region: frankfurt
 
-    # C'est ici que la magie opère pour la base de données
-    # <-- CORRIGÉ : Ce bloc est maintenant indenté correctement
+    # Toutes les propriétés ci-dessous sont indentées avec DEUX ESPACES
     disks:
+      # Ce bloc est indenté avec QUATRE ESPACES
       - name: data-disk
-        mountPath: /var/data/tchatchi-data # Le dossier où le disque sera accessible
-        sizeGB: 1 # 1 Go est largement suffisant
+        mountPath: /var/data/tchatchi-data
+        sizeGB: 1
 
-    # Variables d'environnement pour l'application
-    # <-- CORRIGÉ : Ce bloc est maintenant indenté correctement
     envVars:
-      # On dit à notre code Python où trouver le disque
       - key: RENDER_DISK_PATH
         value: /var/data/tchatchi-data
       
-      # IMPORTANT: Ajoutez votre clé OpenAI ici
       - key: OPENAI_API_KEY
-        fromSecret: true # Indique que c'est une valeur secrète
+        fromSecret: true
         
-      # Recommandé pour Python sur Render
       - key: PYTHON_VERSION
         value: 3.11.4
 
-    # Commandes pour construire le projet
-    # <-- CORRIGÉ : Cette ligne est maintenant indentée correctement
     buildCommand: "./build.sh"
 
-    # Commande pour lancer l'application en production
-    # <-- CORRIGÉ : Cette ligne est maintenant indentée correctement
     startCommand: "gunicorn --worker-tmp-dir /dev/shm app:app"
