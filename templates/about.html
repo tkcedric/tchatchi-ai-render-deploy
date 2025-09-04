@@ -154,6 +154,68 @@
             overflow-x: hidden;
         }
 
+        /* Ensure content doesn't overflow horizontally */
+.container {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+/* Mobile optimization for text sections */
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 60px 0 40px;
+    }
+    
+    .hero-title {
+        font-size: 2rem;
+    }
+    
+    .payment-card, .feature-card {
+        padding: 1.5rem;
+        margin: 1rem auto;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+    }
+    
+    /* Prevent horizontal scrolling */
+    .tech-stack {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .tech-badge {
+        margin: 0.25rem;
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .hero-section {
+        padding: 40px 0 30px;
+    }
+    
+    .hero-title {
+        font-size: 1.75rem;
+    }
+    
+    .payment-card {
+        padding: 1rem;
+    }
+    
+    .payment-code {
+        font-size: 0.9rem;
+        padding: 0.75rem;
+    }
+    
+    /* Stack stats vertically on very small screens */
+    .stat-card {
+        padding: 1rem;
+    }
+}
+
     </style>
 </head>
 <body>

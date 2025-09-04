@@ -15,7 +15,7 @@
             --ai-bubble-text: #202124; --text-color-primary: #1f1f1f; --text-color-secondary: #444746;
             --border-color: #dee2e6;
         }
-        html, body { height: 100%; overflow: hidden; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; }
+        html, body { height: 100%; overflow: hidden; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; max-width: 100%;overflow-x: hidden;}
         body { display: flex; background-color: var(--main-bg); }
         #sidebar { width: 280px; background-color: var(--sidebar-bg); padding: 1rem; display: flex; flex-direction: column; border-right: 1px solid var(--border-color); }
         #sidebar .btn-new-chat { background-color: #d3e3fd; color: #0b57d0; border: none; font-weight: 500;}
@@ -24,13 +24,13 @@
         #sidebar .history-item { color: var(--text-color-secondary); text-decoration: none; padding: 0.5rem; display: block; border-radius: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         #sidebar .history-item:hover { background-color: #e0e6ef; }
         #sidebar .ia-disclaimer { font-size: 0.75rem; color: var(--text-color-secondary); margin-top: 1rem; border-top: 1px solid #ddd; padding-top: 1rem; }
-        #main-container { flex-grow: 1; display: flex; flex-direction: column; height: 100vh; }
-        #main-header { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1.5rem; border-bottom: 1px solid var(--border-color); background-color: var(--main-bg); }
-        #main-header .app-title-container { display: flex; align-items: center; gap: 0.75rem; }
+        #main-container { flex-grow: 1; display: flex; flex-direction: column; height: 100vh;  max-width: 100vw; overflow-x: hidden;}
+        #main-header { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); background-color: var(--main-bg); flex-wrap: wrap; /* Allow wrapping on small screens */}
+        #main-header .app-title-container { display: flex; align-items: center; gap: 0.75rem; } 
         #main-header .app-icon { font-size: 1.5rem; color: #0b57d0; }
         #main-header .app-title { font-size: 1.1rem; font-weight: 500; color: var(--text-color-primary); }
-        #chat-container { flex-grow: 1; display: flex; flex-direction: column; overflow-y: auto; background-color: var(--chat-background); }
-        #chat-messages { flex-grow: 1; padding: 1.5rem; }
+        #chat-container { flex-grow: 1; display: flex; flex-direction: column; overflow-y: auto; background-color: var(--chat-background);  height: 100vh;-webkit-overflow-scrolling: touch;}
+        #chat-messages { flex-grow: 1; padding: 1.5rem; /* Ensure proper scrolling */ overflow-y: auto; min-height: 0; /* Crucial for flex scrolling */}
         .message { display: flex; margin-bottom: 0.5rem; }
         .message .content { padding: 0.5rem 1rem; border-radius: 8px; max-width: 80%; width: fit-content; line-height: 1.5; position: relative; box-shadow: 0 1px 1px rgba(0,0,0,0.05); }
         .message.ai { justify-content: flex-start; }
@@ -39,7 +39,7 @@
         .message.user { justify-content: flex-end; }
         .message.user .content { background-color: var(--user-bubble-bg); color: var(--user-bubble-text); border-radius: 8px 0 8px 8px; }
         .message.user .content::after { content: ''; position: absolute; top: 0; right: -10px; width: 0; height: 0; border-style: solid; border-width: 0 0 10px 10px; border-color: transparent transparent transparent var(--user-bubble-bg); }
-        #chat-input-area { padding: 1rem 1.5rem; background-color: var(--main-bg); border-top: 1px solid var(--border-color); }
+        #chat-input-area { padding: 1rem 1.5rem; background-color: var(--main-bg); border-top: 1px solid var(--border-color); position: sticky; bottom: 0; /* Add safe area for mobile notches */padding-bottom: calc(1rem + env(safe-area-inset-bottom));}
         #chat-input-area-content { max-width: 800px; margin: 0 auto; width: 100%; }
         #options-container { padding: 0 0 1rem 0; display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; }
         .option-button { border: 1px solid #c9c9c9; background-color: #fff; color: #3c4043; font-weight: 500; }
@@ -78,9 +78,61 @@
             gap: 10px; /* Espace entre le spinner et le texte */
         }
 
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap; /* Allow buttons to wrap */
+            justify-content: flex-end; /* Align to right */
+        }
+
         /* ===========================
        RESPONSIVE DESIGN
     ============================ */
+    /* Mobile menu toggle */
+#menu-toggle {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    #menu-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 6px;
+        
+    }
+    
+    .nav-menu {
+        position: fixed;
+        top: 60px;
+        right: -100%;
+        background: white;
+        padding: 1rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        flex-direction: column;
+        gap: 0.5rem;
+        z-index: 1000;
+        transition: right 0.3s ease;
+    }
+    
+    .nav-menu.show {
+        right: 1rem;
+    }
+
+    #chat-input-area {
+        padding: 0.75rem;
+        padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
+    }
+    
+    #chat-input {
+        font-size: 16px; /* Prevent zoom on iOS */
+    }
+}
+
     @media (max-width: 1200px) {
         #sidebar {
             width: 260px;
@@ -127,7 +179,7 @@
         }
         
         #main-header {
-            padding: 0.5rem 1rem;
+            padding: 0.5rem;
         }
         
         .message .content {
@@ -162,6 +214,14 @@
         
         .message .content {
             max-width: 100%;
+        }
+
+        .nav-menu {
+        gap: 0.3rem;
+        }
+           .nav-menu .btn {
+        font-size: 0.8rem;
+        padding: 0.25rem 0.5rem;
         }
     }
 
@@ -279,6 +339,9 @@
                 <i class="bi bi-robot app-icon"></i>
                 <span id="app-title" class="app-title">TCHATCHI AI Pedagogical Assistant</span>
             </div>
+               <button id="menu-toggle" class="d-lg-none btn btn-sm btn-light">
+                <i class="bi bi-list"></i>
+                </button>
             <div class="nav-menu">
                 <a href="/about" class="btn btn-light btn-sm">About</a>
                 <a href="/donate" class="btn btn-success btn-sm"><i class="bi bi-heart"></i> Donate</a>
@@ -572,6 +635,27 @@ document.querySelectorAll('.option-button').forEach(button => {
 });
 chatForm.addEventListener('submit', handleFormSubmit);
 chatInput.disabled = true;
+
+// =======================================================================
+// MOBILE MENU TOGGLE FUNCTIONALITY - ADD THIS AT THE END
+// =======================================================================
+document.addEventListener('DOMContentLoaded', function() {
+    const menuToggle = document.getElementById('menu-toggle');
+    const navMenu = document.querySelector('.nav-menu');
+    
+    if (menuToggle && navMenu) {
+        menuToggle.addEventListener('click', function() {
+            navMenu.classList.toggle('show');
+        });
+        
+        // Close menu when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!navMenu.contains(e.target) && !menuToggle.contains(e.target)) {
+                navMenu.classList.remove('show');
+            }
+        });
+    }
+});
 </script>
 
 </body>
