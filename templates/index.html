@@ -41,23 +41,25 @@
         #main-header .app-title-container { display: flex; align-items: center; gap: 0.75rem; } 
         #main-header .app-icon { font-size: 1.5rem; color: #0b57d0; }
         #main-header .app-title { font-size: 1.1rem; font-weight: 500; color: var(--text-color-primary); }
-        #chat-container {
+#chat-container {
     flex: 1;
     display: flex;
     flex-direction: column;
     background-color: var(--chat-background);
-    height: 100vh;
-    overflow: hidden; /* Changed from overflow-y: auto */
+    height: calc(100vh - 120px); /* Account for header and input area */
+    overflow: hidden;
 }
-        #chat-messages {
+
+#chat-messages {
     flex: 1;
     padding: 1rem;
-    overflow-y: auto; /* Ensure this is auto, not hidden */
+    overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     min-height: 0;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    padding-bottom: 2rem; /* Extra space at bottom */
 }
         .message { display: flex; margin-bottom: 0.5rem; }
         .message .content { padding: 0.5rem 1rem; border-radius: 8px; max-width: 80%; width: fit-content; line-height: 1.5; position: relative; box-shadow: 0 1px 1px rgba(0,0,0,0.05); }
@@ -67,7 +69,7 @@
         .message.user { justify-content: flex-end; }
         .message.user .content { background-color: var(--user-bubble-bg); color: var(--user-bubble-text); border-radius: 8px 0 8px 8px; }
         .message.user .content::after { content: ''; position: absolute; top: 0; right: -10px; width: 0; height: 0; border-style: solid; border-width: 0 0 10px 10px; border-color: transparent transparent transparent var(--user-bubble-bg); }
-        #chat-input-area { padding: 1rem 1.5rem; background-color: var(--main-bg); border-top: 1px solid var(--border-color); position: sticky; bottom: 0; /* Add safe area for mobile notches */padding-bottom: calc(1rem + env(safe-area-inset-bottom));}
+        #chat-input-area { padding: 1rem 1.5rem; background-color: var(--main-bg); border-top: 1px solid var(--border-color); position: sticky; bottom: 0; /* Add safe area for mobile notches */padding-bottom: calc(1rem + env(safe-area-inset-bottom)); z-index: 20;}
         #chat-input-area-content { max-width: 800px; margin: 0 auto; width: 100%; }
         #options-container { padding: 0 0 1rem 0; display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; }
         .option-button { border: 1px solid #c9c9c9; background-color: #fff; color: #3c4043; font-weight: 500; }
@@ -75,7 +77,7 @@
         #chat-form .input-group { background-color: #ffffff; border-radius: 25px; padding: 0.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         #chat-input { background-color: transparent; border: none; box-shadow: none; }
         #chat-submit-btn { background-color: transparent; border: none; color: #5f6368; font-size: 1.5rem; }
-        #main-footer { text-align: center; font-size: 0.8rem; color: #999; padding: 0.5rem; background-color: var(--main-bg); border-top: 1px solid var(--border-color); }
+        #main-footer { text-align: center; font-size: 0.8rem; color: #999; padding: 0.5rem; background-color: var(--main-bg); border-top: 1px solid var(--border-color);  position: relative; z-index: 10;}
         /* Dans index.html, à l'intérieur de la balise <style> */
 
         /*
@@ -450,10 +452,27 @@ function scrollToBottom() {
     setTimeout(() => {
         const chatMessages = document.getElementById('chat-messages');
         if (chatMessages) {
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+            // Smooth scroll to bottom
+            chatMessages.scrollTo({
+                top: chatMessages.scrollHeight,
+                behavior: 'smooth'
+            });
         }
     }, 100);
 }
+
+// Add this to handle initial load and resize
+function ensureScrollToBottom() {
+    setTimeout(() => {
+        scrollToBottom();
+        // Re-check after a short delay to ensure everything is rendered
+        setTimeout(scrollToBottom, 300);
+    }, 500);
+}
+
+// Call this when the page loads and when window resizes
+document.addEventListener('DOMContentLoaded', ensureScrollToBottom);
+window.addEventListener('resize', ensureScrollToBottom);
 
 function addMessage(content, sender) {
     const messageElement = document.createElement('div');

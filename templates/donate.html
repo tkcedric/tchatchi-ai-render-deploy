@@ -290,6 +290,67 @@
         border-radius: 16px 0 16px 16px;
     }
 }
+/* Mobile menu styles for About and Donate pages */
+#menu-toggle {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    #menu-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 6px;
+        border: 1px solid #dee2e6;
+        background: white;
+    }
+    
+    .nav-menu {
+        position: fixed;
+        top: 70px;
+        right: -100%;
+        background: white;
+        padding: 1rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        flex-direction: column;
+        gap: 0.5rem;
+        z-index: 1000;
+        transition: right 0.3s ease;
+        border: 1px solid #dee2e6;
+    }
+    
+    .nav-menu.show {
+        right: 1rem;
+    }
+    
+    /* Adjust header for mobile */
+    #main-header {
+        padding: 0.5rem 1rem;
+    }
+    
+    .lang-selector {
+        order: 3;
+        width: 100%;
+        justify-content: center;
+        margin-top: 0.5rem;
+    }
+}
+
+/* Prevent horizontal scrolling on mobile */
+@media (max-width: 768px) {
+    .container {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+    
+    .hero-section {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+}
     </style>
 </head>
 <body>
@@ -299,6 +360,10 @@
                 <i class="bi bi-robot app-icon"></i>
                 <span id="app-title" class="app-title">TCHATCHI AI Pedagogical Assistant</span>
             </div>
+               <!-- ADD BURGER MENU BUTTON HERE -->
+            <button id="menu-toggle" class="d-lg-none btn btn-sm btn-light">
+                <i class="bi bi-list"></i>
+            </button>
             <div class="nav-menu">
                 <div class="lang-selector">
                     <a href="#" class="lang-btn" data-lang="en">🇬🇧 EN</a>
@@ -417,6 +482,7 @@
 // MOBILE MENU TOGGLE FUNCTIONALITY - ADD THIS AT THE END
 // =======================================================================
 // Update your mobile menu JavaScript
+// Mobile menu functionality for About and Donate pages
 document.addEventListener('DOMContentLoaded', function() {
     const menuToggle = document.getElementById('menu-toggle');
     const navMenu = document.querySelector('.nav-menu');
@@ -439,6 +505,14 @@ document.addEventListener('DOMContentLoaded', function() {
         // Prevent menu from closing when clicking inside it
         navMenu.addEventListener('click', function(e) {
             e.stopPropagation();
+        });
+        
+        // Close menu when a nav link is clicked
+        const navLinks = navMenu.querySelectorAll('a');
+        navLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                navMenu.classList.remove('show');
+            });
         });
     }
 });
