@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
-# exit on error
 set -o errexit
 
-# 1. Install system dependencies (pandoc and LaTeX)
-echo "--- Installing system dependencies ---"
+echo "--- Installing Pandoc and LaTeX ---"
 apt-get update && apt-get install -y --no-install-recommends \
     pandoc \
     texlive-xetex \
@@ -11,14 +9,15 @@ apt-get update && apt-get install -y --no-install-recommends \
     texlive-lang-french \
     texlive-latex-extra \
     texlive-latex-recommended \
-    lmodern
+    texlive-science \
+    texlive-fonts-extra \
+    lmodern \
+    fonts-freefont-ttf
 
-# 2. Install Python dependencies
 echo "--- Installing Python dependencies ---"
 pip install --upgrade pip
 pip install -r requirements.txt
 
-# 3. Verify pandoc installation
-echo "--- Verifying pandoc installation ---"
+echo "--- Verifying installations ---"
 pandoc --version
-which pandoc
+xelatex --version
