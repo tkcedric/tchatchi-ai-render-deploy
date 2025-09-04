@@ -340,12 +340,21 @@ def handle_chat():
             response_text = generated_text
             options = ["Recommencer", "Télécharger en PDF"] if lang == 'fr' else ["Restart", "Download PDF"]
             
+        # NOUVELLE VERSION AMÉLIORÉE
         except Exception as e:
             logging.error(f"ERREUR LORS DE L'APPEL A CORE_LOGIC (flow: {flow_type}): {e}")
-            response_text = "Désolé, une erreur est survenue lors de la génération."
-            options = ["Recommencer"] if lang == 'fr' else ["Restart"]
-        
-        state['currentStep'] = 'generation_finished'
+            
+            # On crée un message plus convivial et on propose de recommencer
+            if lang == 'fr':
+                response_text = "Je suis sincèrement désolé, une erreur inattendue est survenue lors de la préparation de votre document. L'équipe technique a été informée. Souhaitez-vous recommencer depuis le début ?"
+                options = ["Recommencer"]
+            else:
+                response_text = "I am sincerely sorry, an unexpected error occurred while preparing your document. The technical team has been notified. Would you like to start over?"
+                options = ["Restart"]
+            
+            # Important : On réinitialise l'état pour que la conversation puisse repartir proprement.
+            state['currentStep'] = 'select_option'
+            state['collectedData'] = {}
 
 #=============spinner===========================
     elif current_step == 'pending_generation':

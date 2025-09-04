@@ -629,13 +629,23 @@ async function sendMessageToBackend(userMessage) {
 
         showOptions(data.options);
 
+  // NOUVELLE VERSION AMÉLIORÉE
     } catch (error) {
-        const errorText = `Désolé, une erreur est survenue : ${error.message}`;
+        // Message d'erreur clair et bilingue pour les problèmes de réseau
+        const errorText = conversationState.lang === 'fr' 
+            ? "Désolé, une erreur de communication avec le serveur est survenue. Veuillez vérifier votre connexion internet ou réessayer plus tard."
+            : "Sorry, a communication error with the server occurred. Please check your internet connection or try again later.";
+        
         if (loadingMessageContent) {
             loadingMessageContent.textContent = errorText;
         } else {
             addMessage(errorText, 'ai');
         }
+
+        // On affiche l'option pour permettre à l'utilisateur de s'en sortir
+        const restartOption = conversationState.lang === 'fr' ? "Recommencer" : "Restart";
+        showOptions([restartOption]);
+
         console.error("Erreur lors de l'appel à l'API :", error);
     }
 }
