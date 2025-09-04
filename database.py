@@ -36,33 +36,17 @@ def init_db():
     except Exception as e:
         logger.error(f"Error initializing database: {e}")
 
+# Dans database.py
 def increment_stat(key):
-    """Increment a statistic counter"""
+    """Increment a statistic counter using an RPC call."""
     if not supabase:
         return
     
     try:
-        # Try to update existing record
-        result = supabase.table("stats") \
-            .select("*") \
-            .eq("stat_key", key) \
-            .execute()
-        
-        if result.data:
-            # Update existing record
-            current_value = result.data[0].get("stat_value", 0)
-            supabase.table("stats") \
-                .update({"stat_value": current_value + 1}) \
-                .eq("stat_key", key) \
-                .execute()
-        else:
-            # Insert new record
-            supabase.table("stats") \
-                .insert({"stat_key": key, "stat_value": 1}) \
-                .execute()
-                
+        # On appelle la fonction 'increment_stat_value' directement dans la base de données.
+        supabase.rpc('increment_stat_value', {'key_to_increment': key}).execute()
     except Exception as e:
-        logger.error(f"Error incrementing stat '{key}': {e}")
+        logger.error(f"Error calling RPC to increment stat '{key}': {e}")
 
 def get_all_stats():
     """Get all statistics"""

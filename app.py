@@ -335,7 +335,7 @@ def handle_chat():
                 # Si le type de flux est inconnu, on renvoie une erreur
                 raise ValueError("Type de flux inconnu ou non spécifié.")
                 # On peut aussi ajouter un compteur pour le nombre total de documents générés
-                increment_stat('total_documents')
+            increment_stat('total_documents')
 
             response_text = generated_text
             options = ["Recommencer", "Télécharger en PDF"] if lang == 'fr' else ["Restart", "Download PDF"]
