@@ -75,13 +75,13 @@ def create_pdf_with_pandoc(text, filename="document.pdf", lang_contenu_code='fr'
 
         if doc_type == 'evaluation':
             pdf_title = selected_pdf_titles.get('EVAL_PDF_TITLE', 'Assessment')
-            pdf_author = selected_pdf_titles.get('EVAL_PDF_AUTHOR', 'MINESEC AI Pedagogical Assistant')
+            pdf_author = selected_pdf_titles.get('EVAL_PDF_AUTHOR', 'TCHATCHI AI Pedagogical Assistant')
         elif doc_type == 'integration':
             pdf_title = selected_pdf_titles.get('INT_PDF_TITLE', 'Integration Activity')
-            pdf_author = selected_pdf_titles.get('INT_PDF_AUTHOR', 'MINESEC AI Pedagogical Assistant')
+            pdf_author = selected_pdf_titles.get('INT_PDF_AUTHOR', 'TCHATCHI AI Pedagogical Assistant')
         else: # 'lecon'
             pdf_title = selected_pdf_titles.get('PDF_TITLE', 'Lesson Plan')
-            pdf_author = selected_pdf_titles.get('PDF_AUTHOR', 'MINESEC AI Pedagogical Assistant')
+            pdf_author = selected_pdf_titles.get('PDF_AUTHOR', 'TCHATCHI AI Pedagogical Assistant')
 
         yaml_header = f"""
 ---
