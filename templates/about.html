@@ -2,10 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>About - TCHATCHI AI Pedagogical Assistant</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
     <style>
         :root {
             --primary-color: #0b57d0;
@@ -213,6 +214,49 @@
     /* Stack stats vertically on very small screens */
     .stat-card {
         padding: 1rem;
+    }
+}
+/* Add to your about.html style section */
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 60px 0 40px !important;
+    }
+    
+    .display-4 {
+        font-size: 2.5rem !important;
+    }
+    
+    .stat-card {
+        padding: 1rem !important;
+    }
+    
+    .stat-number {
+        font-size: 2rem !important;
+    }
+    
+    .tech-badge {
+        margin: 0.25rem;
+        font-size: 0.8rem;
+        padding: 0.4rem 0.8rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .hero-section {
+        padding: 40px 0 30px !important;
+    }
+    
+    .display-4 {
+        font-size: 2rem !important;
+    }
+    
+    .feature-card {
+        margin-bottom: 1rem;
+    }
+    
+    /* Fix stats grid on mobile */
+    .stats-section .row > div {
+        margin-bottom: 1rem;
     }
 }
 
@@ -487,7 +531,50 @@
         
         });
 
+      // =======================================================================
+// MOBILE MENU TOGGLE FUNCTIONALITY - ADD THIS AT THE END
+// =======================================================================
+// Update your mobile menu JavaScript
+document.addEventListener('DOMContentLoaded', function() {
+    const menuToggle = document.getElementById('menu-toggle');
+    const navMenu = document.querySelector('.nav-menu');
+    
+    if (menuToggle && navMenu) {
+        menuToggle.addEventListener('click', function(e) {
+            e.stopPropagation();
+            navMenu.classList.toggle('show');
+        });
         
+        // Close menu when clicking outside
+        document.addEventListener('click', function(e) {
+            if (navMenu.classList.contains('show') && 
+                !navMenu.contains(e.target) && 
+                !menuToggle.contains(e.target)) {
+                navMenu.classList.remove('show');
+            }
+        });
+        
+        // Prevent menu from closing when clicking inside it
+        navMenu.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    }
+});  
+
+// Test function to check scrolling
+function testScrolling() {
+    setTimeout(() => {
+        const chatMessages = document.getElementById('chat-messages');
+        if (chatMessages) {
+            console.log('Chat messages height:', chatMessages.scrollHeight);
+            console.log('Container height:', chatMessages.clientHeight);
+            console.log('Scroll position:', chatMessages.scrollTop);
+        }
+    }, 1000);
+}
+
+// Call this after page load
+testScrolling();
     </script>
     
 </body>
