@@ -680,6 +680,12 @@ async function downloadPdf() {
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
         loadingMessageContent.textContent = "Votre téléchargement a commencé.";
+        // =======================================================================
+        // NOUVELLE LIGNE POUR RELANCER LA CONVERSATION
+        // On attend une petite seconde pour que l'utilisateur voie le message de confirmation,
+        // puis on envoie le message secret au bot pour qu'il affiche le menu principal.
+        // =======================================================================
+        setTimeout(() => sendMessageToBackend("internal_pdf_download_complete"), 1500);
 
     } catch (error) {
         loadingMessageContent.textContent = `Échec du téléchargement : ${error.message}`;

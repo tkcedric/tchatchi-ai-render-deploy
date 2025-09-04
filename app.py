@@ -66,6 +66,16 @@ def handle_chat():
         response_text = "Recommençons. Que souhaitez-vous faire ?" if lang_to_keep == 'fr' else "Let's start over. What would you like to do?"
         options = ["Préparer une leçon", "Produire une activité d'intégration", "Créer une évaluation"] if lang_to_keep == 'fr' else ["Prepare a lesson", "Produce an integration activity", "Create an assessment"]
 
+       # =======================================================================
+    # NOUVELLE SECTION POUR GÉRER LA FIN DU TÉLÉCHARGEMENT
+    # =======================================================================
+    elif user_message == "internal_pdf_download_complete":
+        lang_to_keep = state.get('lang', 'en')
+        # On réinitialise l'état pour une nouvelle conversation, en gardant la langue
+        state = {'lang': lang_to_keep, 'currentStep': 'select_option', 'collectedData': {}}
+        response_text = "Que souhaitez-vous faire maintenant ?" if lang_to_keep == 'fr' else "What would you like to do now?"
+        options = ["Préparer une leçon", "Produire une activité d'intégration", "Créer une évaluation"] if lang_to_keep == 'fr' else ["Prepare a lesson", "Produce an integration activity", "Create an assessment"]
+    
     # Étape 1 : Démarrage
     elif current_step == 'start':
         if 'Français' in user_message:
