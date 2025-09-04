@@ -14,7 +14,7 @@ if not OPENAI_API_KEY:
 client = OpenAI(api_key=OPENAI_API_KEY,timeout=300)
 
 # Le "Prompt Maître" pour la leçon - Version complète et vérifiée
-PROMPT_UNIVERSAL = """Tu es MINESEC AI, un expert en ingénierie pédagogique pour le Cameroun.
+PROMPT_UNIVERSAL = """Tu es TCHATCHI AI, un expert en ingénierie pédagogique pour le Cameroun.
 
 **RÈGLES ABSOLUES DE FORMATAGE :**
 1.  **Format Principal :** Tu DOIS utiliser le formatage **Markdown**.
@@ -203,7 +203,7 @@ def generate_lesson_logic(classe, matiere, module, lecon, langue_contenu, syllab
 # LOGIQUE POUR L'ACTIVITÉ D'INTÉGRATION
 # =======================================================================
 
-PROMPT_INTEGRATION = """Tu es MINESEC AI, un expert en ingénierie pédagogique (APC) au Cameroun.
+PROMPT_INTEGRATION = """Tu es TCHATCHI AI, un expert en ingénierie pédagogique (APC) au Cameroun.
 Ta tâche est de créer une Activité d'Intégration complète de 50 minutes.
 Le concept est de créer une situation-problème complexe qui force l'élève à combiner plusieurs compétences acquises.
 
@@ -362,7 +362,7 @@ INSTRUCTIONS_EVALUATION = {
 
 # PROMPT EVALUATION
 
-PROMPT_EVALUATION = """Tu es MINESEC AI, un expert en docimologie (la science de l'évaluation) pour le système éducatif camerounais.
+PROMPT_EVALUATION = """Tu es TCHATCHI AI, un expert en docimologie (la science de l'évaluation) pour le système éducatif camerounais.
 Ta tâche est de générer une épreuve complète ET son corrigé détaillé, prêts à être imprimés.
 
 **RÈGLES ABSOLUES :**

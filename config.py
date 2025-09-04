@@ -30,7 +30,7 @@ TITLES = {
         "HEADER_DUREE": "Durée",
         "HEADER_LECON": "Leçon du jour", 
         "PDF_TITLE": "Fiche de Leçon", 
-        "PDF_AUTHOR": "Assistant Pédagogique MINESEC AI",
+        "PDF_AUTHOR": "Assistant Pédagogique TCHATCHI AI",
         "INT_TITRE_PRINCIPAL": "ACTIVITÉ D'INTÉGRATION", 
         "INT_COMPETENCES": "Compétences visées",
         "INT_SITUATION": "SITUATION D'INTÉGRATION (LE PROBLÈME)", 
@@ -49,10 +49,10 @@ TITLES = {
         "EVAL_QCM_TITRE": "SECTION A : QUESTIONS À CHOIX MULTIPLES", 
         "EVAL_STRUCTURED_TITRE": "SECTION B : QUESTIONS STRUCTURÉES",
         "EVAL_PDF_TITLE": "Évaluation Séquentielle",
-        "EVAL_PDF_AUTHOR": "MINESEC AI - Évaluation",
+        "EVAL_PDF_AUTHOR": "TCHATCHI AI - Évaluation",
         "EVAL_CORRIGE_TITRE": "CORRIGÉ DÉTAILLÉ",
         "INT_PDF_TITLE": "Activité d'Intégration",
-        "INT_PDF_AUTHOR": "MINESEC AI - Activité Pédagogique"
+        "INT_PDF_AUTHOR": "TCHATCHI AI - Activité Pédagogique"
     },
     'en': {
         "FICHE_DE_LECON": "CBA LESSON PLAN", 
@@ -71,7 +71,7 @@ TITLES = {
         "HEADER_DUREE": "Duration",
         "HEADER_LECON": "Lesson of the Day", 
         "PDF_TITLE": "Lesson Plan", 
-        "PDF_AUTHOR": "MINESEC AI Pedagogical Assistant",
+        "PDF_AUTHOR": "TCHATCHI AI Pedagogical Assistant",
         "INT_TITRE_PRINCIPAL": "INTEGRATION ACTIVITY", 
         "INT_COMPETENCES": "Targeted Skills",
         "INT_SITUATION": "INTEGRATION SITUATION (THE PROBLEM)", 
@@ -90,10 +90,10 @@ TITLES = {
         "EVAL_QCM_TITRE": "SECTION A: MULTIPLE CHOICE QUESTIONS", 
         "EVAL_STRUCTURED_TITRE": "SECTION B: STRUCTURED QUESTIONS",
         "EVAL_PDF_TITLE": "Sequential Assessment",
-        "EVAL_PDF_AUTHOR": "MINESEC AI - Assessment",
+        "EVAL_PDF_AUTHOR": "TCHATCHI AI - Assessment",
         "EVAL_CORRIGE_TITRE": "DETAILED ANSWER KEY",
         "INT_PDF_TITLE": "Integration Activity",
-        "INT_PDF_AUTHOR": "MINESEC AI - Pedagogical Activity"
+        "INT_PDF_AUTHOR": "TCHATCHI AI - Pedagogical Activity"
     },
     'de': {
         "FICHE_DE_LECON": "LEKTIONSPLAN (CBA)", 
@@ -112,7 +112,7 @@ TITLES = {
         "HEADER_DUREE": "Dauer", 
         "HEADER_LECON": "Heutige Lektion",
         "PDF_TITLE": "Lektionsplan", 
-        "PDF_AUTHOR": "Pädagogischer Assistent MINESEC AI",
+        "PDF_AUTHOR": "Pädagogischer Assistent TCHATCHI AI",
         "INT_TITRE_PRINCIPAL": "INTEGRATIONSAKTIVITÄT", 
         "INT_COMPETENCES": "Angestrebte Kompetenzen",
         "INT_SITUATION": "INTEGRATIONSSITUATION (DAS PROBLEM)", 
@@ -131,10 +131,10 @@ TITLES = {
         "EVAL_QCM_TITRE": "ABSCHNITT A: MULTIPLE-CHOICE-FRAGEN", 
         "EVAL_STRUCTURED_TITRE": "ABSCHNITT B: STRUKTURIERTE FRAGEN",
         "EVAL_PDF_TITLE": "Sequentielle Prüfung",
-        "EVAL_PDF_AUTHOR": "MINESEC AI - Prüfung",
+        "EVAL_PDF_AUTHOR": "TCHATCHI AI - Prüfung",
         "EVAL_CORRIGE_TITRE": "AUSFÜHRLICHER LÖSUNGSSCHLÜSSEL",
         "INT_PDF_TITLE": "Integrationsaktivität",
-        "INT_PDF_AUTHOR": "MINESEC AI - Pädagogische Aktivität"
+        "INT_PDF_AUTHOR": "TCHATCHI AI - Pädagogische Aktivität"
     },
     'es': {
         "FICHE_DE_LECON": "FICHA DE LECCIÓN (APC)", 
@@ -153,7 +153,7 @@ TITLES = {
         "HEADER_DUREE": "Duración", 
         "HEADER_LECON": "Lección del Día",
         "PDF_TITLE": "Ficha de Lección", 
-        "PDF_AUTHOR": "Asistente Pedagógico MINESEC AI",
+        "PDF_AUTHOR": "Asistente Pedagógico TCHATCHI AI",
         "INT_TITRE_PRINCIPAL": "ACTIVIDAD DE INTEGRACIÓN", 
         "INT_COMPETENCES": "Competencias Específicas",
         "INT_SITUATION": "SITUACIÓN DE INTEGRACIÓN (EL PROBLEMA)", 
@@ -172,10 +172,10 @@ TITLES = {
         "EVAL_QCM_TITRE": "SECCIÓN A: PREGUNTAS DE OPCIÓN MÚLTIPLE", 
         "EVAL_STRUCTURED_TITRE": "SECCIÓN B: PREGUNTAS ESTRUCTURADAS",
         "EVAL_PDF_TITLE": "Evaluación Secuencial",
-        "EVAL_PDF_AUTHOR": "MINESEC AI - Evaluación",
+        "EVAL_PDF_AUTHOR": "TCHATCHI AI - Evaluación",
         "EVAL_CORRIGE_TITRE": "CLAVE DE RESPUESTAS DETALLADA",
         "INT_PDF_TITLE": "Actividad de Integración",
-        "INT_PDF_AUTHOR": "MINESEC AI - Actividad Pedagógica"
+        "INT_PDF_AUTHOR": "TCHATCHI AI - Actividad Pedagógica"
 
     },
     'zh': {
@@ -195,7 +195,7 @@ TITLES = {
         "HEADER_DUREE": "时长", 
         "HEADER_LECON": "今日课程",
         "PDF_TITLE": "课程计划", 
-        "PDF_AUTHOR": "MINESEC AI 教学助理", 
+        "PDF_AUTHOR": "TCHATCHI AI 教学助理", 
         "INT_TITRE_PRINCIPAL": "整合活动", 
         "INT_COMPETENCES": "目标技能",
         "INT_SITUATION": "整合情境（问题）", 
@@ -214,10 +214,10 @@ TITLES = {
         "EVAL_QCM_TITRE": "A部分：选择题", 
         "EVAL_STRUCTURED_TITRE": "B部分：结构化问题",
         "EVAL_PDF_TITLE": "顺序评估",
-        "EVAL_PDF_AUTHOR": "MINESEC AI - 评估",
+        "EVAL_PDF_AUTHOR": "TCHATCHI AI - 评估",
         "EVAL_CORRIGE_TITRE": "详细答案",
         "INT_PDF_TITLE": "整合活动",
-        "INT_PDF_AUTHOR": "MINESEC AI - 教学活动"
+        "INT_PDF_AUTHOR": "TCHATCHI AI - 教学活动"
     },
     'ar': {
         "FICHE_DE_LECON": "خطة درس", "OBJECTIFS": "الأهداف التعليمية", "SITUATION_PROBLEME": "الوضعية المشكلة",
@@ -225,7 +225,7 @@ TITLES = {
         "ACTIVITE_2": "نشاط 2: وضع المفاهيم والسجل المكتوب (20 دقيقة)", "TRACE_ECRITE": "السجل المكتوب",
         "ACTIVITE_3": "نشاط 3: تطبيق (10 دقائق)", "DEVOIRS": "واجب منزلي", "JEU_BILINGUE": "لعبة ثنائية اللغة",
         "HEADER_MATIERE": "المادة", "HEADER_CLASSE": "الفصل", "HEADER_DUREE": "المدة", "HEADER_LECON": "درس اليوم",
-        "PDF_TITLE": "خطة الدرس", "PDF_AUTHOR": "مساعد التدريس MINESEC AI", "INT_TITRE_PRINCIPAL": "نشاط إدماجي",
+        "PDF_TITLE": "خطة الدرس", "PDF_AUTHOR": "مساعد التدريس TCHATCHI AI", "INT_TITRE_PRINCIPAL": "نشاط إدماجي",
         "INT_COMPETENCES": "الكفاءات المستهدفة", "INT_SITUATION": "وضعية الإدماج (المشكلة)", "INT_GUIDE": "دليل الحل للمعلم",
         "INT_SOLUTION": "الحل المقترح المفصل", "INT_ETAPE_1": "الخطوة 1: تحليل المشكلة (10 دقائق)",
         "INT_ETAPE_2": "الخطوة 2: تعبئة المكتسبات (15 دقيقة)", "INT_ETAPE_3": "الخطوة 3: الحل الجماعي (15 دقيقة)",
@@ -234,10 +234,10 @@ TITLES = {
         "EVAL_SITUATION_PROBLEME": "وضعية المشكلة", "EVAL_PRESENTATION": "العرض",
         "EVAL_QCM_TITRE": "القسم أ: أسئلة الاختيار من متعدد", "EVAL_STRUCTURED_TITRE": "القسم ب: الأسئلة المنظمة",
          "EVAL_PDF_TITLE": "تقييم تتابعي",
-        "EVAL_PDF_AUTHOR": "MINESEC AI - تقييم",
+        "EVAL_PDF_AUTHOR": "TCHATCHI AI - تقييم",
         "EVAL_CORRIGE_TITRE": "مفتاح الإجابة المفصل",
         "INT_PDF_TITLE": "نشاط إدماجي",
-        "INT_PDF_AUTHOR": "MINESEC AI - نشاط تربوي"
+        "INT_PDF_AUTHOR": "TCHATCHI AI - نشاط تربوي"
     },
     'it': {
         "FICHE_DE_LECON": "PIANO DI LEZIONE (APC)", "OBJECTIFS": "OBIETTIVI DI APPRENDIMENTO", "SITUATION_PROBLEME": "SITUAZIONE PROBLEMATICA",
@@ -245,7 +245,7 @@ TITLES = {
         "ACTIVITE_2": "Attività 2: Concettualizzazione e TRACCIA SCRITTA (20 min)", "TRACE_ECRITE": "Traccia Scritta",
         "ACTIVITE_3": "Attività 3: Applicazione (10 min)", "DEVOIRS": "COMPITI PER CASA", "JEU_BILINGUE": "GIOCO BILINGUE",
         "HEADER_MATIERE": "Materia", "HEADER_CLASSE": "Classe", "HEADER_DUREE": "Durata", "HEADER_LECON": "Lezione del Giorno",
-        "PDF_TITLE": "Piano di Lezione", "PDF_AUTHOR": "Assistente Pedagogico MINESEC AI",
+        "PDF_TITLE": "Piano di Lezione", "PDF_AUTHOR": "Assistente Pedagogico TCHATCHI AI",
         "INT_TITRE_PRINCIPAL": "ATTIVITÀ DI INTEGRAZIONE", "INT_COMPETENCES": "Competenze Mirate",
         "INT_SITUATION": "SITUAZIONE DI INTEGRAZIONE (IL PROBLEMA)", "INT_GUIDE": "GUIDA ALLA RISOLUZIONE PER L'INSEGNANTE",
         "INT_SOLUTION": "PROPOSTA DI SOLUZIONE DETTAGLIATA", "INT_ETAPE_1": "Passo 1: Analisi del problema (10 min)",
@@ -255,9 +255,9 @@ TITLES = {
         "EVAL_SITUATION_PROBLEME": "Situazione Problematica", "EVAL_PRESENTATION": "PRESENTAZIONE",
         "EVAL_QCM_TITRE": "SEZIONE A: DOMANDE A SCELTA MULTIPLA", "EVAL_STRUCTURED_TITRE": "SEZIONE B: DOMANDE STRUTTURATE",
          "EVAL_PDF_TITLE": "Valutazione Sequenziale",
-        "EVAL_PDF_AUTHOR": "MINESEC AI - Valutazione",
+        "EVAL_PDF_AUTHOR": "TCHATCHI AI - Valutazione",
         "EVAL_CORRIGE_TITRE": "CHIAVE DI RISPOSTA DETTAGLIATA",
         "INT_PDF_TITLE": "Attività di Integrazione",
-        "INT_PDF_AUTHOR": "MINESEC AI - Attività Pedagogica"
+        "INT_PDF_AUTHOR": "TCHATCHI AI - Attività Pedagogica"
     }
 }
