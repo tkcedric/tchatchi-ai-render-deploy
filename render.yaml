@@ -4,5 +4,14 @@ services:
     env: python
     plan: free
     region: frankfurt
+    envVars:
+      - key: SUPABASE_URL
+        fromSecret: true
+      - key: SUPABASE_KEY
+        fromSecret: true
+      - key: OPENAI_API_KEY
+        fromSecret: true
+      - key: PYTHON_VERSION
+        value: 3.11.4
     buildCommand: "./build.sh"
     startCommand: "gunicorn --worker-tmp-dir /dev/shm app:app"
