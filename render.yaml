@@ -1,31 +1,17 @@
 services:
   - type: web
-    # --- DEBUT DES PROPRIETES DU SERVICE ---
-    # Toutes les lignes ci-dessous doivent être alignées verticalement.
-    # Indentation de 2 espaces.
-    
     name: tchatchi-ai
     env: python
     plan: free
     region: frankfurt
-
     envVars:
-      - key: RENDER_DISK_PATH
-        value: /var/data/tchatchi-data
-      
+      - key: SUPABASE_URL
+        fromSecret: true
+      - key: SUPABASE_KEY
+        fromSecret: true
       - key: OPENAI_API_KEY
         fromSecret: true
-        
       - key: PYTHON_VERSION
         value: 3.11.4
-    disk:
-      # Ce bloc est une propriété de 'disks', donc il est indenté plus loin.
-      - name: data-disk
-        mountPath: /var/data/tchatchi-data
-        sizeGB: 1
-
     buildCommand: "./build.sh"
-
     startCommand: "gunicorn --worker-tmp-dir /dev/shm app:app"
-    
-    # --- FIN DES PROPRIETES DU SERVICE ---

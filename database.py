@@ -1,100 +1,95 @@
-import sqlite3
+# database.py - Updated for Supabase
 import os
+from supabase import create_client, Client
+import logging
 
-# Le chemin du disque persistant sera fourni par Render via la variable d'environnement 'RENDER_DISK_PATH'.
-# Si cette variable n'existe pas (ce qui sera le cas lors de l'exécution sur votre machine locale),
-# le code utilisera '.' comme valeur par défaut, ce qui correspond au répertoire courant.
-DATA_DIR = os.environ.get('RENDER_DISK_PATH', '.')
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-# On construit le chemin complet vers le fichier de la base de données.
-# Sur Render, ce sera quelque chose comme '/var/data/tchatchi-data/stats.db'.
-# En local, ce sera simplement 'stats.db' dans le dossier de votre projet.
-DATABASE_FILE = os.path.join(DATA_DIR, 'stats.db')
+# Get Supabase credentials from environment variables
+SUPABASE_URL = os.environ.get("SUPABASE_URL")
+SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
+
+# Initialize Supabase client
+supabase: Client = None
+if SUPABASE_URL and SUPABASE_KEY:
+    try:
+        supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+        logger.info("Supabase client initialized successfully")
+    except Exception as e:
+        logger.error(f"Failed to initialize Supabase client: {e}")
+        supabase = None
+else:
+    logger.warning("Supabase credentials not found. Statistics will not be saved.")
 
 def init_db():
-    """
-    Initialise la base de données. Crée le répertoire de données s'il n'existe pas,
-    puis crée la table 'stats' si elle n'existe pas.
-    Cette fonction est conçue pour être appelée au démarrage de l'application.
-    """
+    """Initialize the database - For Supabase, tables should be created manually"""
+    if not supabase:
+        logger.warning("Supabase not configured. Skipping database initialization.")
+        return
+    
     try:
-        # S'assurer que le répertoire où la base de données doit être stockée existe.
-        os.makedirs(DATA_DIR, exist_ok=True)
-        
-        conn = sqlite3.connect(DATABASE_FILE)
-        cursor = conn.cursor()
-        
-        # Création de la table pour stocker les compteurs de statistiques.
-        # 'stat_key' sera le nom du compteur (ex: 'lessons_generated')
-        # 'stat_value' sera sa valeur numérique.
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS stats (
-                stat_key TEXT PRIMARY KEY,
-                stat_value INTEGER NOT NULL
-            )
-        ''')
-        
-        conn.commit()
-        conn.close()
-        print(f"Database initialized successfully at {DATABASE_FILE}")
-        
+        # Check if table exists, create if it doesn't
+        result = supabase.table("stats").select("count", count="exact").execute()
+        logger.info("Stats table verified successfully")
     except Exception as e:
-        print(f"ERROR during database initialization: {e}")
-
+        logger.error(f"Error initializing database: {e}")
 
 def increment_stat(key):
-    """
-    Incrémente la valeur d'un compteur de 1. Si le compteur n'existe pas, il est créé avec une valeur de 1.
+    """Increment a statistic counter"""
+    if not supabase:
+        return
     
-    Args:
-        key (str): Le nom du compteur à incrémenter (ex: 'lessons_generated').
-    """
     try:
-        conn = sqlite3.connect(DATABASE_FILE)
-        cursor = conn.cursor()
+        # Try to update existing record
+        result = supabase.table("stats") \
+            .select("*") \
+            .eq("stat_key", key) \
+            .execute()
         
-        # On essaie d'abord de mettre à jour la valeur existante.
-        cursor.execute('UPDATE stats SET stat_value = stat_value + 1 WHERE stat_key = ?', (key,))
-        
-        # Si aucune ligne n'a été mise à jour (ce qui signifie que la clé n'existait pas),
-        # on l'insère avec une valeur initiale de 1.
-        if cursor.rowcount == 0:
-            cursor.execute('INSERT INTO stats (stat_key, stat_value) VALUES (?, ?)', (key, 1))
-            
-        conn.commit()
-        conn.close()
-
+        if result.data:
+            # Update existing record
+            current_value = result.data[0].get("stat_value", 0)
+            supabase.table("stats") \
+                .update({"stat_value": current_value + 1}) \
+                .eq("stat_key", key) \
+                .execute()
+        else:
+            # Insert new record
+            supabase.table("stats") \
+                .insert({"stat_key": key, "stat_value": 1}) \
+                .execute()
+                
     except Exception as e:
-        print(f"ERROR incrementing stat '{key}': {e}")
-
+        logger.error(f"Error incrementing stat '{key}': {e}")
 
 def get_all_stats():
-    """
-    Récupère toutes les statistiques de la base de données et les retourne sous forme de dictionnaire.
+    """Get all statistics"""
+    if not supabase:
+        return {
+            "lessons": 0,
+            "integrations": 0,
+            "evaluations": 0,
+            "total_documents": 0
+        }
     
-    Returns:
-        dict: Un dictionnaire où les clés sont les noms des compteurs et les valeurs sont leurs valeurs.
-              Retourne un dictionnaire vide en cas d'erreur.
-    """
     try:
-        conn = sqlite3.connect(DATABASE_FILE)
-        cursor = conn.cursor()
+        result = supabase.table("stats").select("*").execute()
+        stats = {item["stat_key"]: item["stat_value"] for item in result.data}
         
-        cursor.execute('SELECT stat_key, stat_value FROM stats')
-        stats = dict(cursor.fetchall())
-        
-        conn.close()
-        return stats
-        
+        # Ensure all expected keys exist
+        return {
+            "lessons": stats.get("lessons_generated", 0),
+            "integrations": stats.get("integrations_generated", 0),
+            "evaluations": stats.get("evaluations_generated", 0),
+            "total_documents": stats.get("total_documents", 0)
+        }
     except Exception as e:
-        print(f"ERROR fetching all stats: {e}")
-        return {}
-
-
-# Ce bloc de code ne s'exécutera que si vous lancez ce script directement
-# avec la commande "python database.py". C'est utile pour initialiser
-# la base de données manuellement en local pour la première fois.
-if __name__ == '__main__':
-    print("Running database initialization manually...")
-    init_db()
-    print("Manual initialization complete.")
+        logger.error(f"Error fetching stats: {e}")
+        return {
+            "lessons": 0,
+            "integrations": 0,
+            "evaluations": 0,
+            "total_documents": 0
+        }
