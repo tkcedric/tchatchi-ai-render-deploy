@@ -6,12 +6,4 @@ services:
     plan: free
     region: frankfurt
 
-    # On garde les variables d'environnement.
-    # Elles seront injectées dans notre machine Docker.
-    envVars:
-      - key: SUPABASE_URL
-        fromSecret: true
-      - key: SUPABASE_KEY
-        fromSecret: true
-      - key: OPENAI_API_KEY
-        fromSecret: true
+  
