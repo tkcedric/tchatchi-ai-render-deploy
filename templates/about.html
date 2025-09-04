@@ -539,48 +539,44 @@
     </footer>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const langButtons = document.querySelectorAll('.lang-btn');
-            const translatableElements = document.querySelectorAll('[data-lang-en]');
+     // Un seul listener pour tout le code
+    document.addEventListener('DOMContentLoaded', () => {
 
-            const switchLanguage = (lang) => {
-                // Set the text content for all translatable elements
-                translatableElements.forEach(el => {
-                    el.innerHTML = el.dataset[lang === 'fr' ? 'langFr' : 'langEn'];
-                });
-
-                // Update the active state of the language buttons
-                langButtons.forEach(btn => {
-                    btn.classList.toggle('active', btn.dataset.lang === lang);
-                });
-
-                // Store the preference
-                localStorage.setItem('selectedLanguage', lang);
-            };
-
-            // Add click event listeners to buttons
-            langButtons.forEach(button => {
-                button.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    switchLanguage(button.dataset.lang);
-                });
+        // --- CODE DE TRADUCTION ---
+        const langButtons = document.querySelectorAll('.lang-btn');
+        const translatableElements = document.querySelectorAll('[data-lang-en]');
+        const switchLanguage = (lang) => {
+            translatableElements.forEach(el => {
+                el.innerHTML = el.dataset[lang === 'fr' ? 'langFr' : 'langEn'];
             });
-
-            // On page load, check for a saved language preference
-            const savedLang = localStorage.getItem('selectedLanguage') || 'en';
-            switchLanguage(savedLang);
+            langButtons.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.lang === lang);
+            });
+            localStorage.setItem('selectedLanguage', lang);
+        };
+        langButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                switchLanguage(button.dataset.lang);
+            });
+        });
+        const savedLang = localStorage.getItem('selectedLanguage') || 'en';
+        switchLanguage(savedLang);
         
         
         
-        // --- NOUVEAU CODE POUR LES STATISTIQUES ---
+        // --- CODE POUR LES STATISTIQUES ---
         const fetchStats = async () => {
             try {
                 const response = await fetch('/api/stats');
-                if (!response.ok) return; // Ne rien faire si l'API ne répond pas
+                if (!response.ok) {
+                    console.error("API call for stats failed with status:", response.status);
+                    return; 
+                }
                 
                 const stats = await response.json();
                 
-                // Mettre à jour les éléments HTML avec les données reçues
+                // On met à jour les éléments HTML avec les données reçues
                 document.getElementById('stats-lessons').textContent = stats.lessons || 0;
                 document.getElementById('stats-integrations').textContent = stats.integrations || 0;
                 document.getElementById('stats-evaluations').textContent = stats.evaluations || 0;
@@ -590,50 +586,39 @@
                 console.error("Could not fetch stats:", error);
             }
         };
-
-        // Appeler la fonction au chargement de la page
+        // On appelle la fonction pour récupérer les stats
         fetchStats();
         
-        });
-
-      // =======================================================================
-// MOBILE MENU TOGGLE FUNCTIONALITY - ADD THIS AT THE END
-// =======================================================================
-// Update your mobile menu JavaScript
-// Mobile menu functionality for About and Donate pages
-document.addEventListener('DOMContentLoaded', function() {
-    const menuToggle = document.getElementById('menu-toggle');
-    const navMenu = document.querySelector('.nav-menu');
-    
-    if (menuToggle && navMenu) {
-        menuToggle.addEventListener('click', function(e) {
-            e.stopPropagation();
-            navMenu.classList.toggle('show');
-        });
         
-        // Close menu when clicking outside
-        document.addEventListener('click', function(e) {
-            if (navMenu.classList.contains('show') && 
-                !navMenu.contains(e.target) && 
-                !menuToggle.contains(e.target)) {
-                navMenu.classList.remove('show');
-            }
-        });
-        
-        // Prevent menu from closing when clicking inside it
-        navMenu.addEventListener('click', function(e) {
-            e.stopPropagation();
-        });
-        
-        // Close menu when a nav link is clicked
-        const navLinks = navMenu.querySelectorAll('a');
-        navLinks.forEach(link => {
-            link.addEventListener('click', function() {
-                navMenu.classList.remove('show');
+        // --- CODE POUR LE MENU MOBILE ---
+        const menuToggle = document.getElementById('menu-toggle');
+        const navMenu = document.querySelector('.nav-menu');
+        if (menuToggle && navMenu) {
+            menuToggle.addEventListener('click', function(e) {
+                e.stopPropagation();
+                navMenu.classList.toggle('show');
             });
-        });
-    }
-}); 
+            
+            document.addEventListener('click', function(e) {
+                if (navMenu.classList.contains('show') && 
+                    !navMenu.contains(e.target) && 
+                    !menuToggle.contains(e.target)) {
+                    navMenu.classList.remove('show');
+                }
+            });
+            
+            navMenu.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+            
+            const navLinks = navMenu.querySelectorAll('a');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    navMenu.classList.remove('show');
+                });
+            });
+        }
+    }); 
 
 // Test function to check scrolling
 function testScrolling() {
