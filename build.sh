@@ -3,7 +3,7 @@
 set -o errexit
 
 echo "--- Installing system dependencies ---"
-apt-get update && apt-get install -y --no-install-recommends \
+sudo apt-get update && sudo apt-get install -y --no-install-recommends \
     pandoc \
     texlive-xetex \
     texlive-fonts-recommended \
@@ -16,7 +16,7 @@ apt-get update && apt-get install -y --no-install-recommends \
     fonts-freefont-ttf
 
 # Install minimal LaTeX base that includes xelatex
-apt-get install -y --no-install-recommends texlive-base
+sudo apt-get install -y --no-install-recommends texlive-base
 
 echo "--- Installing Python dependencies ---"
 pip install --upgrade pip
