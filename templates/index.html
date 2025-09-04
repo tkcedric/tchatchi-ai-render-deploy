@@ -434,7 +434,7 @@ async function sendMessageToBackend(userMessage) {
 
     try {
         //local address: http://127.0.0.1:5000/api/chat  addresse en ligne https://tchatchi.ai.onrender.com/api/chat
-        const response = await fetch('http://127.0.0.1:5000/api/chat', {
+        const response = await fetch('/api/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ message: userMessage, state: conversationState })
@@ -512,7 +512,7 @@ async function downloadPdf() {
     try {
         // On envoie le Markdown ET l'état de la conversation
         //address online 'https://tchatchi.ai.onrender.com/api/generate-pdf' adresse locale 'http://127.0.0.1:5000/api/generate-pdf'
-        const response = await fetch('http://127.0.0.1:5000/api/generate-pdf', {
+        const response = await fetch('/api/generate-pdf', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
