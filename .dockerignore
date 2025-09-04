@@ -1,0 +1,9 @@
+# .dockerignore
+.git
+__pycache__
+venv
+.env
+.gitignore
+Dockerfile
+render.yaml
+stats.db

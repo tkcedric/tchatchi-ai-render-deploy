@@ -1,9 +1,13 @@
 services:
   - type: web
     name: tchatchi-ai
-    env: python
+    # On dit à Render d'utiliser Docker, pas son environnement Python natif.
+    env: docker
     plan: free
     region: frankfurt
+
+    # On garde les variables d'environnement.
+    # Elles seront injectées dans notre machine Docker.
     envVars:
       - key: SUPABASE_URL
         fromSecret: true
@@ -11,7 +15,3 @@ services:
         fromSecret: true
       - key: OPENAI_API_KEY
         fromSecret: true
-      - key: PYTHON_VERSION
-        value: 3.11.4
-    buildCommand: "./build.sh"
-    startCommand: "gunicorn --worker-tmp-dir /dev/shm app:app"
