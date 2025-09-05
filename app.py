@@ -339,7 +339,10 @@ def handle_chat():
 
             response_text = generated_text
             options = ["Recommencer", "Télécharger en PDF"] if lang == 'fr' else ["Restart", "Download PDF"]
-            
+             
+             # On stocke le texte généré directement dans l'état de la conversation.
+            state['generated_text'] = generated_text 
+
         # NOUVELLE VERSION AMÉLIORÉE
         except Exception as e:
             logging.error(f"ERREUR LORS DE L'APPEL A CORE_LOGIC (flow: {flow_type}): {e}")

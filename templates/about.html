@@ -577,9 +577,9 @@
                 const stats = await response.json();
                 
                 // On met à jour les éléments HTML avec les données reçues
-                document.getElementById('stats-lessons').textContent = stats.lessons || 0;
-                document.getElementById('stats-integrations').textContent = stats.integrations || 0;
-                document.getElementById('stats-evaluations').textContent = stats.evaluations || 0;
+                document.getElementById('stats-lessons').textContent = stats.lessons_generated || 0;
+                document.getElementById('stats-integrations').textContent = stats.integrations_generated  || 0;
+                document.getElementById('stats-evaluations').textContent = stats.evaluations_generated  || 0;
                 document.getElementById('stats-total-users').textContent = stats.total_documents || 0;
 
             } catch (error) {

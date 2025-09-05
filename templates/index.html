@@ -460,7 +460,8 @@ const chatInput = document.getElementById('chat-input');
 const appTitle = document.getElementById('app-title');
 
 // --- 2. GESTION DE L'ÉTAT DE LA CONVERSATION ---
-let lastAiResponseText = "";
+//let lastAiResponseText = "";
+
 let conversationState = {
     lang: null,
     currentStep: 'start',
@@ -622,10 +623,7 @@ async function sendMessageToBackend(userMessage) {
             }
         }
 
-        // Enregistre pour le PDF si besoin
-        if (conversationState.currentStep === 'generation_finished') {
-            lastAiResponseText = data.response;
-        }
+    
 
         showOptions(data.options);
 
@@ -656,22 +654,30 @@ async function sendMessageToBackend(userMessage) {
 // Dans index.html, remplacez la fonction downloadPdf
 
 async function downloadPdf() {
+   // ===== CORRECTION APPLIQUÉE ICI =====
+    // On récupère le texte directement de l'état actuel de la conversation.
+    const markdown_text_to_send = conversationState.generated_text;
+
+    if (!markdown_text_to_send) {
+        addMessage("Erreur : Aucun contenu à télécharger n'a été trouvé.", 'ai');
+        setTimeout(() => sendMessageToBackend("internal_pdf_download_complete"), 1500);
+        return;
+    }
+
     addMessage("Préparation du PDF...", 'ai');
     const loadingMessageContent = chatMessages.lastElementChild.querySelector('.content');
 
-    if (!lastAiResponseText) { /* ... (inchangé) ... */ }
-
     try {
-        // On envoie le Markdown ET l'état de la conversation
-        //address online 'https://tchatchi.ai.onrender.com/api/generate-pdf' adresse locale 'http://127.0.0.1:5000/api/generate-pdf'
         const response = await fetch('/api/generate-pdf', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                markdown_text: lastAiResponseText,
-                state: conversationState // ON AJOUTE L'ÉTAT COMPLET
+                // On envoie le texte qu'on a récupéré de l'état.
+                markdown_text: markdown_text_to_send,
+                state: conversationState
             })
         });
+
 
         if (!response.ok) {
             const errorData = await response.json();
