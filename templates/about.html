@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>About - TCHATCHI AI Pedagogical Assistant</title>
+    <link rel="icon" type="image/png" href="/static/img/favicon.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     
@@ -160,7 +161,36 @@
     max-width: 100%;
     overflow-x: hidden;
 }
-
+======================================================================= */
+        /* STYLES POUR LA SECTION CONTACT */
+        /* ======================================================================= */
+        #contact-section {
+            background-color: white;
+        }
+        .contact-item {
+            padding: 2rem;
+            background-color: var(--bg-light);
+            border-radius: 15px;
+            height: 100%;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .contact-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+        }
+        .contact-icon {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+        }
+        .contact-item a {
+            text-decoration: none;
+            color: var(--text-dark);
+            word-break: break-all; /* Empêche les longs liens de déborder */
+        }
+        .contact-item a:hover {
+            color: var(--primary-color);
+            text-decoration: underline;
+        }
 /* Mobile optimization for text sections */
 @media (max-width: 768px) {
     .hero-section {
@@ -321,13 +351,18 @@
         padding-right: 15px;
     }
 }
+.app-icon {
+        width: 24px;  /* Correspond à la taille de police de 1.5rem */
+        height: 24px; /* Maintient le ratio carré */
+        object-fit: contain; /* S'assure que l'image s'adapte sans être déformée */
+    }
     </style>
 </head>
 <body>
     <div id="main-container">
         <div id="main-header">
             <div class="app-title-container">
-                <i class="bi bi-robot app-icon"></i>
+                 <img src="/static/img/favicon.png" alt="TCHATCHI AI Logo" class="app-icon"> 
                 <span id="app-title" class="app-title">TCHATCHI AI Pedagogical Assistant</span>
             </div>
                 <!-- ADD BURGER MENU BUTTON HERE -->
@@ -528,7 +563,46 @@
         </div>
     </section>
 
-    <!-- stats section-->
+    <!-- contact section-->
+         <section class="py-5" id="contact-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto text-center">
+                    <h2 class="mb-4" data-lang-en="Contact Us" data-lang-fr="Contactez-nous">Contact Us</h2>
+                    <p class="lead mb-5" data-lang-en="Your feedback and suggestions are invaluable for improving the platform. Please don't hesitate to reach out!" data-lang-fr="Vos retours et suggestions sont précieux pour améliorer la plateforme. N'hésitez pas à nous contacter !">Your feedback and suggestions are invaluable for improving the platform. Please don't hesitate to reach out!</p>
+                </div>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="contact-item text-center">
+                        <div class="contact-icon mb-3">
+                            <i class="bi bi-envelope-fill"></i>
+                        </div>
+                        <h5 data-lang-en="Email Address" data-lang-fr="Adresse E-mail">Email Address</h5>
+                        <a href="mailto:tchatchiai@gmail.com">tchatchiai@gmail.com</a>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="contact-item text-center">
+                        <div class="contact-icon mb-3">
+                            <i class="bi bi-telephone-fill"></i>
+                        </div>
+                        <h5 data-lang-en="Phone" data-lang-fr="Téléphone">Phone</h5>
+                        <a href="tel:+237620477832">+237 620 477 832</a>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="contact-item text-center">
+                        <div class="contact-icon mb-3">
+                            <i class="bi bi-facebook"></i>
+                        </div>
+                        <h5 data-lang-en="Facebook Page" data-lang-fr="Page Facebook">Facebook Page</h5>
+                        <a href="https://web.facebook.com/profile.php?id=61580159589753" target="_blank" rel="noopener noreferrer" data-lang-en="TCHATCHI AI on Facebook" data-lang-fr="TCHATCHI AI sur Facebook">TCHATCHI AI on Facebook</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
