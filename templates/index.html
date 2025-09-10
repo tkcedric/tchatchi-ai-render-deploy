@@ -47,20 +47,25 @@
             max-width: 100vw; 
             overflow: hidden;
         }
+        /* --- 1. L'en-tête principal --- */
         #main-header {
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            gap: 0.5rem; /* Ajoute un petit espace entre le logo/titre et le menu */
             padding: 0.75rem 1rem;
             border-bottom: 1px solid var(--border-color);
             background-color: var(--main-bg);
-            flex-wrap: nowrap; /* EMPÊCHE LE RENVOI À LA LIGNE */
-            gap: 0.5rem;
-            position: sticky; /* Makes the header stick to the top */
+            
+            position: sticky;
             top: 0;
             z-index: 100;
-            overflow: hidden; /* Cache le contenu qui dépasse pendant l'animation */
-            max-height: 200px; /* Hauteur de base pour l'animation, doit être plus grande que la hauteur réelle du menu */
+
+            /* --- Comportement Flexbox Robuste --- */
+            flex-wrap: nowrap; /* Force tout à rester sur une seule ligne */
+            
+            /* --- Animation de repliement --- */
+            overflow: hidden;
+            max-height: 250px; /* Augmenté pour plus de sécurité */
             transition: max-height 0.35s ease-in-out, padding 0.35s ease-in-out, border 0.1s linear;
         }
 
@@ -73,13 +78,25 @@
             border-bottom: none;
         }
 
-        #main-header .app-title-container { 
-            display: flex; 
+       /* --- 2. Le conteneur du logo et du titre --- */
+        .app-title-container {
+            display: flex;
             align-items: center;
             gap: 0.75rem;
-            flex: 1; /* Permet au conteneur de grandir et rétrécir */
-            min-width: 0; /* Astuce flexbox pour permettre au texte de se réduire */
-        } 
+            flex: 1; /* Permet au conteneur de grandir/rétrécir */
+            min-width: 0; /* Astuce cruciale pour permettre au texte de se réduire */
+        }
+
+        /* --- 3. Le titre de l'application (pour éviter qu'il ne déborde) --- */
+        .app-title {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--text-color-primary);
+            /* Empêche le titre de déborder et de pousser le menu */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
 
         #main-header .app-icon { font-size: 1.5rem; color: #0b57d0; }
         #main-header .app-title { font-size: 1.1rem; font-weight: 500; color: var(--text-color-primary); }
@@ -171,19 +188,21 @@
     padding: 0.25rem;
 }
 
+/* --- 4. Le bouton Burger Menu (sur mobile) --- */
 @media (max-width: 768px) {
     #menu-toggle {
+        display: flex;
         align-items: center;
         justify-content: center;
         width: 40px;
         height: 40px;
         border-radius: 6px;
-        /*display: block;*/
-        flex-shrink: 0; /* Empêche le bouton de rétrécir */
-        margin-left: auto; /* Pousse le bouton complètement à droite */
-
         
+        /* Assure que le bouton ne rétrécit pas et reste à droite */
+        flex-shrink: 0;
+        margin-left: auto;
     }
+}
     
    .nav-menu {
         position: fixed;
