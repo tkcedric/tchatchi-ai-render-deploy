@@ -59,13 +59,18 @@
             position: sticky; /* Makes the header stick to the top */
             top: 0;
             z-index: 100;
-            /* Add the transition for a smooth slide animation */
-            transition: transform 0.3s ease-in-out;
+            overflow: hidden; /* Cache le contenu qui dépasse pendant l'animation */
+            max-height: 200px; /* Hauteur de base pour l'animation, doit être plus grande que la hauteur réelle du menu */
+            transition: max-height 0.35s ease-in-out, padding 0.35s ease-in-out, border 0.1s linear;
         }
 
-         #main-header.header-hidden {
-            /* This class will slide the header up and out of view */
-            transform: translateY(-100%);
+        #main-header.header-hidden {
+            /* On replie complètement le menu en animant sa hauteur et son padding à 0 */
+            max-height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            /* On retire aussi la bordure pour qu'elle ne reste pas visible quand le menu est masqué */
+            border-bottom: none;
         }
 
         #main-header .app-title-container { display: flex; align-items: center; gap: 0.75rem; } 
