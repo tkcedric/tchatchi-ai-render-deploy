@@ -161,7 +161,7 @@
     max-width: 100%;
     overflow-x: hidden;
 }
-======================================================================= */
+/* ======================================================================= */
         /* STYLES POUR LA SECTION CONTACT */
         /* ======================================================================= */
         #contact-section {
@@ -191,6 +191,44 @@
             color: var(--primary-color);
             text-decoration: underline;
         }
+
+
+        /* ======================================================================= */
+        /* STYLES FOR THE PARTNERS SECTION */
+        /* ======================================================================= */
+        #partners-section {
+            background-color: white;
+            border-top: 1px solid #f0f0f0;
+        }
+        .partner-card {
+            background-color: var(--bg-light);
+            border-radius: 15px;
+            padding: 2.5rem;
+            border: 1px solid #dee2e6;
+            transition: box-shadow 0.3s ease, transform 0.3s ease;
+        }
+        .partner-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+        .partner-logo {
+            max-width: 100%; /* Ensures the logo is responsive */
+            max-height: 90px; /* Controls the maximum size */
+            object-fit: contain; /* Prevents the logo from stretching */
+            margin-bottom: 1rem;
+        }
+
+        /* Mobile adjustments for the partner card */
+        @media (max-width: 768px) {
+            .partner-card {
+                text-align: center;
+                padding: 1.5rem;
+            }
+            .partner-card .col-md-8 {
+                margin-top: 1.5rem; /* Adds space between logo and text on mobile */
+            }
+        }
+
 /* Mobile optimization for text sections */
 @media (max-width: 768px) {
     .hero-section {
@@ -352,8 +390,8 @@
     }
 }
 .app-icon {
-        width: 24px;  /* Correspond à la taille de police de 1.5rem */
-        height: 24px; /* Maintient le ratio carré */
+        width: 150px;  /* Correspond à la taille de police de 1.5rem */
+        height: 150px; /* Maintient le ratio carré */
         object-fit: contain; /* S'assure que l'image s'adapte sans être déformée */
     }
     </style>
@@ -469,7 +507,7 @@
         </div>
     </section>
 
-    <!-- Stats Section -->
+    <!-- Impact and reach section -->
     <section class="stats-section">
         <div class="container">
             <h2 class="text-center mb-5" data-lang-en="Impact & Reach" data-lang-fr="Impact et Portée">Impact & Reach</h2>
@@ -503,6 +541,18 @@
                     </div>
                 </div>
             </div>
+
+        </div>
+    </section>
+
+    
+<!-- Stats Section -->
+    <section class="stats-section">
+        <div class="container">
+            <h2 class="text-center mb-5" data-lang-en="Resources Statistics" data-lang-fr="Statistiques des Resources">Resources Statistics</h2>
+         
+        
+                  <!-- statistics -->
             <div class="row">
                 <div class="col-md-3 col-6">
                     <div class="stat-card">
@@ -533,9 +583,10 @@
                     </div>
                 </div>
             </div>
-
+    <!--End stasts-->
         </div>
     </section>
+
 
     <!-- Technology Section -->
     <section class="py-5">
@@ -598,6 +649,42 @@
                         </div>
                         <h5 data-lang-en="Facebook Page" data-lang-fr="Page Facebook">Facebook Page</h5>
                         <a href="https://web.facebook.com/profile.php?id=61580159589753" target="_blank" rel="noopener noreferrer" data-lang-en="TCHATCHI AI on Facebook" data-lang-fr="TCHATCHI AI sur Facebook">TCHATCHI AI on Facebook</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ======================================================================= -->
+    <!-- PARTNERS SECTION -->
+    <!-- ======================================================================= -->
+    <section class="py-5" id="partners-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto text-center">
+                    <h2 class="mb-4" data-lang-en="Our Valued Partners" data-lang-fr="Nos Partenaires">Our Valued Partners</h2>
+                    <p class="lead mb-5" data-lang-en="We are proud to collaborate with organizations that share our vision for quality education in Cameroon." data-lang-fr="Nous sommes fiers de collaborer avec des organisations qui partagent notre vision d'une éducation de qualité au Cameroun.">We are proud to collaborate with organizations that share our vision for quality education in Cameroon.</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-10 mx-auto">
+                    <div class="partner-card">
+                        <div class="row align-items-center">
+                            <div class="col-md-4 text-center">
+                                <!-- The link and logo for Maths237 -->
+                                <a href="https://www.maths237.com/" target="_blank" rel="noopener noreferrer">
+                                    <img src="/static/img/maths237_logo.png" alt="Maths237 Logo" class="partner-logo">
+                                </a>
+                            </div>
+                            <div class="col-md-8">
+                                <!-- Translatable Name -->
+                                <h4 data-lang-en="Maths237 - Mathematics in Cameroon" data-lang-fr="Maths237 - Le site des Mathématiques au Cameroun">Maths237 - Mathematics in Cameroon</h4>
+                                <!-- Translatable Description -->
+                                <p class="text-muted" data-lang-en="The reference site for students, offering free access to exercises, past papers, and lessons for the Cameroonian mathematics curriculum." data-lang-fr="Le site de référence pour les élèves, offrant un accès gratuit aux exercices, anciennes épreuves et cours du programme de mathématiques camerounais.">The reference site for students, offering free access to exercises, past papers, and lessons for the Cameroonian mathematics curriculum.</p>
+                                <!-- Translatable Button -->
+                                <a href="https://www.maths237.com/" class="btn btn-outline-primary" target="_blank" rel="noopener noreferrer" data-lang-en="Visit Website" data-lang-fr="Visiter le Site">Visit Website</a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

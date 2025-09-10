@@ -436,17 +436,10 @@ def handle_generate_pdf():
 @app.route('/api/stats')
 def get_stats():
     """Endpoint pour récupérer les statistiques d'utilisation."""
+    # get_all_stats() already returns the dictionary in the correct format.
+    # We can just return it directly.
     stats = get_all_stats()
-    
-    # On s'assure que les clés existent pour éviter les erreurs côté client
-    # On initialise à 0 si la clé n'est pas encore dans la base de données
-    response_data = {
-        "lessons": stats.get('lessons_generated', 0),
-        "integrations": stats.get('integrations_generated', 0),
-        "evaluations": stats.get('evaluations_generated', 0),
-        "total_documents": stats.get('total_documents', 0)
-    }
-    return jsonify(response_data)
+    return jsonify(stats)
 # =======================================================================
 # ROUTES FOR STATIC PAGES
 # =======================================================================

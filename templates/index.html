@@ -56,8 +56,16 @@
             background-color: var(--main-bg);
             flex-wrap: wrap;
             gap: 0.5rem;
-            position: relative;
+            position: sticky; /* Makes the header stick to the top */
+            top: 0;
             z-index: 100;
+            /* Add the transition for a smooth slide animation */
+            transition: transform 0.3s ease-in-out;
+        }
+
+         #main-header.header-hidden {
+            /* This class will slide the header up and out of view */
+            transform: translateY(-100%);
         }
 
         #main-header .app-title-container { display: flex; align-items: center; gap: 0.75rem; } 
@@ -375,8 +383,8 @@
         }
     }
     .app-icon {
-        width: 100px;  /* Correspond à la taille de police de 1.5rem */
-        height: 100px; /* Maintient le ratio carré */
+        width: 150px;  /* Correspond à la taille de police de 1.5rem */
+        height: 150px; /* Maintient le ratio carré */
         object-fit: contain; /* S'assure que l'image s'adapte sans être déformée */
     }
     </style>
@@ -464,6 +472,39 @@ const optionsContainer = document.getElementById('options-container');
 const chatForm = document.getElementById('chat-form');
 const chatInput = document.getElementById('chat-input');
 const appTitle = document.getElementById('app-title');
+// --- 7. LOGIC FOR AUTO-HIDING HEADER ON SCROLL ---
+const mainHeader = document.getElementById('main-header');
+// Important: We listen for scrolling on the chat messages container, not the whole page.
+const chatContainerForScroll = document.getElementById('chat-messages'); 
+let lastScrollTop = 0;
+
+if (mainHeader && chatContainerForScroll) {
+    chatContainerForScroll.addEventListener('scroll', () => {
+        let currentScrollTop = chatContainerForScroll.scrollTop;
+
+        // If scrolled to the very top, always show the header.
+        if (currentScrollTop <= 0) {
+            mainHeader.classList.remove('header-hidden');
+            lastScrollTop = 0;
+            return;
+        }
+        
+        // Check if scrolling down or up
+        if (currentScrollTop > lastScrollTop) {
+            // Scrolling Down: Hide the header
+            mainHeader.classList.add('header-hidden');
+        } else {
+            // Scrolling Up: Show the header
+            mainHeader.classList.remove('header-hidden');
+        }
+
+        // Update the last scroll position for the next event
+        lastScrollTop = currentScrollTop;
+    });
+}
+// END OF THE NEW CODE
+
+
 
 // --- 2. GESTION DE L'ÉTAT DE LA CONVERSATION ---
 //let lastAiResponseText = "";
