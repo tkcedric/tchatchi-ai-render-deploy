@@ -54,7 +54,7 @@
             padding: 0.75rem 1rem;
             border-bottom: 1px solid var(--border-color);
             background-color: var(--main-bg);
-            flex-wrap: wrap;
+            flex-wrap: nowrap; /* EMPÊCHE LE RENVOI À LA LIGNE */
             gap: 0.5rem;
             position: sticky; /* Makes the header stick to the top */
             top: 0;
@@ -73,7 +73,14 @@
             border-bottom: none;
         }
 
-        #main-header .app-title-container { display: flex; align-items: center; gap: 0.75rem; } 
+        #main-header .app-title-container { 
+            display: flex; 
+            align-items: center;
+            gap: 0.75rem;
+            flex: 1; /* Permet au conteneur de grandir et rétrécir */
+            min-width: 0; /* Astuce flexbox pour permettre au texte de se réduire */
+        } 
+
         #main-header .app-icon { font-size: 1.5rem; color: #0b57d0; }
         #main-header .app-title { font-size: 1.1rem; font-weight: 500; color: var(--text-color-primary); }
 /* NOUVELLE VERSION CORRIGÉE */
@@ -171,8 +178,9 @@
         width: 40px;
         height: 40px;
         border-radius: 6px;
-        display: block;
-        margin-left: auto; /* Pousse le bouton complètement à droite 
+        /*display: block;*/
+        flex-shrink: 0; /* Empêche le bouton de rétrécir */
+        margin-left: auto; /* Pousse le bouton complètement à droite */
 
         
     }
