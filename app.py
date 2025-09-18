@@ -1,4 +1,4 @@
-# app.py - Version finale avec le nouvel endpoint /api/chat
+# app.py - Version finale avec une machine à états robuste pour la fonctionnalité "Retour"
 
 import logging
 from flask import Flask, request, jsonify, send_file, Response, render_template
@@ -20,26 +20,63 @@ CORS(app)
 # initialisation de la bd
 init_db()
 
-# (Plus tard, on importera la logique de génération d'ici)
-# from core_logic import generate_lesson_logic
+# =======================================================================
+# CONSTANTES ET ARCHITECTURE DE CONVERSATION
+# =======================================================================
+BACK_OPTION_FR = "⬅️ Retour"
+BACK_OPTION_EN = "⬅️ Back"
 
+DATA_KEY_FOR_STEP = {
+    'select_option': 'flow_type',
+    'lecon_ask_subsystem': 'subsystem', 'int_ask_subsystem': 'subsystem', 'eval_ask_subsystem': 'subsystem',
+    'lecon_ask_classe': 'classe', 'int_ask_classe': 'classe', 'eval_ask_classe': 'classe',
+    'lecon_ask_matiere': 'matiere', 'int_ask_matiere': 'matiere', 'eval_ask_matiere': 'matiere',
+    'lecon_ask_module': 'module', 'eval_ask_module': 'module',
+    'lecon_ask_lecon': 'lecon',
+    'lecon_ask_syllabus_method': None,
+    'lecon_get_manual_syllabus': 'syllabus', 'lecon_ask_langue_contenu': 'langue_contenu',
+    'int_ask_lecons': 'liste_lecons', 'int_ask_objectifs': 'objectifs_lecons', 'int_ask_langue_contenu': 'langue_contenu',
+    'eval_ask_lecons': 'liste_lecons', 'eval_ask_syllabus_method': None,
+    'eval_get_manual_syllabus': 'syllabus', 'eval_ask_duree_coeff': ['duree', 'coeff'],
+    'eval_ask_type': 'type_epreuve', 'eval_ask_langue_contenu': 'langue_contenu'
+}
 
+CONVERSATION_FLOW = {
+    'select_option': {
+        'question_fr': "Que souhaitez-vous faire ?", 'question_en': "What would you like to do?",
+        'get_options': lambda lang, data: ["Préparer une leçon", "Produire une activité d'intégration", "Créer une évaluation"] if lang == 'fr' else ["Prepare a lesson", "Produce an integration activity", "Create an assessment"],
+        'get_next_step': lambda msg: {'leçon':'lecon_ask_subsystem', 'lesson':'lecon_ask_subsystem', 'intégration':'int_ask_subsystem', 'integration':'int_ask_subsystem', 'évaluation':'eval_ask_subsystem', 'assessment':'eval_ask_subsystem'}.get(next((k for k in ['leçon','lesson','intégration','integration','évaluation','assessment'] if k in msg.lower()),''),None)
+    },
+    'lecon_ask_subsystem': {'question_fr': "Veuillez sélectionner le sous-système :", 'question_en': "Please select the subsystem:", 'get_options': lambda l,d: SUBSYSTEME_FR if l=='fr' else SUBSYSTEME_EN, 'get_next_step': lambda m: 'lecon_ask_classe'},
+    'lecon_ask_classe': {'question_fr': "Veuillez choisir une classe :", 'question_en': "Please choose a class:", 'get_options': lambda l,d: CLASSES[l].get(d.get('subsystem'),[]), 'get_next_step': lambda m: 'lecon_ask_matiere'},
+    'lecon_ask_matiere': {'question_fr': "Choisissez une matière :", 'question_en': "Choose a subject:", 'get_options': lambda l,d: MATIERES[l].get(d.get('subsystem'),[]), 'get_next_step': lambda m: 'lecon_ask_module'},
+    'lecon_ask_module': {'question_fr': "Quel est le titre du module ?", 'question_en': "What is the module title?", 'get_options': lambda l,d: [], 'get_next_step': lambda m: 'lecon_ask_lecon', 'is_text_input': True},
+    'lecon_ask_lecon': {'question_fr': "Quel est le titre de la leçon ?", 'question_en': "What is the title of the lesson?", 'get_options': lambda l,d: [], 'get_next_step': lambda m: 'lecon_ask_syllabus_method', 'is_text_input': True},
+    'lecon_ask_syllabus_method': {'question_fr': "Comment obtenir les informations du syllabus ?", 'question_en': "How to get syllabus info?", 'get_options': lambda l,d: ["🤖 Recherche Automatique (RAG)", "✍️ Fournir Manuellement"] if l=='fr' else ["🤖 Automatic Search (RAG)", "✍️ Provide Manually"], 'get_next_step': lambda m: 'lecon_get_manual_syllabus' if 'Manu' in m else 'lecon_ask_langue_contenu'},
+    'lecon_get_manual_syllabus': {'question_fr': "D'accord, veuillez coller l'extrait du syllabus.", 'question_en': "Okay, please paste the syllabus extract.", 'get_options': lambda l,d: [], 'get_next_step': lambda m: 'lecon_ask_langue_contenu', 'is_text_input': True},
+    'lecon_ask_langue_contenu': {'question_fr': "En quelle langue le contenu doit-il être rédigé ?", 'question_en': "In which language should the content be written?", 'get_options': lambda l,d: LANGUES_CONTENU_SIMPLIFIE if l=='en' else LANGUES_CONTENU_COMPLET, 'get_next_step': lambda m: 'pending_generation'},
+    'int_ask_subsystem': {'question_fr': "Veuillez sélectionner le sous-système :", 'question_en': "Please select the subsystem:", 'get_options': lambda l,d: SUBSYSTEME_FR if l == 'fr' else SUBSYSTEME_EN, 'get_next_step': lambda m: 'int_ask_classe'},
+    'int_ask_classe': {'question_fr': "Veuillez choisir une classe :", 'question_en': "Please choose a class:", 'get_options': lambda l,d: CLASSES[l].get(d.get('subsystem'), []), 'get_next_step': lambda m: 'int_ask_matiere'},
+    'int_ask_matiere': {'question_fr': "Choisissez une matière :", 'question_en': "Choose a subject:", 'get_options': lambda l,d: MATIERES[l].get(d.get('subsystem'), []), 'get_next_step': lambda m: 'int_ask_lecons'},
+    'int_ask_lecons': {'question_fr': "Veuillez lister les leçons ou thèmes à intégrer.", 'question_en': "Please list the lessons or themes to integrate.", 'get_options': lambda l,d: [], 'get_next_step': lambda m: 'int_ask_objectifs', 'is_text_input': True},
+    'int_ask_objectifs': {'question_fr': "Quels sont les objectifs ou concepts clés à évaluer ?", 'question_en': "What are the key objectives or concepts to assess?", 'get_options': lambda l,d: [], 'get_next_step': lambda m: 'int_ask_langue_contenu', 'is_text_input': True},
+    'int_ask_langue_contenu': {'question_fr': "En quelle langue l'activité doit-elle être rédigée ?", 'question_en': "In which language should the activity be written?", 'get_options': lambda l,d: LANGUES_CONTENU_SIMPLIFIE if l == 'en' else LANGUES_CONTENU_COMPLET, 'get_next_step': lambda m: 'pending_generation'},
+    'eval_ask_subsystem': {'question_fr': "Veuillez sélectionner le sous-système :", 'question_en': "Please select the subsystem:", 'get_options': lambda l,d: SUBSYSTEME_FR if l == 'fr' else SUBSYSTEME_EN, 'get_next_step': lambda m: 'eval_ask_classe'},
+    'eval_ask_classe': {'question_fr': "Veuillez choisir une classe :", 'question_en': "Please choose a class:", 'get_options': lambda l,d: CLASSES[l].get(d.get('subsystem'), []), 'get_next_step': lambda m: 'eval_ask_matiere'},
+    'eval_ask_matiere': {'question_fr': "Choisissez une matière :", 'question_en': "Choose a subject:", 'get_options': lambda l,d: MATIERES[l].get(d.get('subsystem'), []), 'get_next_step': lambda m: 'eval_ask_module'},
+    'eval_ask_module': { 'question_fr': "Quel est le titre du module ?", 'question_en': "What is the module title?", 'get_options': lambda l,d: [], 'get_next_step': lambda m: 'eval_ask_lecons', 'is_text_input': True },
+    'eval_ask_lecons': {'question_fr': "Sur quelles leçons portera l'évaluation ?", 'question_en': "Which lessons will the assessment cover?", 'get_options': lambda l,d: [], 'get_next_step': lambda m: 'eval_ask_syllabus_method', 'is_text_input': True},
+    'eval_ask_syllabus_method': {'question_fr': "Comment obtenir les informations du programme ?", 'question_en': "How to get curriculum info?", 'get_options': lambda l,d: ["🤖 Recherche Automatique (RAG)", "✍️ Fournir Manuellement"] if l == 'fr' else ["🤖 Automatic Search (RAG)", "✍️ Provide Manually"], 'get_next_step': lambda msg: 'eval_get_manual_syllabus' if 'Manu' in msg else 'eval_ask_duree_coeff'},
+    'eval_get_manual_syllabus': {'question_fr': "D'accord. Veuillez copier-coller l'extrait du syllabus.", 'question_en': "Alright. Please copy and paste the syllabus extract.", 'get_options': lambda l,d: [], 'get_next_step': lambda m: 'eval_ask_duree_coeff', 'is_text_input': True},
+    'eval_ask_duree_coeff': {'question_fr': "Quelle est la durée (ex: 1h30) et le coefficient (ex: 2) ?", 'question_en': "What is the duration (e.g., 1h 30min) and coefficient (e.g., 2)?", 'get_options': lambda l,d: [], 'get_next_step': lambda m: 'eval_ask_type', 'is_text_input': True},
+    'eval_ask_type': {'question_fr': "Quel type d'épreuve souhaitez-vous ?", 'question_en': "Which type of test would you like?", 'get_options': lambda l,d: ["Ressources + Compétences", "QCM Uniquement"] if l == 'fr' else ["Resources + Competencies", "MCQ Only"], 'get_next_step': lambda m: 'eval_ask_langue_contenu'},
+    'eval_ask_langue_contenu': {'question_fr': "En quelle langue l'épreuve doit-elle être rédigée ?", 'question_en': "In which language should the assessment be written?", 'get_options': lambda l,d: LANGUES_CONTENU_SIMPLIFIE if l == 'en' else LANGUES_CONTENU_COMPLET, 'get_next_step': lambda m: 'pending_generation'}
+}
 
 def handle_chat_recursive(state, message):
-    """
-    Fonction helper pour appeler la logique de chat de manière interne,
-    simulant une nouvelle requête de l'utilisateur.
-    """
-    # Crée un faux corps de requête
-    fake_data = {
-        'message': message,
-        'state': state
-    }
-    
-    # Contourne le contexte de la requête Flask pour un appel interne
+    fake_data = {'message': message, 'state': state}
     with app.test_request_context('/api/chat', method='POST', json=fake_data):
         return handle_chat()
-    
 
 @app.route('/api/chat', methods=['POST'])
 def handle_chat():
@@ -50,328 +87,153 @@ def handle_chat():
     current_step = state.get('currentStep', 'start')
     lang = state.get('lang', 'en')
     collected_data = state.get('collectedData', {})
+    step_history = state.get('step_history', [])
     
-    # =======================================================================
-    # MACHINE À ÉTATS DE LA CONVERSATION - VERSION FINALE SIMPLIFIÉE
-    # =======================================================================
-    
-      # On gère le cas spécial du trigger de génération envoyé par le frontend
-    if user_message == "internal_trigger_generation":
-        state['currentStep'] = 'generation_step'
-
-    # Étape 0 : Commandes globales
-    if user_message in ["Recommencer", "Restart"]:
-        lang_to_keep = state.get('lang', 'en')
-        state = {'lang': lang_to_keep, 'currentStep': 'select_option', 'collectedData': {}}
-        response_text = "Recommençons. Que souhaitez-vous faire ?" if lang_to_keep == 'fr' else "Let's start over. What would you like to do?"
-        options = ["Préparer une leçon", "Produire une activité d'intégration", "Créer une évaluation"] if lang_to_keep == 'fr' else ["Prepare a lesson", "Produce an integration activity", "Create an assessment"]
-
-       # =======================================================================
-    # NOUVELLE SECTION POUR GÉRER LA FIN DU TÉLÉCHARGEMENT
-    # =======================================================================
-    elif user_message == "internal_pdf_download_complete":
-        lang_to_keep = state.get('lang', 'en')
-        # On réinitialise l'état pour une nouvelle conversation, en gardant la langue
-        state = {'lang': lang_to_keep, 'currentStep': 'select_option', 'collectedData': {}}
-        response_text = "Que souhaitez-vous faire maintenant ?" if lang_to_keep == 'fr' else "What would you like to do now?"
-        options = ["Préparer une leçon", "Produire une activité d'intégration", "Créer une évaluation"] if lang_to_keep == 'fr' else ["Prepare a lesson", "Produce an integration activity", "Create an assessment"]
-    
-    # Étape 1 : Démarrage
-    elif current_step == 'start':
-        if 'Français' in user_message:
-            state.update({'lang': 'fr', 'currentStep': 'select_option'})
-            lang = 'fr'
-            response_text = ["Langue sélectionnée : Français.", "Que souhaitez-vous faire ?"]
-            options = ["Préparer une leçon", "Produire une activité d'intégration", "Créer une évaluation"]
-        else: # English par défaut
-            state.update({'lang': 'en', 'currentStep': 'select_option'})
-            lang = 'en'
-            response_text = ["Language selected: English.", "What would you like to do?"]
-            options = ["Prepare a lesson", "Produce an integration activity", "Create an assessment"]
-
-    # Étape 2 : Aiguillage
-    elif current_step == 'select_option':
-        if 'leçon' in user_message.lower() or 'lesson' in user_message.lower():
-            state.update({'flow_type': 'lecon', 'currentStep': 'lecon_ask_subsystem'})
-            response_text = ["Ok, nous allons preparer une lecon.","Veuillez sélectionner le sous-système :"] if lang == 'fr' else ["Ok, we are going to prepare a lesson.","Please select the subsystem:"]
-            options = SUBSYSTEME_FR if lang == 'fr' else SUBSYSTEME_EN
-        elif 'intégration' in user_message.lower() or 'integration' in user_message.lower():
-            state.update({'flow_type': 'integration', 'currentStep': 'int_ask_subsystem'})
-            response_text = ["Ok, nous allons preparer une activite d'integration.","Veuillez sélectionner le sous-système :"] if lang == 'fr' else ["Ok, we are going to prepare an Integration Activity.","Please select the subsystem:"]
-            options = SUBSYSTEME_FR if lang == 'fr' else SUBSYSTEME_EN
-        elif 'évaluation' in user_message.lower() or 'assessment' in user_message.lower():
-            state.update({'flow_type': 'evaluation', 'currentStep': 'eval_ask_subsystem'})
-            response_text = ["Ok, nous allons preparer une evaluation.","Veuillez sélectionner le sous-système :"] if lang == 'fr' else ["Ok, we are going to prepare an evaluation.","Please select the subsystem:"]
-            options = SUBSYSTEME_FR if lang == 'fr' else SUBSYSTEME_EN
-            
-    # ==========================================================
-    # FLUX "LEÇON"
-    # ==========================================================
-    elif current_step.startswith('lecon_'):
-        if current_step == 'lecon_ask_subsystem':
-            collected_data['subsystem'] = 'esg' if 'général' in user_message.lower() or 'general' in user_message.lower() else 'est'
-            state['currentStep'] = 'lecon_ask_classe'
-            response_text = "Veuillez choisir une classe :" if lang == 'fr' else "Please choose a class:"
-            options = CLASSES[lang][collected_data['subsystem']]
-        elif current_step == 'lecon_ask_classe':
-            collected_data['classe'] = user_message
-            state['currentStep'] = 'lecon_ask_matiere'
-            response_text = "Choisissez une matière :" if lang == 'fr' else "Choose a subject:"
-            options = MATIERES[lang][collected_data.get('subsystem', 'esg')]
-        elif current_step == 'lecon_ask_matiere':
-            collected_data['matiere'] = user_message
-            state['currentStep'] = 'lecon_ask_module'
-            response_text = "Quel est le titre du module ?" if lang == 'fr' else "What is the module title?"
-            options = []
-        elif current_step == 'lecon_ask_module':
-            collected_data['module'] = user_message
-            state['currentStep'] = 'lecon_ask_lecon'
-            response_text = "Quel est le titre de la leçon ?" if lang == 'fr' else "What is the title of the lesson?"
-            options = []
-        elif current_step == 'lecon_ask_lecon':
-            collected_data['lecon'] = user_message
-            state['currentStep'] = 'lecon_ask_syllabus_method'
-            response_text = "Comment obtenir les informations du syllabus ?" if lang == 'fr' else "How to get the syllabus information?"
-            options = ["🤖 Recherche Automatique (RAG)", "✍️ Fournir Manuellement"] if lang == 'fr' else ["🤖 Automatic Search (RAG)", "✍️ Provide Manually"]
-# Dans app.py, remplacez les deux derniers elif du flux "leçon"
-
-        elif current_step == 'lecon_ask_syllabus_method':
-            if 'Manuellement' in user_message or 'Manually' in user_message:
-                state['currentStep'] = 'lecon_get_manual_syllabus'
-                response_text = "D'accord, veuillez coller l'extrait du syllabus." if lang == 'fr' else "Okay, please paste the syllabus extract."
-                options = []
-            else: # RAG
-                collected_data['syllabus'] = "Contexte du syllabus trouvé par RAG..."
-                state['currentStep'] = 'lecon_ask_langue_contenu'
-                response_text = "En quelle langue le contenu doit-il être rédigé ?" if lang == 'fr' else "In which language should the content be written?"
-                options = LANGUES_CONTENU_SIMPLIFIE if lang == 'en' else LANGUES_CONTENU_COMPLET
-                
-        elif current_step == 'lecon_get_manual_syllabus':
-            collected_data['syllabus'] = user_message
-            state['currentStep'] = 'lecon_ask_langue_contenu'
-            response_text = "En quelle langue le contenu doit-il être rédigé ?" if lang == 'fr' else "In which language should the content be written?"
-            options = LANGUES_CONTENU_SIMPLIFIE if lang == 'en' else LANGUES_CONTENU_COMPLET
-
-        elif current_step == 'lecon_ask_langue_contenu':
-            collected_data['langue_contenu'] = user_message
+    # --- 1. GESTION DES ACTIONS SPÉCIALES (ONT LA PRIORITÉ) ---
+    if user_message in [BACK_OPTION_FR, BACK_OPTION_EN]:
+        if not step_history:
+            state = {'lang': lang, 'currentStep': 'select_option', 'collectedData': {}, 'step_history': []}
+        else:
+            step_to_revert_to = step_history.pop()
+            data_key_to_remove = DATA_KEY_FOR_STEP.get(step_to_revert_to)
+            if data_key_to_remove:
+                if isinstance(data_key_to_remove, list):
+                    for key in data_key_to_remove: collected_data.pop(key, None)
+                else:
+                    collected_data.pop(data_key_to_remove, None)
+            state['currentStep'] = step_to_revert_to
             state['collectedData'] = collected_data
-            state['currentStep'] = 'pending_generation'
-            response_text = "⏳ Préparation du contenu... Veuillez patienter."
-            options = []
-            return jsonify({'response': response_text, 'options': options, 'state': state})
-        
+            state['step_history'] = step_history
+        return handle_chat_recursive(state, "internal_show_step")
 
-    # ==========================================================
-    # FLUX COMPLET POUR "ACTIVITÉ D'INTÉGRATION"
-    # ==========================================================
-    elif current_step == 'int_ask_subsystem':
-        subsystem_code = 'esg' if 'général' in user_message.lower() or 'general' in user_message.lower() else 'est'
-        collected_data['subsystem'] = subsystem_code
-        state['currentStep'] = 'int_ask_classe'
-        response_text = "Veuillez choisir une classe :" if lang == 'fr' else "Please choose a class:"
-        options = CLASSES[lang][subsystem_code]
-    elif current_step == 'int_ask_classe':
-        collected_data['classe'] = user_message
-        state['currentStep'] = 'int_ask_matiere'
-        response_text = "Choisissez une matière :" if lang == 'fr' else "Choose a subject:"
-        options = MATIERES[lang][collected_data.get('subsystem', 'esg')]
-    elif current_step == 'int_ask_matiere':
-        collected_data['matiere'] = user_message
-        state['currentStep'] = 'int_ask_lecons'
-        response_text = "Veuillez lister les leçons ou thèmes à intégrer." if lang == 'fr' else "Please list the lessons or themes to integrate."
-        options = []
-    elif current_step == 'int_ask_lecons':
-        collected_data['liste_lecons'] = user_message
-        state['currentStep'] = 'int_ask_objectifs'
-        response_text = "Quels sont les objectifs ou concepts clés à évaluer ?" if lang == 'fr' else "What are the key objectives or concepts to assess?"
-        options = []
-    elif current_step == 'int_ask_objectifs':
-        collected_data['objectifs_lecons'] = user_message
-        state['currentStep'] = 'int_ask_langue_contenu'
-        response_text = "En quelle langue l'activité doit-elle être rédigée ?" if lang == 'fr' else "In which language should the activity be written?"
-        options = LANGUES_CONTENU_SIMPLIFIE if lang == 'en' else LANGUES_CONTENU_COMPLET
-    elif current_step == 'int_ask_langue_contenu':
-        collected_data['langue_contenu'] = user_message
-        state['collectedData'] = collected_data
-        state['currentStep'] = 'pending_generation'
-        response_text = "⏳ Préparation du contenu... Veuillez patienter."
-        options = []
-        return jsonify({'response': response_text, 'options': options, 'state': state})
+    if user_message in ["Recommencer", "Restart", "internal_pdf_download_complete"]:
+        state = {'lang': lang, 'currentStep': 'select_option', 'collectedData': {}, 'step_history': []}
+        return handle_chat_recursive(state, "internal_show_step")
     
+    # --- 2. GESTION DES ÉTAPES SPÉCIALES (qui ne sont pas dans la "carte") ---
+    if current_step == 'start':
+        lang = 'fr' if 'Français' in user_message else 'en'
+        state = {'lang': lang, 'currentStep': 'select_option', 'collectedData': {}, 'step_history': []}
+        return handle_chat_recursive(state, "internal_show_step")
+    
+    if current_step == 'pending_generation':
+        # **CORRECTION CRUCIALE** : On s'assure que l'état est bien sauvegardé avant de passer à la génération
+        state['currentStep'] = 'generation_step'
+        return handle_chat_recursive(state, "internal_trigger_generation")
+    
+   # NOUVEAU BLOC CORRIGÉ
 
- 
-
-    # ==========================================================
-    # FLUX "ÉVALUATION" - VERSION FINALE SIMPLIFIÉE
-    # ==========================================================
-    elif current_step.startswith('eval_'):
-        if current_step == 'eval_ask_subsystem':
-            subsystem_code = 'esg' if 'général' in user_message.lower() or 'general' in user_message.lower() else 'est'
-            collected_data['subsystem'] = subsystem_code
-            state['currentStep'] = 'eval_ask_classe'
-            response_text = "Veuillez choisir une classe :" if lang == 'fr' else "Please choose a class:"
-            options = CLASSES[lang][subsystem_code]
-        elif current_step == 'eval_ask_classe':
-            collected_data['classe'] = user_message
-            state['currentStep'] = 'eval_ask_matiere'
-            response_text = "Choisissez une matière :" if lang == 'fr' else "Choose a subject:"
-            options = MATIERES[lang][collected_data.get('subsystem', 'esg')]
-        elif current_step == 'eval_ask_matiere':
-            collected_data['matiere'] = user_message
-            state['currentStep'] = 'eval_ask_module'
-            response_text = "Quel est le titre du module ?" if lang == 'fr' else "What is the module title?"
-            options = []
-        elif current_step == 'eval_ask_module':
-            collected_data['module'] = user_message
-            state['currentStep'] = 'eval_ask_lecons'
-            response_text = "Sur quelles leçons portera l'évaluation ?" if lang == 'fr' else "Which lessons will the assessment cover?"
-            options = []
-        elif current_step == 'eval_ask_lecons':
-            collected_data['liste_lecons'] = user_message
-            state['currentStep'] = 'eval_ask_syllabus_method'
-            response_text = "Parfait. Comment obtenir les informations du programme (syllabus) ?" if lang == 'fr' else "Perfect. How should I get the curriculum (syllabus) information?"
-            options = ["🤖 Recherche Automatique (RAG)", "✍️ Fournir Manuellement"] if lang == 'fr' else ["🤖 Automatic Search (RAG)", "✍️ Provide Manually"]
-        
-        elif current_step == 'eval_ask_syllabus_method':
-            if 'Manuellement' in user_message or 'Manually' in user_message:
-                state['currentStep'] = 'eval_get_manual_syllabus'
-                response_text = "D'accord. Veuillez copier-coller l'extrait du syllabus." if lang == 'fr' else "Alright. Please copy and paste the syllabus extract."
-                options = []
-            else: # Recherche Automatique
-                syllabus_context = "Extrait du syllabus trouvé par RAG : ..."
-                collected_data['syllabus'] = syllabus_context
-                state['currentStep'] = 'eval_ask_duree_coeff'
-                response_text = "Quelle est la durée (ex: 1h30) et le coefficient (ex: 2) ? Séparez par une virgule." if lang == 'fr' else "What is the duration (e.g., 1h 30min) and coefficient (e.g., 2)? Separate with a comma."
-                options = []
-                
-        elif current_step == 'eval_get_manual_syllabus':
-            collected_data['syllabus'] = user_message
-            state['currentStep'] = 'eval_ask_duree_coeff'
-            response_text = "Quelle est la durée (ex: 1h30) et le coefficient (ex: 2) ? Séparez par une virgule." if lang == 'fr' else "What is the duration (e.g., 1h 30min) and coefficient (e.g., 2)? Separate with a comma."
-            options = []
-
-        elif current_step == 'eval_ask_duree_coeff':
-            parts = user_message.split(',')
-            collected_data['duree'] = parts[0].strip() if len(parts) > 0 else "N/A"
-            collected_data['coeff'] = parts[1].strip() if len(parts) > 1 else "N/A"
-            state['currentStep'] = 'eval_ask_type'
-            response_text = "Quel type d'épreuve souhaitez-vous ?" if lang == 'fr' else "Which type of test would you like?"
-            options = ["Ressources + Compétences", "QCM Uniquement"] if lang == 'fr' else ["Resources + Competencies", "MCQ Only"]
-        
-        elif current_step == 'eval_ask_type':
-            collected_data['type_epreuve'] = user_message
-            state['currentStep'] = 'eval_ask_langue_contenu'
-            response_text = "En quelle langue l'épreuve doit-elle être rédigée ?" if lang == 'fr' else "In which language should the assessment be written?"
-            options = LANGUES_CONTENU_SIMPLIFIE if lang == 'en' else LANGUES_CONTENU_COMPLET
-
-        elif current_step == 'eval_ask_langue_contenu':
-            collected_data['langue_contenu'] = user_message
-            # On a maintenant TOUTES les informations. On peut passer à la génération.
-            user_choice_type = collected_data.get('type_epreuve', '')
-            if 'QCM' in user_choice_type or 'MCQ' in user_choice_type:
-                type_key = "MCQ Only" if lang == 'en' else "junior_mcq"
-            else:
-                type_key = "Resources + Competencies" if lang == 'en' else "junior_resources_competencies"
-                collected_data['langue_contenu'] = user_message
-                state['collectedData'] = collected_data
-                state['currentStep'] = 'pending_generation'
-                response_text = "⏳ Préparation du contenu... Veuillez patienter."
-                options = []
-                return jsonify({'response': response_text, 'options': options, 'state': state})
-        
-    # ==========================================================
-    # ÉTAPE FINALE DE GÉNÉRATION (COMMUNE À TOUS LES FLUX)
-    # ==========================================================
-# le bloc 'generation_step'
-
-    elif current_step == 'generation_step':
-        # On vérifie quel type de document on doit générer
+    if current_step == 'generation_step':
         flow_type = state.get('flow_type')
-        
         try:
-           
+            generated_text = ""
+            
+            # On définit les arguments attendus pour chaque fonction
+            lesson_args = ['classe', 'matiere', 'module', 'lecon', 'syllabus', 'langue_contenu']
+            integration_args = ['classe', 'matiere', 'liste_lecons', 'objectifs_lecons', 'langue_contenu']
+            evaluation_args = ['classe', 'matiere', 'liste_lecons', 'duree', 'coeff', 'langue_contenu', 'type_epreuve_key', 'contexte_syllabus']
+
             if flow_type == 'lecon':
-                generated_text, lang_code = generate_lesson_logic(
-                    classe=collected_data.get('classe'),
-                    matiere=collected_data.get('matiere'), 
-                    module=collected_data.get('module'),
-                    lecon=collected_data.get('lecon'),
-                    syllabus=collected_data.get('syllabus'),
-                    langue_contenu=collected_data.get('langue_contenu')
-                )
-                increment_stat('lessons_generated') 
-                # integratuin:
+                # On filtre le dictionnaire pour ne garder que les clés attendues
+                args_to_send = {key: collected_data[key] for key in lesson_args if key in collected_data}
+                generated_text, _ = generate_lesson_logic(**args_to_send)
+                increment_stat('lessons_generated')
 
             elif flow_type == 'integration':
-                # On s'assure que 'matiere' et 'module' ont bien été collectés
-                matiere_ou_module = collected_data.get('module') or collected_data.get('matiere')
-                
-                generated_text, lang_code = generate_integration_logic(
-                    classe=collected_data.get('classe'),
-                    # On passe la variable qu'on vient de vérifier
-                    matiere=matiere_ou_module, 
-                    liste_lecons=collected_data.get('liste_lecons'),
-                    objectifs_lecons=collected_data.get('objectifs_lecons'),
-                    langue_contenu=collected_data.get('langue_contenu')
-                )
+                args_to_send = {key: collected_data[key] for key in integration_args if key in collected_data}
+                generated_text, _ = generate_integration_logic(**args_to_send)
                 increment_stat('integrations_generated')
-                # --- evaluation ---
 
             elif flow_type == 'evaluation':
-                matiere_ou_module = collected_data.get('module') or collected_data.get('matiere')
-                generated_text, lang_code = generate_evaluation_logic(
-                    classe=collected_data.get('classe'),
-                    matiere=matiere_ou_module,
-                    liste_lecons=collected_data.get('liste_lecons'),
-                    duree=collected_data.get('duree'),
-                    coeff=collected_data.get('coeff'),
-                    langue_contenu=collected_data.get('langue_contenu'),
-                    type_epreuve_key=collected_data.get('type_epreuve_key'),
-                    # On ajoute la clé manquante
-                    contexte_syllabus=collected_data.get('syllabus', "L'enseignant n'a pas fourni de contexte.")
-                )
-                increment_stat('evaluations_generated') 
+                # On prépare les données spécifiques à l'évaluation
+                user_choice = collected_data.get('type_epreuve', '')
+                collected_data['type_epreuve_key'] = "junior_mcq" if 'QCM' in user_choice else "junior_resources_competencies"
+                collected_data['contexte_syllabus'] = collected_data.get('syllabus', "Non fourni.") # Utiliser .get pour éviter les erreurs
+                
+                args_to_send = {key: collected_data[key] for key in evaluation_args if key in collected_data}
+                generated_text, _ = generate_evaluation_logic(**args_to_send)
+                increment_stat('evaluations_generated')
             else:
-                # Si le type de flux est inconnu, on renvoie une erreur
-                raise ValueError("Type de flux inconnu ou non spécifié.")
-                # On peut aussi ajouter un compteur pour le nombre total de documents générés
+                raise ValueError(f"Type de flux inconnu ou manquant: {flow_type}")
+            
             increment_stat('total_documents')
-
             response_text = generated_text
             options = ["Recommencer", "Télécharger en PDF"] if lang == 'fr' else ["Restart", "Download PDF"]
-             
-             # On stocke le texte généré directement dans l'état de la conversation.
-            state['generated_text'] = generated_text 
-
-        # NOUVELLE VERSION AMÉLIORÉE
+            state['generated_text'] = generated_text
+            state['step_history'] = []
         except Exception as e:
-            logging.error(f"ERREUR LORS DE L'APPEL A CORE_LOGIC (flow: {flow_type}): {e}")
-            
-            # On crée un message plus convivial et on propose de recommencer
-            if lang == 'fr':
-                response_text = "Je suis sincèrement désolé, une erreur inattendue est survenue lors de la préparation de votre document. L'équipe technique a été informée. Souhaitez-vous recommencer depuis le début ?"
-                options = ["Recommencer"]
-            else:
-                response_text = "I am sincerely sorry, an unexpected error occurred while preparing your document. The technical team has been notified. Would you like to start over?"
-                options = ["Restart"]
-            
-            # Important : On réinitialise l'état pour que la conversation puisse repartir proprement.
-            state['currentStep'] = 'select_option'
-            state['collectedData'] = {}
+            logging.error(f"ERREUR LORS DE LA GÉNÉRATION (flow: {flow_type}): {e}")
+            response_text = "Désolé, une erreur critique est survenue durant la génération." if lang == 'fr' else "Sorry, a critical error occurred during generation."
+            options = ["Recommencer"] if lang == 'fr' else ["Restart"]
+            state = {'lang': lang, 'currentStep': 'select_option', 'collectedData': {}, 'step_history': []}
+        return jsonify({'response': response_text, 'options': options, 'state': state})
 
-#=============spinner===========================
-    elif current_step == 'pending_generation':
-        return handle_chat_recursive(state, "internal_trigger_generation")
-#============================================================
-    else:
-        # Bloc final par défaut
-        response_text = "Désolé, je suis perdu. Recommençons." if lang == 'fr' else "Sorry, I'm lost. Let's start over."
-        options = ["Recommencer"] if lang == 'fr' else ["Restart"]
-        state['currentStep'] = 'select_option'
+    # --- 3. GESTION DU FLUX DE CONVERSATION NORMAL (en utilisant la "carte") ---
+    step_definition = CONVERSATION_FLOW.get(current_step)
+    
+    if not step_definition:
+        state = {'lang': lang, 'currentStep': 'select_option', 'collectedData': {}, 'step_history': []}
+        return handle_chat_recursive(state, "internal_show_step")
+
+    # NOUVEAU BLOC CORRIGÉ
+
+    # A. Traiter la réponse de l'utilisateur (si on ne fait pas que ré-afficher)
+    if user_message != "internal_show_step":
+        
+        # **CORRECTION** : On gère spécifiquement l'étape 'select_option' pour définir le 'flow_type'
+        if current_step == 'select_option':
+            if 'leçon' in user_message.lower() or 'lesson' in user_message.lower():
+                state['flow_type'] = 'lecon'
+            elif 'intégration' in user_message.lower() or 'integration' in user_message.lower():
+                state['flow_type'] = 'integration'
+            elif 'évaluation' in user_message.lower() or 'assessment' in user_message.lower():
+                state['flow_type'] = 'evaluation'
+        
+        # Logique de collecte de données pour les autres étapes
+        else:
+            data_key = DATA_KEY_FOR_STEP.get(current_step)
+            if data_key:
+                if isinstance(data_key, list):
+                    parts = user_message.split(',')
+                    collected_data[data_key[0]] = parts[0].strip() if len(parts) > 0 else "N/A"
+                    collected_data[data_key[1]] = parts[1].strip() if len(parts) > 1 else "N/A"
+                elif data_key == 'subsystem':
+                    collected_data[data_key] = 'esg' if 'général' in user_message.lower() or 'general' in user_message.lower() else 'est'
+                else:
+                    collected_data[data_key] = user_message
+        
+        next_step_func = step_definition.get('get_next_step')
+        next_step = next_step_func(user_message) if next_step_func else None
+        
+        if not next_step:
+            response_text = "Je n'ai pas compris, veuillez réessayer." if lang == 'fr' else "I didn't understand, please try again."
+            options = list(step_definition['get_options'](lang, collected_data))
+            if step_history: options.insert(0, BACK_OPTION_FR if lang == 'fr' else BACK_OPTION_EN)
+            return jsonify({'response': response_text, 'options': options, 'is_text_input': step_definition.get('is_text_input', False), 'state': state})
+            
+        step_history.append(current_step)
+        state['currentStep'] = next_step
+        
+        # On met à jour l'état AVANT l'appel récursif
+        state['step_history'] = step_history
+        state['collectedData'] = collected_data
+        return handle_chat_recursive(state, "internal_show_step")
+
+    # B. Afficher la question et les options de l'étape actuelle
+    response_text = step_definition['question_fr'] if lang == 'fr' else step_definition['question_en']
+    options = list(step_definition['get_options'](lang, collected_data))
+    is_text_input = step_definition.get('is_text_input', False)
+    
+    if step_history:
+        options.insert(0, BACK_OPTION_FR if lang == 'fr' else BACK_OPTION_EN)
 
     state['collectedData'] = collected_data
-    return jsonify({'response': response_text, 'options': options, 'state': state})
+    state['step_history'] = step_history
+    return jsonify({'response': response_text, 'options': options, 'is_text_input': is_text_input, 'state': state})
 
+# =======================================================================
+# LE RESTE DU FICHIER EST INCHANGÉ
+# =======================================================================
 
 #generation pdf
 
@@ -426,6 +288,13 @@ def handle_generate_pdf():
     finally:
         if os.path.exists(pdf_filename_temp):
             os.remove(pdf_filename_temp)
+
+
+
+
+
+
+
 
 
 

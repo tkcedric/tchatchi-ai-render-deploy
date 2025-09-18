@@ -48,34 +48,24 @@
             overflow: hidden;
         }
         /* --- 1. L'en-tête principal --- */
-        #main-header {
+                #main-header {
             display: flex;
             align-items: center;
-            gap: 0.5rem; /* Ajoute un petit espace entre le logo/titre et le menu */
+            gap: 0.5rem;
             padding: 0.75rem 1rem;
             border-bottom: 1px solid var(--border-color);
             background-color: var(--main-bg);
-            
             position: sticky;
             top: 0;
             z-index: 100;
-
-            /* --- Comportement Flexbox Robuste --- */
-            flex-wrap: nowrap; /* Force tout à rester sur une seule ligne */
-            
-            /* --- Animation de repliement --- */
-            overflow: hidden;
-            max-height: 200px; /* Augmenté pour plus de sécurité */
-            transition: max-height 0.35s ease-in-out, padding 0.35s ease-in-out, border 0.1s linear;
+            flex-wrap: nowrap;
+            /* NOUVELLE TRANSITION, PLUS PERFORMANTE */
+            transition: transform 0.3s ease-in-out;
         }
 
-        #main-header.header-hidden {
-            /* On replie complètement le menu en animant sa hauteur et son padding à 0 */
-            max-height: 0;
-            padding-top: 0;
-            padding-bottom: 0;
-            /* On retire aussi la bordure pour qu'elle ne reste pas visible quand le menu est masqué */
-            border-bottom: none;
+                #main-header.header-hidden {
+            /* Au lieu de changer la hauteur, on déplace la barre vers le haut */
+            transform: translateY(-100%);
         }
 
        /* --- 2. Le conteneur du logo et du titre --- */
@@ -130,16 +120,29 @@
         .message.user .content::after { content: ''; position: absolute; top: 0; right: -10px; width: 0; height: 0; border-style: solid; border-width: 0 0 10px 10px; border-color: transparent transparent transparent var(--user-bubble-bg); }
         #chat-input-area { padding: 1rem 1.5rem; background-color: var(--main-bg); border-top: 1px solid var(--border-color); position: sticky; bottom: 0; /* Add safe area for mobile notches */padding-bottom: calc(1rem + env(safe-area-inset-bottom)); z-index: 20;}
         #chat-input-area-content { max-width: 800px; margin: 0 auto; width: 100%; }
-        #options-container { padding: 0 0 1rem 0; display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; }
+        /* NOUVEAU BLOC CORRIGÉ */
+
+        #options-container {
+            padding: 0 0 1rem 0;
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            /* --- AJOUTS IMPORTANTS --- */
+            max-height: 250px; /* On limite la hauteur à 250px (environ 4-5 lignes de boutons) */
+            overflow-y: auto;  /* Affiche une barre de défilement verticale si le contenu dépasse */
+            padding-right: 8px; /* Ajoute un petit espace pour que la barre de défilement ne colle pas aux boutons */
+        }
         .option-button { border: 1px solid #c9c9c9; background-color: #fff; color: #3c4043; font-weight: 500; }
         .option-button:hover { background-color: #f1f1f1; }
         #chat-form .input-group { background-color: #ffffff; border-radius: 25px; padding: 0.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         #chat-input { background-color: transparent; border: none; box-shadow: none; }
         #chat-submit-btn { background-color: transparent; border: none; color: #5f6368; font-size: 1.5rem; }
         #main-footer { text-align: center; font-size: 0.8rem; color: #999; padding: 0.5rem; background-color: var(--main-bg); border-top: 1px solid var(--border-color);  position: relative; z-index: 10;}
-        /* Dans index.html, à l'intérieur de la balise <style> */
+        
 
         /*
+        
         ==================================================
         STYLE POUR LE SPINNER DE CHARGEMENT
         ==================================================
@@ -175,7 +178,76 @@
             justify-content: flex-end; /* Align to right */
         }
 
-        /* ===========================
+
+    /* ==================================================
+       STYLE POUR L'INDICATEUR DE FRAPPE (PROGRESSION)
+    ================================================== */
+    .typing-indicator {
+        display: flex;
+        align-items: center;
+        padding: 10px 15px !important; /* S'assure que le padding est correct */
+    }
+
+    /* Style pour chaque point de l'animation */
+    .typing-indicator span {
+        height: 8px;
+        width: 8px;
+        background-color: #999; /* Couleur grise pour les points */
+        border-radius: 50%;
+        display: inline-block;
+        margin: 0 2px;
+        /* On lie chaque point à l'animation */
+        animation: bounce 1.4s infinite ease-in-out both;
+    }
+
+    /* On ajoute un léger décalage à chaque point pour un effet fluide */
+    .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+    .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+    .typing-indicator span:nth-child(3) { animation-delay: 0s; }
+
+    /* L'animation elle-même qui fait "rebondir" les points */
+    @keyframes bounce {
+        0%, 80%, 100% {
+            transform: scale(0);
+        }
+        40% {
+            transform: scale(1.0);
+        }
+    }  
+    
+    /* ==================================================
+   STYLE POUR LA FENÊTRE MODALE D'INFORMATION
+================================================== */
+#welcomeModal .modal-header {
+    background-color: var(--primary-color);
+    color: white;
+}
+#welcomeModal .modal-header .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+#welcomeModal .modal-title {
+    font-weight: 600;
+}
+#welcomeModal h4, #welcomeModal h6 {
+    color: var(--primary-color);
+    font-weight: bold;
+}
+#welcomeModal code {
+    background-color: #e9ecef;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    color: #d63384;
+    font-weight: bold;
+    display: inline-block;
+    margin: 5px 0;
+}
+#welcomeModal .donation-methods {
+    padding-left: 1rem;
+    border-left: 3px solid #dee2e6;
+}
+
+
+    /* ===========================
        RESPONSIVE DESIGN
     ============================ */
     /* Mobile menu toggle */
@@ -189,49 +261,6 @@
 }
 
 /* --- 4. Le bouton Burger Menu (sur mobile) --- */
-@media (max-width: 768px) {
-    #menu-toggle {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 40px;
-        height: 40px;
-        border-radius: 6px;
-        
-        /* Assure que le bouton ne rétrécit pas et reste à droite */
-        flex-shrink: 0;
-        margin-left: auto;
-    }
-}
-    
-   .nav-menu {
-        position: fixed;
-        top: 70px;
-        right: -100%;
-        background: white;
-        padding: 1rem;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        flex-direction: column;
-        gap: 0.5rem;
-        z-index: 1000;
-        transition: right 0.3s ease;
-        border: 1px solid var(--border-color);
-    }
-    
-      .nav-menu.show {
-        right: 1rem;
-    }
-
-    #chat-input-area {
-        padding: 0.75rem;
-        padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
-    }
-    
-    #chat-input {
-        font-size: 16px; /* Prevent zoom on iOS */
-    }
-}
 
     @media (max-width: 1200px) {
         #sidebar {
@@ -257,8 +286,10 @@
             padding: 0.75rem 1rem;
         }
     }
+/* NOUVEAU BLOC UNIFIÉ À AJOUTER */
 
     @media (max-width: 768px) {
+        /* --- Structure générale sur mobile --- */
         body {
             flex-direction: column;
             overflow: auto;
@@ -298,30 +329,44 @@
             padding: 0.4rem 0.8rem;
             font-size: 0.9rem;
         }
-        
-        #sidebar {
-            border-right: none;
-            border-bottom: 1px solid var(--border-color);
-        }
-        
-        #main-container {
-            height: auto;
-        }
-        
-        #chat-messages {
-            padding: 1rem;
-        }
-        
-        .message .content {
-            max-width: 100%;
+
+        /* --- Bouton Burger (Menu Hamburger) --- */
+        #menu-toggle {
+            display: flex; /* S'assure qu'il est visible sur mobile */
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            flex-shrink: 0;
+            margin-left: auto; /* Le pousse tout à droite */
         }
 
+        /* --- Styles pour le menu latéral (mobile) --- */
         .nav-menu {
-        gap: 0.3rem;
+            position: fixed;
+            top: 60px;
+            right: -100%; /* Caché par défaut en dehors de l'écran */
+            width: 220px;
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            flex-direction: column; /* Aligne les boutons verticalement */
+            align-items: stretch;
+            gap: 0.5rem;
+            z-index: 1000;
+            transition: right 0.3s ease-in-out;
+            border: 1px solid var(--border-color);
         }
-           .nav-menu .btn {
-        font-size: 0.8rem;
-        padding: 0.25rem 0.5rem;
+        
+        .nav-menu.show {
+            right: 1rem; /* Fait apparaître le menu */
+        }
+
+        .nav-menu .btn {
+            width: 100%;
+            text-align: left;
         }
     }
 
@@ -491,10 +536,123 @@
         </footer>
     </div>
 
+
+<!-- ======================================================================= -->
+<!-- DÉBUT DE LA FENÊTRE MODALE D'INFORMATION -->
+<!-- ======================================================================= -->
+<div class="modal fade" id="welcomeModal" tabindex="-1" aria-labelledby="welcomeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="welcomeModalLabel">Bienvenue sur TCHATCHI AI !</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Version Française -->
+                <div class="mb-4">
+                    <h4>🇫🇷 Bienvenu sur TCHATCHI AI! L’IA au service des enseignants camerounais</h4>
+                    <p>
+                        <strong>TCHATCHI AI</strong> est une plateforme conçue pour accompagner les enseignants du Cameroun dans la préparation de leurs contenus pédagogiques.
+                    </p>
+                    <p>
+                        <strong>Fonctionnalités :</strong> Génération rapide de fiches de leçon, d’activités d’intégration et d’évaluations conformes aux programmes francophone et anglophone.
+                    </p>
+                    <p>
+                        <strong>Notre mission :</strong> Redonner du temps aux enseignants, améliorer la qualité de l’enseignement, et promouvoir une éducation équitable.
+                    </p>
+                    <hr>
+                    <h6>💡 Projet personnel, sans financement externe</h6>
+                    <p>
+                        Chaque ressource générée coûte en moyenne <strong>15 FCFA</strong> en frais de calcul. Plus de <strong>13 300 ressources</strong> ont déjà été générées, soit un coût cumulé d'environ <strong>199 500 FCFA</strong> (≈ 300 €), entièrement à ma charge.
+                    </p>
+                    <h6>💰 Comment contribuer / faire un don</h6>
+                    <p>Chaque don, petit ou grand, aide à couvrir les frais et à assurer l'accessibilité de la plateforme.</p>
+                    <div class="donation-methods">
+                        <p><strong>✅ MTN Mobile Money (MOMO)</strong><br>
+                           <code>*126*14*680018753*MONTANT#</code><br>
+                           <small>Nom du compte : SODIACAM SARL_POS 1208</small>
+                        </p>
+                        <p><strong>✅ Orange Money (OM)</strong><br>
+                           <code>#150*47*895595*MONTANT#</code><br>
+                           <small>Nom du compte : Tala Kuate Cedric</small>
+                        </p>
+                    </div>
+                    <p><em>Remplacez "MONTANT" par la somme de votre don.</em></p>
+                    <hr>
+                    <p>
+                        🌱 Nous comptons sur votre <strong>usage modéré</strong> et votre <strong>solidarité</strong> pour garantir la pérennité de ce projet communautaire.
+                    </p>
+                    
+                </div>
+
+                <!-- English Version -->
+                <div class="pt-4 border-top">
+                    <h4>🇬🇧 Welcome to TCHATCHI AI! Empowering Cameroonian Teachers with AI</h4>
+                    <p>
+                        <strong>TCHATCHI AI</strong> is a personal project with no external funding, built to help Cameroonian teachers create lesson plans and assessments aligned with local curricula.
+                    </p>
+                    <p>
+                        Each resource generated costs about <strong>15 FCFA</strong> in AI processing fees. Over <strong>13,300 resources</strong> have been generated—meaning over <strong>199,500 FCFA</strong> have been invested so far, free for educators.
+                    </p>
+                    <h6>💰 Donate via:</h6>
+                     <div class="donation-methods">
+                        <p><strong>✅ MTN MOMO</strong><br>
+                           <code>*126*14*680018753*AMOUNT#</code><br>
+                           <small>Account Name: SODIACAM SARL_POS 1208</small>
+                        </p>
+                        <p><strong>✅ Orange Money</strong><br>
+                           <code>#150*47*895595*AMOUNT#</code><br>
+                           <small>Account Name: Tala Kuate Cedric</small>
+                        </p>
+                    </div>
+                    <p><em>Replace "AMOUNT" with your donation amount.</em></p>
+                    <hr>
+                    <p>
+                        🎯 We rely on <strong>responsible usage</strong> and/or <strong>donations</strong> to make this community-driven project sustainable.
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Compris / Understood</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- ======================================================================= -->
+<!-- FIN DE LA FENÊTRE MODALE D'INFORMATION -->
+<!-- ======================================================================= -->
+
+</body>
+</html>
+
 <!-- scrypt katex -->
  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Ce code s'exécute après que la page ET tous les scripts (y compris Bootstrap) sont chargés.
+    window.addEventListener('load', function () {
+        // On vérifie si l'indicateur 'welcomeModalShown' existe dans le sessionStorage.
+        if (!sessionStorage.getItem('welcomeModalShown')) {
+            var modalElement = document.getElementById('welcomeModal');
+            if (modalElement) {
+                // On crée une instance de la modale Bootstrap.
+                var welcomeModal = new bootstrap.Modal(modalElement);
+                // On affiche la modale.
+                welcomeModal.show();
+                // Et on enregistre l'indicateur pour que la modale n'apparaisse plus
+                // lors des prochains rafraîchissements de la page.
+                sessionStorage.setItem('welcomeModalShown', 'true');
+            }
+        }
+    });
+</script>
+
+
+<!-- ... (votre balise <script> principale avec la logique du chat vient après) ... -->
+
 <script>
 // =======================================================================
 // DÉBUT DU CODE JAVASCRIPT POUR L'INTERACTIVITÉ - VERSION FINALE
@@ -506,33 +664,46 @@ const optionsContainer = document.getElementById('options-container');
 const chatForm = document.getElementById('chat-form');
 const chatInput = document.getElementById('chat-input');
 const appTitle = document.getElementById('app-title');
-// --- 7. LOGIC FOR AUTO-HIDING HEADER ON SCROLL ---
+
+
+// NOUVEAU BLOC CORRIGÉ
+
+// --- 7. LOGIC FOR AUTO-HIDING HEADER ON SCROLL (Desktop Friendly) ---
 const mainHeader = document.getElementById('main-header');
-// Important: We listen for scrolling on the chat messages container, not the whole page.
-const chatContainerForScroll = document.getElementById('chat-messages'); 
+const chatContainerForScroll = document.getElementById('chat-messages');
 let lastScrollTop = 0;
+const SCROLL_THRESHOLD = 10; 
 
 if (mainHeader && chatContainerForScroll) {
     chatContainerForScroll.addEventListener('scroll', () => {
+        // **LA CORRECTION EST ICI**
+        // Si la largeur de la fenêtre est supérieure à 768px (taille PC/tablette large)...
+        if (window.innerWidth > 768) {
+            // ...on s'assure que la barre de menu est TOUJOURS visible...
+            mainHeader.classList.remove('header-hidden');
+            // ...et on arrête l'exécution de la fonction ici.
+            return; 
+        }
+
+        // Le reste du code ne s'exécutera que sur les écrans de moins de 768px.
         let currentScrollTop = chatContainerForScroll.scrollTop;
 
-        // If scrolled to the very top, always show the header.
-        if (currentScrollTop <= 0) {
+        if (currentScrollTop < SCROLL_THRESHOLD) {
             mainHeader.classList.remove('header-hidden');
-            lastScrollTop = 0;
+            lastScrollTop = currentScrollTop;
             return;
         }
         
-        // Check if scrolling down or up
+        if (Math.abs(currentScrollTop - lastScrollTop) <= SCROLL_THRESHOLD) {
+            return;
+        }
+
         if (currentScrollTop > lastScrollTop) {
-            // Scrolling Down: Hide the header
             mainHeader.classList.add('header-hidden');
         } else {
-            // Scrolling Up: Show the header
             mainHeader.classList.remove('header-hidden');
         }
 
-        // Update the last scroll position for the next event
         lastScrollTop = currentScrollTop;
     });
 }
@@ -606,13 +777,21 @@ function addMessage(content, sender) {
     scrollToBottom();
 }
 
-function showOptions(options) {
+//AFFICHAGE DES OPTIONS
+
+function showOptions(options, is_text_input = false) {
     optionsContainer.innerHTML = '';
-    if (!options || options.length === 0) {
+    
+    // Nouvelle logique pour le champ de saisie
+    if (is_text_input) {
         chatInput.disabled = false;
         chatInput.focus();
     } else {
-        chatInput.disabled = true;
+        // Si ce n'est pas une saisie de texte, on désactive le champ s'il y a des options
+        chatInput.disabled = options && options.length > 0;
+    }
+
+    if (options && options.length > 0) {
         options.forEach(optionText => {
             const button = document.createElement('button');
             button.classList.add('btn', 'option-button');
@@ -629,103 +808,64 @@ function showOptions(options) {
 // Dans index.html, dans la balise <script>, remplacez TOUTE cette fonction
 
 async function sendMessageToBackend(userMessage) {
-    let loadingMessageContent = null;
+    let indicatorElement = null;
 
-    // 🔍 Étapes qui déclenchent la génération longue
-    const generationTriggerSteps = [
-        'lecon_ask_langue_contenu',
-        'int_ask_langue_contenu',
-        'eval_ask_langue_contenu'
-    ];
-    const isAutomaticSearchChoice = (
-        conversationState.currentStep === 'lecon_ask_syllabus_method' &&
-        (userMessage.includes('Automatique') || userMessage.includes('Automatic'))
-    );
-    const isLongWait = generationTriggerSteps.includes(conversationState.currentStep) || isAutomaticSearchChoice;
-
-    // 🌀 Affiche un message avec spinner AVANT d'appeler le backend
-    if (isLongWait) {
-        const waitText = conversationState.lang === 'fr'
-            ? ["Toutes les données nécessaires ont été collectées. Préparation de votre document. Ceci peut prendre 1 à 2 minutes..."]
-            : ["All your the necessary data have been collected.Preparing your document. This can take 1 or 2 minutes..."];
-        const loadingHtml = `<div class="loading-content"><div class="spinner"></div><span>${waitText}</span></div>`;
-        addMessage(loadingHtml, 'ai');
-        loadingMessageContent = chatMessages.lastElementChild.querySelector('.content');
-
-        // Laisse le navigateur afficher le spinner avant que fetch() bloque le thread  
-        await new Promise(requestAnimationFrame);
+    // On n'affiche pas l'indicateur pour les appels internes du système
+    if (!userMessage.startsWith('internal_')) {
+        // Crée le HTML pour la bulle de l'indicateur
+        const indicatorHtml = `
+            <div class="message ai" id="typing-indicator-bubble">
+                <div class="content typing-indicator">
+                    <span></span><span></span><span></span>
+                </div>
+            </div>`;
+        
+        // Ajoute immédiatement l'indicateur au chat
+        chatMessages.insertAdjacentHTML('beforeend', indicatorHtml);
+        indicatorElement = document.getElementById('typing-indicator-bubble');
+        scrollToBottom();
     }
 
     try {
-        //local address: http://127.0.0.1:5000/api/chat  addresse en ligne https://tchatchi.ai.onrender.com/api/chat
         const response = await fetch('/api/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ message: userMessage, state: conversationState })
         });
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.details || `Erreur HTTP: ${response.status}`);
+        // Quand la réponse arrive, on retire l'indicateur
+        if (indicatorElement) {
+            indicatorElement.remove();
         }
 
+        if (!response.ok) {
+            throw new Error(`Erreur HTTP: ${response.status}`);
+        }
+        
         const data = await response.json();
         conversationState = data.state;
 
-        // Si on est dans "pending_generation", on relance la vraie génération après 300ms
-        if (data.state.currentStep === 'pending_generation') {
-            setTimeout(() => {
-                sendMessageToBackend("internal_trigger_generation");
-            }, 300);
-            return;
-        }
-
-        // Mise à jour du message spinner avec la réponse GPT
-        if (loadingMessageContent) {
-            loadingMessageContent.innerHTML = marked.parse(data.response);
-            try {
-                if (typeof renderMathInElement === 'function') {
-                    renderMathInElement(loadingMessageContent, {
-                        delimiters: [
-                            {left: '$$', right: '$$', display: true},
-                            {left: '$', right: '$', display: false},
-                            {left: '\\(', right: '\\)', display: false},
-                            {left: '\\[', right: '\\]', display: true}
-                        ],
-                        throwOnError: false
-                    });
-                }
-            } catch (e) {}
+        // On affiche la vraie réponse du bot
+        if (Array.isArray(data.response)) {
+            data.response.forEach(text => addMessage(text, 'ai'));
         } else {
-            if (Array.isArray(data.response)) {
-                data.response.forEach(text => addMessage(text, 'ai'));
-            } else {
-                addMessage(data.response, 'ai');
-            }
+            addMessage(data.response, 'ai');
         }
-
-    
-
-        showOptions(data.options);
-
-  // NOUVELLE VERSION AMÉLIORÉE
-    } catch (error) {
-        // Message d'erreur clair et bilingue pour les problèmes de réseau
-        const errorText = conversationState.lang === 'fr' 
-            ? "Désolé, une erreur de communication avec le serveur est survenue. Veuillez vérifier votre connexion internet ou réessayer plus tard."
-            : "Sorry, a communication error with the server occurred. Please check your internet connection or try again later.";
         
-        if (loadingMessageContent) {
-            loadingMessageContent.textContent = errorText;
-        } else {
-            addMessage(errorText, 'ai');
+        showOptions(data.options, data.is_text_input);
+
+    } catch (error) {
+        // S'il y a une erreur, on s'assure de retirer l'indicateur aussi
+        if (indicatorElement) {
+            indicatorElement.remove();
         }
 
-        // On affiche l'option pour permettre à l'utilisateur de s'en sortir
-        const restartOption = conversationState.lang === 'fr' ? "Recommencer" : "Restart";
-        showOptions([restartOption]);
-
-        console.error("Erreur lors de l'appel à l'API :", error);
+        const errorText = conversationState.lang === 'fr' 
+            ? "Désolé, une erreur de communication est survenue. Veuillez réessayer."
+            : "Sorry, a communication error occurred. Please try again.";
+        addMessage(errorText, 'ai');
+        showOptions(["Recommencer"].filter(o => conversationState.lang === 'fr').concat(["Restart"].filter(o => conversationState.lang !== 'fr')));
+        console.error("Erreur API:", error);
     }
 }
 
@@ -823,6 +963,7 @@ chatInput.disabled = true;
 // =======================================================================
 // Update your mobile menu JavaScript
 document.addEventListener('DOMContentLoaded', function() {
+    
     const menuToggle = document.getElementById('menu-toggle');
     const navMenu = document.querySelector('.nav-menu');
     
