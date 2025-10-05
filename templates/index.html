@@ -9,6 +9,15 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-PVE22CBKK7"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-PVE22CBKK7');
+    </script>
     <style>
         :root {
             --sidebar-bg: #f8f9fa; --chat-background: #ffffff; --main-bg: #f8f9fa; --input-bg: #f8f9fa;
@@ -66,6 +75,10 @@
                 #main-header.header-hidden {
             /* Au lieu de changer la hauteur, on déplace la barre vers le haut */
             transform: translateY(-100%);
+            /* En passant la position à 'absolute', on retire l'en-tête du flux
+               de la page. La zone de chat en dessous va alors automatiquement
+               monter et occuper l'espace libéré, créant l'effet plein écran. */
+            position: absolute;
         }
 
        /* --- 2. Le conteneur du logo et du titre --- */
@@ -168,6 +181,30 @@
             display: flex;
             align-items: center;
             gap: 10px; /* Espace entre le spinner et le texte */
+        }
+        /* style pour la langue de la home page*/
+
+        .lang-selector {
+            font-size: 0.9rem;
+            font-weight: 500;
+            padding: 0.375rem 0.75rem;
+            background-color: #e9ecef;
+            border-radius: 25px;
+            display: flex; /* Pour aligner les boutons de langue */
+            align-items: center;
+        }
+        
+        .lang-selector .lang-btn {
+            text-decoration: none;
+            color: #6c757d;
+            padding: 0.2rem 0.4rem;
+            border-radius: 20px;
+        }
+
+        .lang-selector .lang-btn.active {
+            color: var(--primary-color);
+            background-color: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
 
         .nav-menu {
@@ -368,6 +405,11 @@
             width: 100%;
             text-align: left;
         }
+
+        .lang-selector {
+        order: -1; /* Place le sélecteur de langue en haut du menu mobile */
+        margin-bottom: 0.5rem; /* Ajoute un peu d'espace en dessous */
+        }
     }
 
     @media (max-width: 576px) {
@@ -493,9 +535,14 @@
                 <span id="app-title" class="app-title">TCHATCHI AI <br>Pedagogical Assistant</span>
             </div>
                
-            <div class="nav-menu">
-                <a href="/about" class="btn btn-light btn-sm">About</a>
-                <a href="/donate" class="btn btn-success btn-sm"><i class="bi bi-heart"></i> Donate</a>
+                 <div class="nav-menu">
+                <div class="lang-selector">
+                    <a href="#" class="lang-btn" data-lang="en">🇬🇧 EN</a>
+                    <a href="#" class="lang-btn" data-lang="fr">🇫🇷 FR</a>
+                </div>
+                <a href="/" class="btn btn-light btn-sm active" data-lang-en="Home" data-lang-fr="Accueil">Home</a>
+                <a href="/about" class="btn btn-light btn-sm" data-lang-en="About" data-lang-fr="À Propos">About</a>
+                <a href="/donate" class="btn btn-success btn-sm"><i class="bi bi-heart"></i> <span data-lang-en="Donate" data-lang-fr="Soutenir">Donate</span></a>
             </div>
         </div>
         <div id="chat-container">
@@ -563,7 +610,7 @@
                     <hr>
                     <h6>💡 Projet personnel, sans financement externe</h6>
                     <p>
-                        Chaque ressource générée coûte en moyenne <strong>15 FCFA</strong> en frais de calcul. Plus de <strong>13 300 ressources</strong> ont déjà été générées, soit un coût cumulé d'environ <strong>199 500 FCFA</strong>, entièrement à notre charge.
+                        Chaque ressource générée coûte en moyenne <strong>15 FCFA</strong> en frais de calcul. Plus de <strong>18 000 ressources</strong> ont déjà été générées, soit un coût cumulé d'environ <strong>270 000 FCFA</strong>, entièrement à notre charge.
                     </p>
                     <h6>💰 Comment contribuer / faire un don</h6>
                     <p>Chaque don, petit ou grand, aide à couvrir les frais et à assurer l'accessibilité de la plateforme.</p>
@@ -592,7 +639,7 @@
                         <strong>TCHATCHI AI</strong> is a personal project with no external funding, built to help Cameroonian teachers create lesson plans and assessments aligned with local curricula.
                     </p>
                     <p>
-                        Each resource generated costs about <strong>15 FCFA</strong> in AI processing fees. Over <strong>13,300 resources</strong> have been generate, meaning over <strong>199,500 FCFA</strong> have been invested so far, free for educators.
+                        Each resource generated costs about <strong>15 FCFA</strong> in AI processing fees. Over <strong>18,000 resources</strong> have been generate, meaning over <strong>270,000 FCFA</strong> have been invested so far, free for educators.
                     </p>
                     <h6>💰 Donate via:</h6>
                      <div class="donation-methods">
@@ -871,64 +918,56 @@ async function sendMessageToBackend(userMessage) {
 
 
 
-
-// Dans index.html, remplacez la fonction downloadPdf
+//fonction downloadpdf
 
 async function downloadPdf() {
-   // ===== CORRECTION APPLIQUÉE ICI =====
-    // On récupère le texte directement de l'état actuel de la conversation.
     const markdown_text_to_send = conversationState.generated_text;
-
     if (!markdown_text_to_send) {
-        addMessage("Erreur : Aucun contenu à télécharger n'a été trouvé.", 'ai');
-        setTimeout(() => sendMessageToBackend("internal_pdf_download_complete"), 1500);
+        addMessage("Erreur : Aucun contenu à télécharger.", 'ai');
         return;
     }
 
-    addMessage("Préparation du PDF...", 'ai');
+    const loadingHtml = `<div class="loading-content"><div class="spinner"></div><span>Préparation du PDF...</span></div>`;
+    addMessage(loadingHtml, 'ai');
     const loadingMessageContent = chatMessages.lastElementChild.querySelector('.content');
 
     try {
         const response = await fetch('/api/generate-pdf', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                // On envoie le texte qu'on a récupéré de l'état.
-                markdown_text: markdown_text_to_send,
-                state: conversationState
-            })
+            body: JSON.stringify({ markdown_text: markdown_text_to_send, state: conversationState })
         });
+        const data = await response.json();
 
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.details || "Le serveur n'a pas pu générer le PDF.");
+        // NOUVELLE GESTION D'ERREUR
+        if (!response.ok || !data.success) {
+            // Au lieu de lancer une erreur, on informe le backend
+            const errorText_fr = "Échec de la conversion PDF.";
+            const errorText_en = "PDF conversion failed.";
+            loadingMessageContent.innerHTML = `<span>${conversationState.lang === 'fr' ? errorText_fr : errorText_en}</span>`;
+            // On envoie un message interne au backend pour qu'il propose les bonnes options
+            sendMessageToBackend("internal_pdf_generation_failed");
+            return; // On arrête l'exécution de la fonction ici
         }
+        
+        const downloadUrl = `/api/download/${data.temp_filename}/${data.download_filename}`;
+        window.location.href = downloadUrl;
 
-        // Le reste de la logique de téléchargement est inchangée
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        const doc_type = conversationState.flow_type || 'document';
-        a.download = `TCHATCHI_AI_${doc_type}.pdf`; // Nom de fichier dynamique
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-        loadingMessageContent.textContent = "Votre téléchargement a commencé.";
-        // =======================================================================
-        // NOUVELLE LIGNE POUR RELANCER LA CONVERSATION
-        // On attend une petite seconde pour que l'utilisateur voie le message de confirmation,
-        // puis on envoie le message secret au bot pour qu'il affiche le menu principal.
-        // =======================================================================
+        const successText_fr = "Votre téléchargement a commencé.";
+        const successText_en = "Your download has started.";
+        loadingMessageContent.innerHTML = `<span>${conversationState.lang === 'fr' ? successText_fr : successText_en}</span>`;
         setTimeout(() => sendMessageToBackend("internal_pdf_download_complete"), 1500);
 
     } catch (error) {
-        loadingMessageContent.textContent = `Échec du téléchargement : ${error.message}`;
+        // NOUVELLE GESTION D'ERREUR AUSSI DANS LE CATCH
+        const errorText_fr = "Échec du téléchargement. Une erreur réseau est peut-être survenue.";
+        const errorText_en = "Download failed. A network error may have occurred.";
+        loadingMessageContent.innerHTML = `<span>${conversationState.lang === 'fr' ? errorText_fr : errorText_en}</span>`;
+        sendMessageToBackend("internal_pdf_generation_failed");
         console.error("Erreur de téléchargement PDF:", error);
     }
 }
+
 
 // --- 5. GESTION DES ÉVÉNEMENTS UTILISATEUR ---
 async function handleOptionClick(event) {
@@ -966,6 +1005,41 @@ document.addEventListener('DOMContentLoaded', function() {
     
     const menuToggle = document.getElementById('menu-toggle');
     const navMenu = document.querySelector('.nav-menu');
+     const langButtons = document.querySelectorAll('.lang-btn');
+    const translatableElements = document.querySelectorAll('[data-lang-en]');
+    
+    const switchLanguage = (lang) => {
+        // Traduit chaque élément qui a les attributs data-lang-
+        translatableElements.forEach(el => {
+            const text = el.dataset[lang === 'fr' ? 'langFr' : 'langEn'];
+            // On s'assure de ne pas écraser les icônes (comme le coeur)
+            if (el.querySelector('span')) {
+                el.querySelector('span').innerHTML = text;
+            } else {
+                el.innerHTML = text;
+            }
+        });
+
+        // Met à jour le bouton de langue actif
+        langButtons.forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.lang === lang);
+        });
+        
+        // Sauvegarde la préférence pour les futures visites
+        localStorage.setItem('selectedLanguage', lang);
+    };
+
+    // Ajoute les écouteurs d'événements aux boutons de langue
+    langButtons.forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.preventDefault();
+            switchLanguage(button.dataset.lang);
+        });
+    });
+
+    // Au chargement, applique la langue sauvegardée ou l'anglais par défaut
+    const savedLang = localStorage.getItem('selectedLanguage') || 'en';
+    switchLanguage(savedLang);
     
     if (menuToggle && navMenu) {
         menuToggle.addEventListener('click', function(e) {

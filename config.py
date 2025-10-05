@@ -6,6 +6,7 @@ load_dotenv()
 
 # Récupère la clé API depuis l'environnement
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") # AJOUT DE LA CLÉ GEMINI
 
 
 # On déplace le gros dictionnaire de traductions ici
@@ -52,7 +53,14 @@ TITLES = {
         "EVAL_PDF_AUTHOR": "TCHATCHI AI - Évaluation",
         "EVAL_CORRIGE_TITRE": "CORRIGÉ DÉTAILLÉ",
         "INT_PDF_TITLE": "Activité d'Intégration",
-        "INT_PDF_AUTHOR": "TCHATCHI AI - Activité Pédagogique"
+        "INT_PDF_AUTHOR": "TCHATCHI AI - Activité Pédagogique",
+         # --- **NOUVELLES CLÉS AJOUTÉES** ---
+        "PLAN_LECON": "PLAN DE LA LEÇON",
+        "PREREQUIS": "RAPPEL DES PRÉ-REQUIS",
+        "APPLICATION_VIE_REELLE": "APPLICATION DANS LA VIE RÉELLE",
+        "CONCEPTS_CLES": "PRÉSENTATION DES CONCEPTS",
+        "EXERCICES_APPLICATION": "EXERCICES D'APPLICATION",
+        "RESSOURCES_NUMERIQUES": "RESSOURCES NUMÉRIQUES COMPLÉMENTAIRES"
     },
     'en': {
         "FICHE_DE_LECON": "CBA LESSON PLAN", 
@@ -93,7 +101,15 @@ TITLES = {
         "EVAL_PDF_AUTHOR": "TCHATCHI AI - Assessment",
         "EVAL_CORRIGE_TITRE": "DETAILED ANSWER KEY",
         "INT_PDF_TITLE": "Integration Activity",
-        "INT_PDF_AUTHOR": "TCHATCHI AI - Pedagogical Activity"
+        "INT_PDF_AUTHOR": "TCHATCHI AI - Pedagogical Activity",
+
+        # --- **NOUVELLES CLÉS AJOUTÉES** ---
+        "PLAN_LECON": "LESSON PLAN",
+        "PREREQUIS": "PREVIOUS KNOWLEDGE REVIEW",
+        "APPLICATION_VIE_REELLE": "REAL LIFE APPLICATION",
+        "CONCEPTS_CLES": "PRESENTATION OF CONCEPTS",
+        "EXERCICES_APPLICATION": "APPLICATION EXERCISES",
+        "RESSOURCES_NUMERIQUES": "ADDITIONAL DIGITAL RESOURCES"
     },
     'de': {
         "FICHE_DE_LECON": "LEKTIONSPLAN (CBA)", 
@@ -134,7 +150,14 @@ TITLES = {
         "EVAL_PDF_AUTHOR": "TCHATCHI AI - Prüfung",
         "EVAL_CORRIGE_TITRE": "AUSFÜHRLICHER LÖSUNGSSCHLÜSSEL",
         "INT_PDF_TITLE": "Integrationsaktivität",
-        "INT_PDF_AUTHOR": "TCHATCHI AI - Pädagogische Aktivität"
+        "INT_PDF_AUTHOR": "TCHATCHI AI - Pädagogische Aktivität",
+         # --- NOUVELLES CLÉS AJOUTÉES ---
+        "PLAN_LECON": "LEKTIONSPLAN",
+        "PREREQUIS": "WIEDERHOLUNG DER VORKENNTNISSE",
+        "APPLICATION_VIE_REELLE": "ANWENDUNG IM WIRKLICHEN LEBEN",
+        "CONCEPTS_CLES": "PRÄSENTATION DER KONZEPTE",
+        "EXERCICES_APPLICATION": "ANWENDUNGSÜBUNGEN",
+        "RESSOURCES_NUMERIQUES": "ZUSÄTZLICHE DIGITALE RESSOURCEN"
     },
     'es': {
         "FICHE_DE_LECON": "FICHA DE LECCIÓN (APC)", 
@@ -175,7 +198,14 @@ TITLES = {
         "EVAL_PDF_AUTHOR": "TCHATCHI AI - Evaluación",
         "EVAL_CORRIGE_TITRE": "CLAVE DE RESPUESTAS DETALLADA",
         "INT_PDF_TITLE": "Actividad de Integración",
-        "INT_PDF_AUTHOR": "TCHATCHI AI - Actividad Pedagógica"
+        "INT_PDF_AUTHOR": "TCHATCHI AI - Actividad Pedagógica",
+        # --- NOUVELLES CLÉS AJOUTÉES ---
+        "PLAN_LECON": "PLAN DE LA LECCIÓN",
+        "PREREQUIS": "REPASO DE CONOCIMIENTOS PREVIOS",
+        "APPLICATION_VIE_REELLE": "APLICACIÓN EN LA VIDA REAL",
+        "CONCEPTS_CLES": "PRESENTACIÓN DE CONCEPTOS",
+        "EXERCICES_APPLICATION": "EJERCICIOS DE APLICACIÓN",
+        "RESSOURCES_NUMERIQUES": "RECURSOS DIGITALES ADICIONALES"
 
     },
     'zh': {
@@ -217,7 +247,14 @@ TITLES = {
         "EVAL_PDF_AUTHOR": "TCHATCHI AI - 评估",
         "EVAL_CORRIGE_TITRE": "详细答案",
         "INT_PDF_TITLE": "整合活动",
-        "INT_PDF_AUTHOR": "TCHATCHI AI - 教学活动"
+        "INT_PDF_AUTHOR": "TCHATCHI AI - 教学活动",
+        # --- NOUVELLES CLÉS AJOUTÉES ---
+        "PLAN_LECON": "课程计划",
+        "PREREQUIS": "前提知识回顾",
+        "APPLICATION_VIE_REELLE": "实际生活应用",
+        "CONCEPTS_CLES": "概念介绍",
+        "EXERCICES_APPLICATION": "应用练习",
+        "RESSOURCES_NUMERIQUES": "额外的数字资源"
     },
     'ar': {
         "FICHE_DE_LECON": "خطة درس", "OBJECTIFS": "الأهداف التعليمية", "SITUATION_PROBLEME": "الوضعية المشكلة",
@@ -237,7 +274,14 @@ TITLES = {
         "EVAL_PDF_AUTHOR": "TCHATCHI AI - تقييم",
         "EVAL_CORRIGE_TITRE": "مفتاح الإجابة المفصل",
         "INT_PDF_TITLE": "نشاط إدماجي",
-        "INT_PDF_AUTHOR": "TCHATCHI AI - نشاط تربوي"
+        "INT_PDF_AUTHOR": "TCHATCHI AI - نشاط تربوي",
+        # --- NOUVELLES CLÉS AJOUTÉES ---
+        "PLAN_LECON": "خطة الدرس",
+        "PREREQUIS": "مراجعة المعرفة السابقة",
+        "APPLICATION_VIE_REELLE": "تطبيق واقعي",
+        "CONCEPTS_CLES": "عرض المفاهيم",
+        "EXERCICES_APPLICATION": "تمارين تطبيقية",
+        "RESSOURCES_NUMERIQUES": "مصادر رقمية إضافية"
     },
     'it': {
         "FICHE_DE_LECON": "PIANO DI LEZIONE (APC)", "OBJECTIFS": "OBIETTIVI DI APPRENDIMENTO", "SITUATION_PROBLEME": "SITUAZIONE PROBLEMATICA",
@@ -258,6 +302,13 @@ TITLES = {
         "EVAL_PDF_AUTHOR": "TCHATCHI AI - Valutazione",
         "EVAL_CORRIGE_TITRE": "CHIAVE DI RISPOSTA DETTAGLIATA",
         "INT_PDF_TITLE": "Attività di Integrazione",
-        "INT_PDF_AUTHOR": "TCHATCHI AI - Attività Pedagogica"
+        "INT_PDF_AUTHOR": "TCHATCHI AI - Attività Pedagogica",
+         # --- NOUVELLES CLÉS AJOUTÉES ---
+        "PLAN_LECON": "PIANO DELLA LEZIONE",
+        "PREREQUIS": "REVISIONE DELLE CONOSCENZE PRECEDENTI",
+        "APPLICATION_VIE_REELLE": "APPLICAZIONE NELLA VITA REALE",
+        "CONCEPTS_CLES": "PRESENTAZIONE DEI CONCETTI",
+        "EXERCICES_APPLICATION": "ESERCIZI DI APPLICAZIONE",
+        "RESSOURCES_NUMERIQUES": "RISORSE DIGITALI AGGIUNTIVE"
     }
 }

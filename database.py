@@ -48,32 +48,19 @@ def increment_stat(key):
     except Exception as e:
         logger.error(f"Error calling RPC to increment stat '{key}': {e}")
 
+# la fonction get_all_stats
 def get_all_stats():
-    """Get all statistics"""
-    if not supabase:
-        return {
-            "lessons": 0,
-            "integrations": 0,
-            "evaluations": 0,
-            "total_documents": 0
-        }
-    
+    if not supabase: return {"lessons": 0, "integrations": 0, "evaluations": 0, "total_documents": 0, "digital_lessons": 0}
     try:
         result = supabase.table("stats").select("*").execute()
         stats = {item["stat_key"]: item["stat_value"] for item in result.data}
-        
-        # Ensure all expected keys exist
         return {
             "lessons": stats.get("lessons_generated", 0),
             "integrations": stats.get("integrations_generated", 0),
             "evaluations": stats.get("evaluations_generated", 0),
-            "total_documents": stats.get("total_documents", 0)
+            "total_documents": stats.get("total_documents", 0),
+            "digital_lessons": stats.get("digital_lessons_generated", 0) # <-- AJOUT
         }
     except Exception as e:
         logger.error(f"Error fetching stats: {e}")
-        return {
-            "lessons": 0,
-            "integrations": 0,
-            "evaluations": 0,
-            "total_documents": 0
-        }
+        return {"lessons": 0, "integrations": 0, "evaluations": 0, "total_documents": 0, "digital_lessons": 0}

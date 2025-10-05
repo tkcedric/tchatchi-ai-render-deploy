@@ -9,6 +9,12 @@ AUTRE_OPTION_FR = "✍️ Autre (préciser)"
 AUTRE_OPTION_EN = "✍️ Other (specify)"
 
 # =======================================================================
+# NOUVELLES OPTIONS DE RÉGÉNÉRATION
+# =======================================================================
+REGENERATE_OPTION_FR = " régénérer"
+REGENERATE_OPTION_EN = "Regenerate"
+
+# =======================================================================
 # SOUS-SYSTÈMES
 # =======================================================================
 SUBSYSTEME_FR = ['Enseignement Secondaire Général (ESG)', 'Enseignement Secondaire Technique (EST)']
@@ -67,7 +73,7 @@ MATIERES = {
         'esg': sorted(['Additional Maths', 'Biology', 'Chemistry', 'Computer Science', 'Economics', 'English', 'Food and Nutrition', 'French', 'Further Maths', 'Geography', 'Geology', 'History', 'ICT', 'Logic', 'Mathematics', 'Orientation', 'Physics']),
         'est': sorted([
             # General subjects
-            'Mathematics', 'Physics', 'Chemistry', 'French', 'History', 'Geography', 'Philosophy', 'English', 'Citizenship Education', 'German', 'Computer Science',
+            'Mathematics', 'Physics', 'Chemistry', 'French', 'History', 'Geography', 'Philosophy', 'English', 'Citizenship Education', 'German', 'Computer Science', 'ICT',
             # Technical specialties
             'Accommodation', 'Accounting Services Employee', 'Administrative Communication and Action',
             'Aesthetics and Hairdressing', 'Agricultural Equipment Maintenance', 'Animal Production',
