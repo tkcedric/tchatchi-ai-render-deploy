@@ -28,4 +28,4 @@ COPY . .
 EXPOSE 10000
 
 # Étape 7: La commande pour lancer notre application.
-CMD ["gunicorn", "--worker-tmp-dir", "/dev/shm", "--bind", "0.0.0.0:10000", "app:app"]
+CMD ["gunicorn", "--worker-tmp-dir", "/dev/shm", "--bind", "0.0.0.0:10000", "--timeout", "120", "app:app"]

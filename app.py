@@ -1,7 +1,7 @@
 # app.py - Version finale avec une machine à états robuste pour la fonctionnalité "Retour"
 
 import logging
-from flask import Flask, request, jsonify, send_file, Response, render_template,send_from_directory,after_this_request
+from flask import Flask, request, jsonify, send_file, Response, render_template,send_from_directory,after_this_request, url_for, redirect, session
 import requests
 from flask_cors import CORS
 from core_logic import generate_lesson_logic, generate_integration_logic, generate_evaluation_logic, generate_digital_lesson_logic
@@ -9,8 +9,13 @@ import os
 import uuid
 import re
 import shutil # Importé pour le nettoyage des dossiers
+import secrets
 from utils import create_pdf_with_pandoc
-from database import increment_stat, get_all_stats, init_db 
+from functools import wraps
+from database import increment_stat, get_all_stats, init_db , supabase 
+from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+from authlib.integrations.flask_client import OAuth
+from config import GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, APP_SECRET_KEY
 
 # On importe les dictionnaires de menus de notre code original
 from bot_data import CLASSES, MATIERES, SUBSYSTEME_FR, SUBSYSTEME_EN, LANGUES_CONTENU_COMPLET, LANGUES_CONTENU_SIMPLIFIE,  REGENERATE_OPTION_FR, REGENERATE_OPTION_EN
@@ -21,6 +26,54 @@ CORS(app)
 
 # initialisation de la bd
 init_db()
+
+# --- Configuration de l'Authentification ---
+app.secret_key = APP_SECRET_KEY
+login_manager = LoginManager()
+login_manager.init_app(app)
+oauth = OAuth(app)
+
+# URL de découverte automatique de Google. C'est la seule URL dont nous avons besoin.
+CONF_URL = 'https://accounts.google.com/.well-known/openid-configuration'
+
+google = oauth.register(
+    name='google',
+    client_id=GOOGLE_CLIENT_ID,
+    client_secret=GOOGLE_CLIENT_SECRET,
+    
+    # On ne fournit QUE l'URL des métadonnées.
+    # Authlib découvrira toutes les autres URL (token, auth, userinfo, jwks) tout seul.
+    # CELA CORRIGE LES ERREURS "invalid_claim" ET "mismatching_state".
+    server_metadata_url=CONF_URL,
+    
+    # On définit juste le 'scope' que l'on demande à l'utilisateur.
+    client_kwargs={
+        'scope': 'openid email profile'
+    }
+)
+
+
+# --- Modèle Utilisateur pour Flask-Login ---
+class User(UserMixin):
+    def __init__(self, user_data):
+        self.id = user_data['id']
+        self.email = user_data['email']
+        self.full_name = user_data['full_name']
+        self.plan_type = user_data.get('plan_type', 'free')
+        self.generation_count = user_data.get('generation_count', 0)
+        # On ajoute le rôle
+        self.role = user_data.get('role', 'user')
+
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    # Charge l'utilisateur depuis la base de données
+    response = supabase.table('users').select('*').eq('id', user_id).single().execute()
+    if response.data:
+        return User(response.data)
+    return None
+
 
 # --- Configuration pour les fichiers temporaires ---
 # On s'assure que le dossier pour les téléchargements temporaires existe.
@@ -95,105 +148,143 @@ CONVERSATION_FLOW = {
     'digital_ask_lecon': {'question_fr': "Quel est le titre de la leçon à digitaliser ?", 'question_en': "What is the title of the lesson to digitalise?", 'get_options': lambda l,d: [], 'get_next_step': lambda m: 'pending_generation', 'is_text_input': True}
 }
 
-def handle_chat_recursive(state, message):
-    fake_data = {'message': message, 'state': state}
-    with app.test_request_context('/api/chat', method='POST', json=fake_data):
-        return handle_chat()
     
 
 
+#========================================================================
+# DÉCORATEUR DE VÉRIFICATION DE SESSION
+# =======================================================================
+def check_session(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        # S'assure que l'utilisateur est bien connecté
+        if not current_user.is_authenticated:
+            return jsonify({'error': 'Authentication required'}), 401
+
+        # Récupère le jeton de la session du navigateur
+        session_token = session.get('session_token')
+        
+        # Récupère le jeton actuel depuis la base de données
+        response = supabase.table('users').select('session_token').eq('id', current_user.id).single().execute()
+        
+        if not response.data or session_token != response.data.get('session_token'):
+            # Si les jetons ne correspondent pas, on déconnecte l'utilisateur
+            logout_user()
+            return jsonify({'error': 'Session invalide. Vous avez été déconnecté car une nouvelle session a été ouverte ailleurs.'}), 401 # Unauthorized
+        
+        # Si tout est bon, on exécute la fonction demandée
+        return f(*args, **kwargs)
+    return decorated_function
+# --- Application du décorateur ---
+# On l'ajoute à la route du chat
+
+
+# HANDLE CHAT FUNCTION :
+
 @app.route('/api/chat', methods=['POST'])
+@login_required
+@check_session
 def handle_chat():
     """
     Gère toute la logique de conversation du chatbot.
-    Cette fonction est conçue comme une machine à états qui traite la demande de l'utilisateur
-    en suivant un ordre de priorité clair pour éviter les erreurs.
+    Cette version est refactorisée pour un flux linéaire SANS récursion,
+    ce qui résout les bugs de perte de session (erreur 401).
     """
     # --- PHASE 0 : INITIALISATION ---
-    # On récupère les données de la requête et on initialise nos variables de travail.
     data = request.get_json()
     user_message = data.get('message')
     state = data.get('state', {})
     
     current_step = state.get('currentStep', 'start')
-    lang = state.get('lang', 'en')
+    lang = state.get('lang', 'fr')
     collected_data = state.get('collectedData', {})
     step_history = state.get('step_history', [])
-    
-    # =======================================================================
-    # --- PHASE 1 : GESTION DES ACTIONS SPÉCIALES ---
-    # Ces actions (Retour, Régénérer, etc.) ont la priorité sur le flux normal.
-    # =======================================================================
 
-    # Action 1: L'utilisateur veut régénérer la dernière ressource.
+    # --- PHASE 1 : GESTION DES ACTIONS SPÉCIALES (PRIORITAIRES) ---
     if user_message in [REGENERATE_OPTION_FR, REGENERATE_OPTION_EN]:
-        # La solution la plus simple : on force l'étape à "generation_step".
-        # Le code continuera son exécution et entrera dans le bloc de génération plus bas,
-        # en utilisant les "collected_data" qui sont déjà en mémoire.
         current_step = 'generation_step'
-
-    # Action 2: Le frontend nous informe que la conversion PDF a échoué.
     elif user_message == "internal_pdf_generation_failed":
-        response_text = "Désolé, la conversion en PDF a échoué. Cela est souvent dû à des caractères spéciaux inattendus. Vous pouvez essayer de régénérer le contenu." if lang == 'fr' else "Sorry, the PDF conversion failed. This is often due to unexpected special characters. You can try regenerating the content."
+        response_text = "Désolé, la conversion en PDF a échoué. Vous pouvez essayer de régénérer le contenu." if lang == 'fr' else "Sorry, the PDF conversion failed. You can try regenerating the content."
         options = [REGENERATE_OPTION_FR, "Recommencer"] if lang == 'fr' else [REGENERATE_OPTION_EN, "Restart"]
-        # On retourne directement une réponse, car c'est une action terminale.
         return jsonify({'response': response_text, 'options': options, 'state': state})
-    
-    # Action 3: L'utilisateur veut revenir à l'étape précédente.
     elif user_message in [BACK_OPTION_FR, BACK_OPTION_EN]:
-        if not step_history: # S'il n'y a pas d'historique, on recommence.
-            state = {'lang': lang, 'currentStep': 'select_option', 'collectedData': {}, 'step_history': []}
-        else: # Sinon, on dépile la dernière étape.
-            step_to_revert_to = step_history.pop()
-            # On retire la donnée collectée à cette étape pour pouvoir la redemander.
-            data_key_to_remove = DATA_KEY_FOR_STEP.get(step_to_revert_to)
+        if not step_history:
+            current_step = 'select_option'
+            collected_data = {}
+        else:
+            current_step = step_history.pop()
+            data_key_to_remove = DATA_KEY_FOR_STEP.get(current_step)
             if data_key_to_remove:
                 if isinstance(data_key_to_remove, list):
                     for key in data_key_to_remove: collected_data.pop(key, None)
                 else:
                     collected_data.pop(data_key_to_remove, None)
-            # On met à jour l'état pour refléter le retour en arrière.
-            state['currentStep'] = step_to_revert_to
-            state['collectedData'] = collected_data
-            state['step_history'] = step_history
-        # On demande à la fonction d'afficher l'étape précédente.
-        return handle_chat_recursive(state, "internal_show_step")
-
-    # Action 4: L'utilisateur veut tout recommencer ou a fini un téléchargement.
     elif user_message in ["Recommencer", "Restart", "internal_pdf_download_complete"]:
-        state = {'lang': lang, 'currentStep': 'select_option', 'collectedData': {}, 'step_history': []}
-        # On demande à la fonction d'afficher la toute première option.
-        return handle_chat_recursive(state, "internal_show_step")
-    
-    # =======================================================================
-    # --- PHASE 2 : GESTION DES ÉTAPES DE CONTRÔLE DU FLUX ---
-    # Ces étapes ne collectent pas de données mais dirigent la conversation.
-    # =======================================================================
+        current_step = 'select_option'
+        collected_data = {}
+        step_history = []
+    # --- PHASE 2 : TRAITEMENT DU MESSAGE UTILISATEUR (FLUX NORMAL) ---
+    else:
+        if current_step == 'start':
+            lang = 'fr' if 'Français' in user_message else 'en'
+            current_step = 'select_option'
+            collected_data = {}
+            step_history = []
+        else:
+            step_definition = CONVERSATION_FLOW.get(current_step)
+            if not step_definition:
+                current_step = 'select_option'
+                collected_data = {}
+                step_history = []
+            else:
+                if current_step == 'select_option':
+                    if 'digital' in user_message.lower(): collected_data['flow_type'] = 'digital'
+                    elif 'leçon' in user_message.lower() or 'lesson' in user_message.lower(): collected_data['flow_type'] = 'lecon'
+                    elif 'intégration' in user_message.lower() or 'integration' in user_message.lower(): collected_data['flow_type'] = 'integration'
+                    elif 'évaluation' in user_message.lower() or 'assessment' in user_message.lower(): collected_data['flow_type'] = 'evaluation'
+                else:
+                    data_key = DATA_KEY_FOR_STEP.get(current_step)
+                    if data_key:
+                        if isinstance(data_key, list):
+                            parts = user_message.split(',')
+                            collected_data[data_key[0]] = parts[0].strip() if parts else "N/A"
+                            collected_data[data_key[1]] = parts[1].strip() if len(parts) > 1 else "N/A"
+                        elif data_key == 'subsystem':
+                            collected_data[data_key] = 'esg' if 'général' in user_message.lower() or 'general' in user_message.lower() else 'est'
+                        else:
+                            collected_data[data_key] = user_message
+                next_step_func = step_definition.get('get_next_step')
+                next_step = next_step_func(user_message) if next_step_func else None
+                if not next_step:
+                    response_text = "Je n'ai pas compris, veuillez réessayer." if lang == 'fr' else "I didn't understand, please try again."
+                    options = step_definition['get_options'](lang, collected_data)
+                    if step_history:
+                        options.insert(0, BACK_OPTION_FR if lang == 'fr' else BACK_OPTION_EN)
+                    state.update({'currentStep': current_step, 'collectedData': collected_data, 'step_history': step_history, 'lang': lang})
+                    return jsonify({'response': response_text, 'options': options, 'is_text_input': step_definition.get('is_text_input', False), 'state': state})
+                step_history.append(current_step)
+                current_step = next_step
 
-    # Étape 'start': Choix de la langue, la toute première interaction.
-    if current_step == 'start':
-        lang = 'fr' if 'Français' in user_message else 'en'
-        state = {'lang': lang, 'currentStep': 'select_option', 'collectedData': {}, 'step_history': []}
-        return handle_chat_recursive(state, "internal_show_step")
-    
-    # Étape 'pending_generation': La collecte de données est terminée, on passe à la génération.
+    # --- PHASE 3 : LE BLOC DE GÉNÉRATION (SI NÉCESSAIRE) ---
     if current_step == 'pending_generation':
-        # On met à jour la variable locale pour que le code entre dans le bloc de génération ci-dessous.
         current_step = 'generation_step'
 
-    # =======================================================================
-    # --- PHASE 3 : LE BLOC DE GÉNÉRATION ---
-    # Si l'étape est 'generation_step', on appelle l'IA. C'est un bloc terminal.
-    # =======================================================================
     if current_step == 'generation_step':
+        is_admin = hasattr(current_user, 'role') and current_user.role == 'admin'
+        if current_user.plan_type == 'free':
+            GENERATION_LIMIT = 5 
+            if current_user.generation_count >= GENERATION_LIMIT:
+                return jsonify({
+                'response': "Vous avez atteint votre limite de générations gratuites.",
+                'options': ["Passer au plan Premium"],
+                'state': state
+            }), 403
+
         flow_type = collected_data.get('flow_type')
         try:
-            # Sécurité : si on arrive ici sans savoir quoi faire, on lève une erreur.
             if not flow_type:
                 raise ValueError("flow_type est manquant dans collected_data. Impossible de générer.")
             
-            # Logique de préparation des arguments et d'appel à l'IA (inchangée).
-            # ...
             generated_text = ""
             lesson_args = {k: v for k, v in collected_data.items() if k in ['classe', 'matiere', 'module', 'lecon', 'syllabus', 'langue_contenu']}
             integration_args = {k: v for k, v in collected_data.items() if k in ['classe', 'matiere', 'liste_lecons', 'objectifs_lecons', 'langue_contenu']}
@@ -202,12 +293,21 @@ def handle_chat():
 
             if flow_type == 'lecon':
                 generated_text, _ = generate_lesson_logic(**lesson_args)
+                if not is_admin and current_user.plan_type == 'free':
+                    new_count = current_user.generation_count + 1
+                    supabase.table('users').update({'generation_count': new_count}).eq('id', current_user.id).execute()
                 increment_stat('lessons_generated')
             elif flow_type == 'digital':
                 generated_text, _ = generate_digital_lesson_logic(**digital_args)
+                if not is_admin and current_user.plan_type == 'free':
+                    new_count = current_user.generation_count + 1
+                    supabase.table('users').update({'generation_count': new_count}).eq('id', current_user.id).execute()
                 increment_stat('digital_lessons_generated')
             elif flow_type == 'integration':
                  generated_text, _ = generate_integration_logic(**integration_args)
+                 if not is_admin and current_user.plan_type == 'free':
+                    new_count = current_user.generation_count + 1
+                    supabase.table('users').update({'generation_count': new_count}).eq('id', current_user.id).execute()
                  increment_stat('integrations_generated')
             elif flow_type == 'evaluation':
                 user_choice = collected_data.get('type_epreuve', '')
@@ -217,23 +317,35 @@ def handle_chat():
                 evaluation_args['contexte_syllabus'] = collected_data['contexte_syllabus']
                 args_to_send = {k: v for k, v in collected_data.items() if k in evaluation_args}
                 generated_text, _ = generate_evaluation_logic(**args_to_send)
+                if not is_admin and current_user.plan_type == 'free':
+                    new_count = current_user.generation_count + 1
+                    supabase.table('users').update({'generation_count': new_count}).eq('id', current_user.id).execute()
                 increment_stat('evaluations_generated')
             
             increment_stat('total_documents')
             response_text = generated_text
             
-            # Préparation des options après la génération (avec "Régénérer").
+            options_fr = ["Recommencer", REGENERATE_OPTION_FR, "Télécharger en PDF"]
+            options_en = ["Restart", REGENERATE_OPTION_EN, "Download PDF"]
             if flow_type == 'digital':
                  options_fr = ["Recommencer", REGENERATE_OPTION_FR, "Télécharger en Présentation (PDF)"]
                  options_en = ["Restart", REGENERATE_OPTION_EN, "Download as Presentation (PDF)"]
-            else:
-                 options_fr = ["Recommencer", REGENERATE_OPTION_FR, "Télécharger en PDF"]
-                 options_en = ["Restart", REGENERATE_OPTION_EN, "Download PDF"]
+            
             options = options_fr if lang == 'fr' else options_en
             
-            # Mise à jour finale de l'état avant de renvoyer la réponse.
             state['generated_text'] = generated_text
-            state['step_history'] = [] # On vide l'historique car le flux est terminé.
+            state['step_history'] = []
+
+            title_prefix = collected_data.get('flow_type', 'Document')
+            title_main = collected_data.get('lecon') or collected_data.get('liste_lecons') or "Sans titre"
+            history_title = f"{title_prefix.capitalize()} - {title_main[:30]}"
+            
+            supabase.table('generations').insert({
+                'user_id': current_user.id,
+                'title': history_title,
+                'flow_type': flow_type,
+                'content': generated_text
+            }).execute()
             
         except Exception as e:
             logging.error(f"ERREUR LORS DE LA GÉNÉRATION (flow: {flow_type}): {e}")
@@ -243,66 +355,95 @@ def handle_chat():
         
         return jsonify({'response': response_text, 'options': options, 'state': state})
 
+    # --- PHASE 4 : AFFICHAGE DE LA QUESTION POUR L'ÉTAPE EN COURS ---
+    step_definition = CONVERSATION_FLOW.get(current_step)
+    if not step_definition:
+        current_step = 'select_option'
+        collected_data = {}
+        step_history = []
+        step_definition = CONVERSATION_FLOW['select_option']
+
+    response_text = step_definition['question_fr'] if lang == 'fr' else step_definition['question_en']
+    options = list(step_definition['get_options'](lang, collected_data))
+    is_text_input = step_definition.get('is_text_input', False)
+    
+    if step_history:
+        options.insert(0, BACK_OPTION_FR if lang == 'fr' else BACK_OPTION_EN)
+
+    state.update({
+        'currentStep': current_step,
+        'collectedData': collected_data,
+        'step_history': step_history,
+        'lang': lang
+    })
+    
+    return jsonify({'response': response_text, 'options': options, 'is_text_input': is_text_input, 'state': state})
+    
+    
+
     # =======================================================================
     # --- PHASE 4 : GESTION DU FLUX DE CONVERSATION NORMAL ---
     # Si aucune des conditions ci-dessus n'est remplie, on suit la carte de conversation.
     # =======================================================================
 
-    # On récupère la définition de l'étape actuelle.
+     # EXPLICATION: Ce bloc est le point de sortie final pour toutes les étapes non terminales.
     step_definition = CONVERSATION_FLOW.get(current_step)
-    if not step_definition: # Si l'étape est inconnue, on recommence.
-        state = {'lang': lang, 'currentStep': 'select_option', 'collectedData': {}, 'step_history': []}
-        return handle_chat_recursive(state, "internal_show_step")
+    if not step_definition:
+        # Sécurité : si l'étape est toujours inconnue, on recommence proprement.
+        current_step = 'select_option'
+        collected_data = {}
+        step_history = []
+        step_definition = CONVERSATION_FLOW['select_option']
 
-    # Si le message n'est pas "internal_show_step", cela signifie que l'utilisateur a répondu.
-    if user_message != "internal_show_step":
-        # A. On collecte la donnée fournie par l'utilisateur.
-        if current_step == 'select_option':
-            # CORRECTION CRUCIALE : On stocke 'flow_type' dans 'collected_data'.
-            if 'digital' in user_message.lower(): collected_data['flow_type'] = 'digital'
-            elif 'leçon' in user_message.lower() or 'lesson' in user_message.lower(): collected_data['flow_type'] = 'lecon'
-            elif 'intégration' in user_message.lower() or 'integration' in user_message.lower(): collected_data['flow_type'] = 'integration'
-            elif 'évaluation' in user_message.lower() or 'assessment' in user_message.lower(): collected_data['flow_type'] = 'evaluation'
-        else:
-            # Pour toutes les autres étapes, on utilise notre dictionnaire de mapping.
-            data_key = DATA_KEY_FOR_STEP.get(current_step)
-            if data_key:
-                if isinstance(data_key, list):
-                    parts = user_message.split(',')
-                    collected_data[data_key[0]] = parts[0].strip() if parts else "N/A"
-                    collected_data[data_key[1]] = parts[1].strip() if len(parts) > 1 else "N/A"
-                elif data_key == 'subsystem':
-                    collected_data[data_key] = 'esg' if 'général' in user_message.lower() or 'general' in user_message.lower() else 'est'
-                else:
-                    collected_data[data_key] = user_message
-
-        # B. On détermine l'étape suivante.
-        next_step_func = step_definition.get('get_next_step')
-        next_step = next_step_func(user_message) if next_step_func else None
-        if not next_step: # Si la réponse n'est pas comprise.
-            response_text = "Je n'ai pas compris, veuillez réessayer." if lang == 'fr' else "I didn't understand, please try again."
-            options = step_definition['get_options'](lang, collected_data)
-            return jsonify({'response': response_text, 'options': options, 'state': state})
-        
-        # C. On met à jour l'état COMPLETEMENT avant l'appel récursif.
-        step_history.append(current_step)
-        state['currentStep'] = next_step
-        state['collectedData'] = collected_data
-        state['step_history'] = step_history
-
-        # D. On demande à la fonction d'afficher la nouvelle étape.
-        return handle_chat_recursive(state, "internal_show_step")
+    response_text = step_definition['question_fr'] if lang == 'fr' else step_definition['question_en']
+    options = list(step_definition['get_options'](lang, collected_data))
+    is_text_input = step_definition.get('is_text_input', False)
     
-    # Si on arrive ici, cela signifie que le message était "internal_show_step".
-    # On se contente donc d'afficher la question et les options de l'étape actuelle.
+    # On ajoute l'option "Retour" seulement s'il y a un historique.
+    if step_history:
+        options.insert(0, BACK_OPTION_FR if lang == 'fr' else BACK_OPTION_EN)
+
+    # Mise à jour finale de l'état avant de renvoyer la réponse.
+    state.update({
+        'currentStep': current_step,
+        'collectedData': collected_data,
+        'step_history': step_history,
+        'lang': lang
+    })
+    
+    return jsonify({'response': response_text, 'options': options, 'is_text_input': is_text_input, 'state': state})
+        
+        # C. On met à jour les variables pour la prochaine étape.
+    step_history.append(current_step)
+    current_step = next_step  # EXPLICATION : On met à jour la variable locale 'current_step'.
+        
+        # EXPLICATION : La fonction va maintenant continuer son exécution et utiliser
+        # la nouvelle valeur de 'current_step' pour afficher la question suivante.
+        # Il n'y a plus de "return" ni d'appel récursif ici.
+
+    # =======================================================================
+    # PHASE 5 : AFFICHAGE DE LA QUESTION POUR L'ÉTAPE ACTUELLE
+    # =======================================================================
+    # EXPLICATION : Ce bloc s'exécute maintenant à chaque fois, que ce soit pour
+    # la première question ou pour les suivantes.
+    
+    step_definition = CONVERSATION_FLOW.get(current_step)
+    if not step_definition: # Sécurité si l'étape est inconnue
+        state = {'lang': lang, 'currentStep': 'select_option', 'collectedData': {}, 'step_history': []}
+        step_definition = CONVERSATION_FLOW['select_option']
+
     response_text = step_definition['question_fr'] if lang == 'fr' else step_definition['question_en']
     options = list(step_definition['get_options'](lang, collected_data))
     is_text_input = step_definition.get('is_text_input', False)
     if step_history:
         options.insert(0, BACK_OPTION_FR if lang == 'fr' else BACK_OPTION_EN)
     
-    return jsonify({'response': response_text, 'options': options, 'is_text_input': is_text_input, 'state': state})
+    # On met à jour l'état final avant de l'envoyer au client.
+    state['currentStep'] = current_step
+    state['collectedData'] = collected_data
+    state['step_history'] = step_history
 
+    return jsonify({'response': response_text, 'options': options, 'is_text_input': is_text_input, 'state': state})
 #generation pdf
 #la fonction handle_generate_pdf
 
@@ -412,6 +553,36 @@ def download_and_cleanup_file(temp_filename, download_filename):
 
 
 
+# =======================================================================
+# ROUTE POUR L'HISTORIQUE
+# =======================================================================
+@app.route('/api/history', methods=['GET'])
+@login_required
+@check_session
+def get_history():
+    """Récupère la liste des générations passées pour l'utilisateur connecté."""
+    try:
+        response = supabase.table('generations').select('id, title, created_at').eq('user_id', current_user.id).order('created_at', desc=True).limit(50).execute()
+        return jsonify(response.data), 200
+    except Exception as e:
+        logging.error(f"Erreur lors de la récupération de l'historique: {e}")
+        return jsonify({'error': 'Impossible de charger l''historique'}), 500
+
+@app.route('/api/history/<generation_id>', methods=['GET'])
+@login_required
+@check_session
+def get_generation(generation_id):
+    """Récupère le contenu d'une génération spécifique."""
+    try:
+        response = supabase.table('generations').select('content, flow_type').eq('id', generation_id).eq('user_id', current_user.id).single().execute()
+        if response.data:
+            return jsonify(response.data), 200
+        else:
+            return jsonify({'error': 'Génération non trouvée ou non autorisée'}), 404
+    except Exception as e:
+        logging.error(f"Erreur lors de la récupération d'une génération: {e}")
+        return jsonify({'error': 'Erreur interne'}), 500
+
 
 # =======================================================================
 # ROUTES FOR STATS
@@ -424,24 +595,119 @@ def get_stats():
     # We can just return it directly.
     stats = get_all_stats()
     return jsonify(stats)
+
+
+# =======================================================================
+# ROUTES FOR AUTHENTICATION
+# =======================================================================
+
+@app.route('/login')
+def login():
+    redirect_uri = url_for('authorize', _external=True)
+    return google.authorize_redirect(redirect_uri)
+
+
+# =======================================================================
+# ROUTE DE CALLBACK /auth/callback (VERSION FINALE CORRIGÉE POUR SUPABASE)
+# =======================================================================
+@app.route('/auth/callback')
+def authorize():
+    try:
+        token = google.authorize_access_token()
+        user_info = token.get('userinfo')
+        if not user_info:
+             user_info = google.parse_id_token(token)
+
+        google_id = user_info['sub']
+         
+        # Étape 3 (Modifiée) : On cherche l'utilisateur sans exiger un résultat unique.
+        # On utilise .execute() directement, qui retourne une liste.
+        response = supabase.table('users').select('*').eq('google_id', google_id).execute()
+        
+        # On vérifie si la liste de données est vide.
+        if not response.data:
+            # L'utilisateur n'existe pas, on le crée.
+            logging.info(f"Nouvel utilisateur détecté : {user_info.get('email')}. Création du compte...")
+            insert_response = supabase.table('users').insert({
+                'google_id': google_id,
+                'email': user_info.get('email'),
+                'full_name': user_info.get('name')
+            }).execute()
+            
+            if not insert_response.data:
+                raise Exception("La création de l'utilisateur a échoué dans la base de données.")
+            
+            user_data = insert_response.data[0]
+        else:
+            # L'utilisateur existe déjà, on prend la première (et seule) ligne.
+            logging.info(f"Utilisateur existant détecté : {user_info.get('email')}.")
+            user_data = response.data[0]
+            
+        # --- DÉBUT DE LA NOUVELLE LOGIQUE DE SESSION UNIQUE ---
+
+        # 1. Générer un nouveau jeton de session unique
+        new_session_token = str(uuid.uuid4())
+        
+        # 2. Mettre à jour ce jeton dans la base de données pour cet utilisateur
+        supabase.table('users').update({
+            'session_token': new_session_token
+        }).eq('id', user_data['id']).execute()
+        
+        # 3. Sauvegarder ce même jeton dans la session du navigateur
+        session['session_token'] = new_session_token
+
+        # --- FIN DE LA NOUVELLE LOGIQUE ---
+            
+        user = User(user_data)
+        login_user(user)
+        
+        return redirect(url_for('chat_page'))
+
+    except Exception as e:
+        logging.error(f"Erreur DÉFINITIVE lors de l'autorisation OAuth: {e}")
+        return "Une erreur critique est survenue lors de la connexion. Veuillez contacter le support.", 500
+
+
+#
+
+# =======================================================================
+# ROUTES FOR logout
+# =======================================================================
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
+
+
 # =======================================================================
 # ROUTES FOR STATIC PAGES
 # =======================================================================
 
+# --- Modification des Routes Existantes ---
 @app.route('/')
 def index():
-    """Serve the main application page"""
-    return render_template('index.html')
+    """Rend la page d'accueil (Landing Page)."""
+    # On passe 'current_user' au template. S'il n'est pas connecté,
+    # current_user.is_authenticated sera False.
+    return render_template('landing.html', user=current_user)
+
+@app.route('/app')
+@login_required
+def chat_page():
+    """Rend la page principale de l'application (le chatbot)."""
+    return render_template('index.html', user=current_user)
 
 @app.route('/about')
 def about_page():
-    """Route for the About page"""
-    return render_template('about.html')
+    """Rend la page 'À Propos'."""
+    return render_template('about.html', user=current_user)
 
 @app.route('/donate')
 def donate_page():
-    """Route for the Donate page"""
-    return render_template('donate.html')
+    """Rend la page 'Soutenir'."""
+    return render_template('donate.html', user=current_user)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

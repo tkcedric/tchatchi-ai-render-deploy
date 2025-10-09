@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TCHATCHI AI - L'Assistant Pédagogique pour les Enseignants Camerounais</title>
+    <link rel="icon" type="image/png" href="/static/img/favicon.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+     <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-PVE22CBKK7"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-PVE22CBKK7');
+    </script>
+
+    <style>
+        /* Reprise du style de la page 'about.html' pour la cohérence */
+        :root {
+            --primary-color: #0b57d0;
+            --secondary-color: #d3e3fd;
+            --accent-color: #34a853;
+            --text-dark: #1f1f1f;
+            --text-light: #444746;
+            --bg-light: #f8f9fa;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background-color: var(--bg-light);
+            overflow-x: hidden;
+        }
+        
+        #main-header {
+            border-bottom: 1px solid #dee2e6;
+            background-color: white;
+            position: sticky;
+            top: 0;
+            z-index: 1020;
+            padding: 0.75rem 1.5rem;
+        }
+        
+        /* MODIFICATION 1 : Style de l'en-tête pour être cohérent */
+        #main-header .app-title-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+           #main-header .app-icon {
+            font-size: 1.5rem;
+            color: #0b57d0;
+            height: 40px;
+            width: auto;
+        }
+
+        #main-header .app-title {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #1f1f1f;
+            line-height: 1.2;
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1976d2 100%);
+            color: white;
+            padding: 80px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        }
+        
+        .hero-section h1 {
+            font-size: 3rem;
+            font-weight: 700;
+        }
+        
+        .hero-section .lead {
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin: 1.5rem auto;
+        }
+        
+        .btn-google {
+            background-color: #4285F4;
+            color: white;
+            font-weight: 500;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-google:hover {
+            background-color: #357ae8;
+            color: white;
+        }
+        
+        .features-showcase {
+            padding: 80px 0;
+        }
+        
+        .feature-box {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            text-align: center; /* MODIFICATION 2 : Centre le contenu de la box */
+            padding: 2rem;
+        }
+        
+        .feature-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .feature-icon {
+            font-size: 2rem; /* Augmente la taille de l'icône */
+            width: 80px;
+            height: 80px;
+            border-radius: 50%; /* Icône ronde */
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-box .content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .feature-box .content .btn {
+            margin-top: auto; /* Pousse le bouton vers le bas */
+        }
+        
+        /* MODIFICATION 3 : Style pour le sélecteur de langue */
+        .lang-selector {
+            font-size: 0.9rem;
+            font-weight: 500;
+            background-color: #e9ecef;
+            border-radius: 25px;
+            padding: 2px;
+        }
+        
+        .lang-selector .lang-btn {
+            text-decoration: none;
+            color: #6c757d;
+            padding: 0.3rem 0.6rem;
+            border-radius: 20px;
+        }
+
+        .lang-selector .lang-btn.active {
+            color: var(--primary-color);
+            background-color: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .app-icon {
+        width: 150px;  /* Correspond à la taille de police de 1.5rem */
+        height: 150px; /* Maintient le ratio carré */
+        object-fit: contain; /* S'assure que l'image s'adapte sans être déformée */
+    }
+
+        /* ======================================================================= */
+        /* --- NOUVEAU BLOC : STYLES RESPONSIVES --- */
+        /* ======================================================================= */
+        @media (max-width: 767.98px) {
+    #main-header .app-title {
+        font-size: 1rem;
+    }
+    .hero-section {
+        padding: 60px 0;
+    }
+    .hero-section h1 {
+        font-size: 2rem;
+    }
+    .nav-menu-mobile {
+        position: fixed;
+        top: 0;
+        right: -100%; /* Caché par défaut */
+        width: 280px;
+        height: 100%;
+        background-color: white;
+        box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+        padding: 1.5rem;
+        transition: right 0.3s ease-in-out;
+        z-index: 1040; /* Au-dessus de tout le reste */
+        display: flex;
+        flex-direction: column;
+    }
+    .nav-menu-mobile.show {
+        right: 0; /* Affiche le menu */
+    }
+    .nav-link-mobile {
+        padding: 0.75rem 0;
+        font-size: 1.1rem;
+        font-weight: 500;
+        color: var(--text-dark);
+        text-decoration: none;
+        border-bottom: 1px solid var(--bg-light);
+    }
+    .lang-selector {
+        width: 100%;
+        display: flex;
+    }
+}
+    </style>
+</head>
+<body>
+    <div id="main-container">
+        <!-- ======================================================================= -->
+        <!-- EN-TÊTE CORRIGÉ POUR L'ALIGNEMENT -->
+        <!-- ======================================================================= -->
+<header id="main-header">
+    <div class="container-fluid d-flex justify-content-between align-items-center">
+        <!-- Partie Gauche : Logo et Titre (INCHANGÉ) -->
+        <a href="/" class="app-title-container text-dark text-decoration-none">
+            <img src="/static/img/favicon.png" alt="Logo" class="app-icon"> 
+            <span class="app-title">TCHATCHI AI <br class="d-none d-sm-block">Pedagogical Assistant</span>
+        </a>
+          <div class="lang-selector">
+                        <a href="#" class="lang-btn" data-lang="en">🇬🇧 EN</a>
+                        <a href="#" class="lang-btn active" data-lang="fr">🇫🇷 FR</a>
+                    </div>
+        <!-- ======================================================================= -->
+        <!-- NOUVELLE LOGIQUE CONDITIONNELLE AVEC JINJA2 (CORRIGÉE) -->
+        <!-- ======================================================================= -->
+
+        <!-- Si l'utilisateur est connecté (authentifié) -->
+        {% if user.is_authenticated %}
+            <div class="dropdown">
+                <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-person-circle me-2"></i>
+                    {{ user.full_name }}
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="/app">Chat Tchatci ai</a></li>
+                    <li><a class="dropdown-item" href="/about">À Propos</a></li>
+                    <li><a class="dropdown-item" href="/donate">Soutenir</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="/logout"><i class="bi bi-box-arrow-right me-2"></i>Se Déconnecter</a></li>
+                </ul>
+            </div>
+
+        <!-- Sinon (si c'est un visiteur) -->
+        {% else %}
+            <!-- Menu pour Desktop -->
+            <nav class="d-none d-md-flex gap-2 align-items-center">
+                <a href="/about" class="btn btn-light" data-lang-en="About" data-lang-fr="À Propos">À Propos</a>
+                <a href="/donate" class="btn btn-success"><i class="bi bi-heart me-1"></i> <span data-lang-en="Support" data-lang-fr="Soutenir">Soutenir</span></a>
+                <a href="/login" class="btn btn-primary ms-2" data-lang-en="Login" data-lang-fr="Connexion">Connexion</a>
+            </nav>
+            <!-- Bouton Burger pour Mobile -->
+            <button class="btn d-md-none" id="menu-toggle" type="button">
+                <i class="bi bi-list fs-3"></i>
+            </button>
+        {% endif %}
+        
+    </div>
+</header>
+
+<!-- DÉBUT DE LA CORRECTION : Le menu mobile est placé HORS du header, mais sa visibilité est contrôlée par Jinja -->
+{% if not user.is_authenticated %}
+ 
+<!-- Menu Mobile Coulissant (Offcanvas) -->
+ <!-- 
+<div class="nav-menu-mobile" id="mobile-menu">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold" data-lang-en="Menu" data-lang-fr="Menu">Menu</h5>
+        <button type="button" class="btn-close" id="close-menu-btn"></button>
+    </div>
+    <a href="/about" class="nav-link-mobile" data-lang-en="About" data-lang-fr="À Propos">À Propos</a>
+    <a href="/donate" class="nav-link-mobile" data-lang-en="Support" data-lang-fr="Soutenir">Soutenir</a>
+    <hr>
+    <a href="/login" class="btn btn-primary w-100 mt-2" data-lang-en="Login / Sign Up" data-lang-fr="Connexion / Inscription">Connexion / Inscription</a>
+--> 
+    <!-- Sélecteur de langue en bas du menu mobile -->
+     <!-- 
+    <div class="lang-selector mt-auto">
+        <a href="#" class="lang-btn w-50 text-center" data-lang="en">🇬🇧 EN</a>
+        <a href="#" class="lang-btn w-50 text-center active" data-lang="fr">🇫🇷 FR</a>
+    </div>
+</div>
+-->
+{% endif %}
+<!-- FIN DE LA CORRECTION -->
+
+     
+
+      
+
+        <!-- ======================================================================= -->
+        <!-- FIN DE L'EN-TÊTE CORRIGÉ -->
+        <!-- ======================================================================= -->
+
+        <!-- Section Héros -->
+        <section class="hero-section position-relative">
+            <div class="container position-relative">
+                <h1 data-lang-en="Bring your lessons to life in just a few clicks" data-lang-fr="Donnez vie à vos leçons en quelques clics">Donnez vie à vos leçons en quelques clics</h1>
+                <p class="lead" data-lang-en="The AI assistant designed for Cameroonian teachers. Generate lesson plans, assessments, and integration activities compliant with official curricula." data-lang-fr="L'assistant IA conçu pour les enseignants du Cameroun. Générez des fiches de leçons, des évaluations et des activités d'intégration conformes aux programmes officiels.">
+                    L'assistant IA conçu pour les enseignants du Cameroun. Générez des fiches de leçons, des évaluations et des activités d'intégration conformes aux programmes officiels.
+                </p>
+                <a href="/login" class="btn btn-google btn-lg mt-3 shadow">
+                    <i class="bi bi-google me-2"></i> <span data-lang-en="Sign in with Google to start" data-lang-fr="Se connecter avec Google pour commencer">Se connecter avec Google pour commencer</span>
+                </a>
+                <p class="mt-3 text-white-50"><small data-lang-en="5 free generations every week." data-lang-fr="5 générations gratuites chaque semaine.">5 générations gratuites chaque semaine.</small></p>
+            </div>
+        </section>
+
+        <!-- MODIFICATION 2 : Section des fonctionnalités avec liens PDF -->
+        <section class="features-showcase">
+            <div class="container">
+                <div class="text-center mb-5">
+                    <h2 class="fw-bold" data-lang-en="An all-in-one tool for the modern teacher" data-lang-fr="Un outil tout-en-un pour l'enseignant moderne">Un outil tout-en-un pour l'enseignant moderne</h2>
+                    <p class="lead text-muted" data-lang-en="Save time and focus on what matters: your students." data-lang-fr="Gagnez du temps et concentrez-vous sur l'essentiel : vos élèves.">Gagnez du temps et concentrez-vous sur l'essentiel : vos élèves.</p>
+                </div>
+                <div class="row g-4 justify-content-center">
+                    <!-- Fiche de Leçon -->
+                    <div class="col-lg-3 col-md-6">
+                        <div class="feature-box">
+                            <div class="feature-icon bg-primary"><i class="bi bi-book"></i></div>
+                            <div class="content">
+                                <h5 class="fw-bold" data-lang-en="CBA Lesson Plans" data-lang-fr="Fiches de Leçon APC">Fiches de Leçon APC</h5>
+                                <p class="text-muted" data-lang-en="Generate complete, structured lesson plans compliant with CBA standards in seconds." data-lang-fr="Générez des fiches de préparation complètes, structurées et conformes aux standards APC en quelques secondes.">Générez des fiches de préparation complètes...</p>
+                                <a href="/static/pdf/exemple_lecon.pdf" target="_blank" class="btn btn-outline-primary" data-lang-en="See an example" data-lang-fr="Voir un exemple">Voir un exemple</a>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Leçon Digitalisée -->
+                    <div class="col-lg-3 col-md-6">
+                        <div class="feature-box">
+                            <div class="feature-icon" style="background-color: #fd7e14;"><i class="bi bi-display"></i></div>
+                            <div class="content">
+                                <h5 class="fw-bold" data-lang-en="Digital Lessons" data-lang-fr="Leçons Digitalisées">Leçons Digitalisées</h5>
+                                <p class="text-muted" data-lang-en="Create dynamic Beamer-style PDF presentations, ready to be projected in the classroom." data-lang-fr="Créez des présentations PDF dynamiques, style Beamer, prêtes à être projetées en classe.">Créez des présentations PDF dynamiques...</p>
+                                <a href="/static/pdf/exemple_digital.pdf" target="_blank" class="btn btn-outline-primary" data-lang-en="See an example" data-lang-fr="Voir un exemple">Voir un exemple</a>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Activité d'Intégration -->
+                    <div class="col-lg-3 col-md-6">
+                        <div class="feature-box">
+                            <div class="feature-icon bg-success"><i class="bi bi-puzzle"></i></div>
+                            <div class="content">
+                                <h5 class="fw-bold" data-lang-en="Integration Activities" data-lang-fr="Activités d'Intégration">Activités d'Intégration</h5>
+                                <p class="text-muted" data-lang-en="Create relevant, contextualized problem scenarios to assess your students' skills." data-lang-fr="Créez des scénarios-problèmes pertinents et contextualisés pour évaluer les compétences de vos élèves.">Créez des scénarios-problèmes pertinents...</p>
+                                <a href="/static/pdf/exemple_integration.pdf" target="_blank" class="btn btn-outline-primary" data-lang-en="See an example" data-lang-fr="Voir un exemple">Voir un exemple</a>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Évaluation -->
+                    <div class="col-lg-3 col-md-6">
+                        <div class="feature-box">
+                            <div class="feature-icon bg-warning"><i class="bi bi-clipboard-check"></i></div>
+                            <div class="content">
+                                <h5 class="fw-bold" data-lang-en="Custom Assessments" data-lang-fr="Évaluations sur Mesure">Évaluations sur Mesure</h5>
+                                <p class="text-muted" data-lang-en="Produce complete tests with MCQs, structured questions, and detailed answer keys." data-lang-fr="Produisez des épreuves complètes avec QCM, questions structurées et corrigés détaillés.">Produisez des épreuves complètes...</p>
+                                <a href="/static/pdf/exemple_evaluation.pdf" target="_blank" class="btn btn-outline-primary" data-lang-en="See an example" data-lang-fr="Voir un exemple">Voir un exemple</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="text-center py-4 text-muted border-top">
+            <p>© 2025 TCHATCHI AI Project - Tous droits réservés.</p>
+        </footer>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- MODIFICATION 3 : Script de traduction -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+                  // --- GESTION DU MENU MOBILE (VERSION CORRIGÉE ET ROBUSTE) ---
+        const menuToggle = document.getElementById('menu-toggle');
+        const closeMenuBtn = document.getElementById('close-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        // EXPLICATION : Cette condition est la clé. Le code à l'intérieur ne
+        // s'exécutera que si les deux éléments (le bouton ET le menu) sont 
+        // présents dans le HTML. Si l'utilisateur est connecté, Jinja ne les
+        // génère pas, donc cette condition sera fausse et le script sera ignoré.
+        if (menuToggle && mobileMenu && closeMenuBtn) {
+            menuToggle.addEventListener('click', () => {
+                mobileMenu.classList.add('show');
+            });
+
+            closeMenuBtn.addEventListener('click', () => {
+                mobileMenu.classList.remove('show');
+            });
+        }
+
+
+            // --- GESTION DE LA TRADUCTION
+            const langButtons = document.querySelectorAll('.lang-btn');
+            const translatableElements = document.querySelectorAll('[data-lang-en]');
+
+            const switchLanguage = (lang) => {
+                translatableElements.forEach(el => {
+                    const text = el.dataset[lang === 'fr' ? 'langFr' : 'langEn'];
+                    if (text) {
+                        el.innerHTML = text;
+                    }
+                });
+
+                langButtons.forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.lang === lang);
+                });
+                
+                document.documentElement.lang = lang; // Met à jour la langue de la page
+                localStorage.setItem('selectedLanguage', lang);
+            };
+
+            langButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    switchLanguage(button.dataset.lang);
+                });
+            });
+
+            // Au chargement, applique la langue sauvegardée ou le français par défaut.
+            const savedLang = localStorage.getItem('selectedLanguage') || 'fr';
+            switchLanguage(savedLang);
+        });
+    </script>
+</body>
+</html>

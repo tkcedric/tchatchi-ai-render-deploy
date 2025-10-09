@@ -13,14 +13,18 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 # Client OpenAI (pour le fallback)
 if not OPENAI_API_KEY:
     logging.warning("Clé OPENAI_API_KEY non trouvée. Le fallback OpenAI est désactivé.")
-openai_client = OpenAI(api_key=OPENAI_API_KEY, timeout=300)
+openai_client = OpenAI(api_key=OPENAI_API_KEY, timeout=110)
 
 # Client Gemini (principal)
 if not GEMINI_API_KEY:
     logging.warning("Clé GEMINI_API_KEY non trouvée. Le service principal pourrait ne pas fonctionner.")
 else:
     try:
-        genai.configure(api_key=GEMINI_API_KEY)
+        genai.configure(
+            api_key=GEMINI_API_KEY,
+            transport='rest', # Important pour que le timeout soit respecté
+            client_options={'api_endpoint': 'generativelanguage.googleapis.com'}
+        )
     except Exception as e:
         logging.error(f"Erreur de configuration de l'API Gemini: {e}")
         GEMINI_API_KEY = None
@@ -35,8 +39,8 @@ def call_llm_api(prompt, model_provider='gemini'):
     if model_provider == 'gemini' and GEMINI_API_KEY:
         try:
             logging.info("Tentative d'appel à l'API Gemini (Principal)...")
-            model = genai.GenerativeModel("gemini-2.5-pro")
-            response = model.generate_content(prompt)
+            model = genai.GenerativeModel("gemini-pro")
+            response = model.generate_content(prompt, request_options={'timeout': 110})
             logging.info("Appel Gemini (Principal) réussi.")
             return response.text
         except Exception as e:
@@ -302,9 +306,17 @@ INSTRUCTIONS POUR LE NIVEAU DE LANGUE DE LA FICHE DE LECON:
 * Tu dois utiliser un language simple et facilement compréhensible pour les classes du premier cycle.
 -->
 
-**RÈGLES DE FORMATAGE :**
--   Format : **Markdown**.
--   Langue de rédaction : {langue_contenu}.
+**RÈGLES ABSOLUES ET CRITIQUES :**
+1.  **Format :** Utilise exclusivement le format Markdown (`**Titre**`, `- liste`).
+2.  **PAS D'INTRODUCTION :** Ta réponse doit commencer **DIRECTEMENT** par le premier titre (`**{int_titre_principal}**`). N'ajoute **AUCUNE** phrase d'introduction comme "Bien sûr, voici..." ou "En tant que TCHATCHI AI...". C'est une règle critique.
+3.  **SAUTS DE LIGNE :** Laisse toujours deux lignes vides entre les grandes sections pour une meilleure lisibilité.
+4.  **Langue de rédaction :** {langue_contenu}.
+5.  **Listes :** Utilise TOUJOURS un tiret `-` pour les listes à puces.
+6.  **Formules :** Utilise le format LaTeX (`$...$` ou `$$...$$`).
+7.  **INTERDICTION FORMELLE :** N'utilise JAMAIS, sous aucun prétexte, de balises HTML (`<b>`, `<i>`) ni de blocs de code Markdown (comme ` ```markdown ... ``` `). Ta réponse doit commencer DIRECTEMENT par le premier titre, sans aucune introduction ou balise d'enveloppement.
+8.  **IMPORTANT :** Les titres de section (comme `**{int_titre_principal}**`) ne doivent JAMAIS commencer par une puce de liste (`-`, `*`, ou `•`). Ils doivent être sur leur propre ligne.
+
+
 
 **DONNÉES FOURNIES :**
 -   Classe : {classe}
@@ -381,19 +393,17 @@ def generate_integration_logic(classe, matiere, liste_lecons, objectifs_lecons, 
         liste_lecons=liste_lecons,
         objectifs_lecons=objectifs_lecons,
         
-        # Mapping manuel des titres pour éviter les erreurs de casse
-        int_titre_principal=selected_titles["INT_TITRE_PRINCIPAL"],
-        header_matiere=selected_titles["HEADER_MATIERE"],
-        header_classe=selected_titles["HEADER_CLASSE"],
-        header_duree=selected_titles["HEADER_DUREE"],
-        int_competences=selected_titles["INT_COMPETENCES"],
-        int_situation=selected_titles["INT_SITUATION"],
-        int_guide=selected_titles["INT_GUIDE"],
-        int_etape_1=selected_titles["INT_ETAPE_1"],
-        int_etape_2=selected_titles["INT_ETAPE_2"],
-        int_etape_3=selected_titles["INT_ETAPE_3"],
-        int_etape_4=selected_titles["INT_ETAPE_4"],
-        int_solution=selected_titles["INT_SOLUTION"]
+          # Mapping de tous les titres traduits depuis selected_titles
+        int_titre_principal=selected_titles.get("INT_TITRE_PRINCIPAL"),
+        header_matiere=selected_titles.get("HEADER_MATIERE"),
+        header_classe=selected_titles.get("HEADER_CLASSE"),
+        header_duree=selected_titles.get("HEADER_DUREE"),
+        int_palier_competence=selected_titles.get("INT_PALIER_COMPETENCE"),
+        int_ressources_mobiliser=selected_titles.get("INT_RESSOURCES_MOBILISER"),
+        int_controle_prerequis=selected_titles.get("INT_CONTROLE_PREREQUIS"),
+        int_situation=selected_titles.get("INT_SITUATION"),
+        int_guide=selected_titles.get("INT_GUIDE"),
+        int_solution=selected_titles.get("INT_SOLUTION")
     )
 
     # Appeler l'IA 
@@ -489,11 +499,20 @@ INSTRUCTIONS_EVALUATION = {
 PROMPT_EVALUATION = """Tu es TCHATCHI AI, un expert en docimologie (la science de l'évaluation) pour le système éducatif camerounais.
 Ta tâche est de générer une épreuve complète ET son corrigé détaillé, prêts à être imprimés.
 
-**RÈGLES ABSOLUES :**
-1.  **Format :** Utilise exclusivement le format Markdown (`**Titre**`, `*italique*`, `- liste`).
-2.  **SÉPARATEUR OBLIGATOIRE :** Après avoir écrit TOUTE l'épreuve, tu DOIS impérativement insérer le séparateur `---CORRIGE---` sur sa propre ligne. C'est une instruction critique. La structure doit être : [TOUTE L'ÉPREUVE] puis `---CORRIGE---` puis [TOUT LE CORRIGÉ].
-3.  **Langue :** La totalité de la sortie (épreuve et corrigé) doit être dans la langue demandée.
-4.  **Contexte :** Base TOUTES les questions sur le "Contexte du programme" fourni ci-dessous, qui est extrait des documents officiels.
+
+**RÈGLES ABSOLUES ET CRITIQUES :**
+1.  **Format :** Utilise exclusivement le format Markdown.
+2.  **PAS D'INTRODUCTION :** Ta réponse doit commencer **DIRECTEMENT** par l'en-tête de l'épreuve. N'ajoute **AUCUNE** phrase d'introduction.
+3.  **SÉPARATEUR OBLIGATOIRE :** Après avoir écrit TOUTE l'épreuve, tu DOIS impérativement insérer le séparateur `---CORRIGE---` sur sa propre ligne.
+4.  **Langue :** La totalité de la sortie doit être dans la langue demandée : {langue_contenu}.
+5.  **Contexte :** Base TOUTES les questions sur le "Contexte du programme" fourni.
+6.  **Listes :** Utilise TOUJOURS un tiret `-` pour les listes à puces.
+7.  **Formules :** Utilise le format LaTeX (`$...$` ou `$$...$$`).
+8.  **INTERDICTION FORMELLE :** N'utilise JAMAIS, sous aucun prétexte, de balises HTML (`<b>`, `<i>`) ni de blocs de code Markdown (comme ` ```markdown ... ``` `). Ta réponse doit commencer DIRECTEMENT par le premier titre, sans aucune introduction ou balise d'enveloppement.
+9.  **IMPORTANT :** Les titres de section (comme `**{EVAL_QCM_TITRE} **`) ne doivent JAMAIS commencer par une puce de liste (`-`, `*`, ou `•`). Ils doivent être sur leur propre ligne.
+
+
+
 
 <!--
 INSTRUCTIONS POUR LE NIVEAU DE LANGUE DE LA FICHE DE LECON:
@@ -525,42 +544,58 @@ Commence à générer l'épreuve complète MAINTENANT.
 
 def generate_evaluation_logic(classe, matiere, liste_lecons, duree, coeff, langue_contenu, type_epreuve_key, contexte_syllabus):
     """
-    Prépare le prompt et appelle l'API OpenAI pour générer une évaluation.
+    Prépare le prompt et appelle l'API pour générer une évaluation.
+    Version corrigée pour éviter les KeyError.
     """
     logging.info(f"Début de la génération de l'évaluation pour la classe : {classe}")
 
     lang_contenu_input = langue_contenu.lower()
     titles_lang_code = 'fr'
     if any(lang in lang_contenu_input for lang in ['english', 'anglais']): titles_lang_code = 'en'
+    # ... (les autres elif pour les langues restent les mêmes) ...
     elif any(lang in lang_contenu_input for lang in ['german', 'allemand']): titles_lang_code = 'de'
     elif any(lang in lang_contenu_input for lang in ['spanish', 'espagnol']): titles_lang_code = 'es'
     elif any(lang in lang_contenu_input for lang in ['italian', 'italien']): titles_lang_code = 'it'
     elif any(lang in lang_contenu_input for lang in ['chinese', 'chinois']): titles_lang_code = 'zh'
     elif any(lang in lang_contenu_input for lang in ['arabic', 'arabe']): titles_lang_code = 'ar'
+
+    # --- DÉBUT DE LA CORRECTION MAJEURE ---
+
+    # 1. On récupère le template d'instructions spécifique au type d'épreuve.
+    instructions_specifiques = INSTRUCTIONS_EVALUATION.get(type_epreuve_key, "Générer une évaluation standard.")
+
+    # 2. On crée un dictionnaire unique 'format_args' qui contient TOUT ce dont le prompt a besoin.
+    # On commence par les données dynamiques de la conversation.
+    format_args = {
+        'langue_contenu': langue_contenu,
+        'classe': classe,
+        'matiere': matiere,
+        'duree': duree,
+        'coeff': coeff,
+        'liste_lecons': liste_lecons,
+        'instructions_specifiques': instructions_specifiques,
+        'contexte_syllabus': contexte_syllabus
+    }
+
+    # 3. On récupère TOUS les titres statiques (traduits) pour la langue choisie.
+    all_titles_for_lang = TITLES.get(titles_lang_code, TITLES.get('fr', {}))
     
-    selected_titles = TITLES.get(titles_lang_code, TITLES['fr'])
+    # 4. On ajoute ces titres statiques à notre dictionnaire 'format_args'.
+    # La méthode .update() fusionne les deux dictionnaires.
+    format_args.update(all_titles_for_lang)
 
-    # On récupère le modèle d'instructions et on le formate avec les titres traduits
-    instructions_template = INSTRUCTIONS_EVALUATION.get(type_epreuve_key, "Générer une évaluation standard.")
-    instructions_specifiques = instructions_template.format(**selected_titles)
+    # 5. On formate le prompt final en une seule fois.
+    # La double étoile (**) décompresse le dictionnaire 'format_args' pour que chaque
+    # clé corresponde à une variable dans le prompt. C'est la méthode standard pour ce cas.
+    final_prompt = PROMPT_EVALUATION.format(**format_args)
+    
+    # --- FIN DE LA CORRECTION MAJEURE ---
 
-    final_prompt = PROMPT_EVALUATION.format(
-        langue_contenu=langue_contenu,
-        classe=classe,
-        matiere=matiere,
-        duree=duree,
-        coeff=coeff,
-        liste_lecons=liste_lecons,
-        instructions_specifiques=instructions_specifiques,
-        contexte_syllabus=contexte_syllabus
-    )
-
-     # MODIFICATION : On utilise la nouvelle fonction avec fallback
+    # On appelle l'IA avec le prompt maintenant correctement et complètement formaté.
     generated_text = call_llm_api(final_prompt)
     logging.info("Évaluation générée avec succès.")
     
     return generated_text, titles_lang_code
-
 
 
 # =======================================================================
@@ -582,6 +617,11 @@ Ta mission est de créer une présentation de leçon digitalisée au format Mark
 5.  **LANGUE :** Rédige tout le contenu dans la langue `{langue_contenu}`. Le mot pour "Diapositive" doit être "Slide" si la langue est l'anglais, et "Diapositive" sinon.
 6.  **LES TITRES DE {module} ET {lecon}: IL DOIVENT TOUJOURS ETRE EN LETTRES MAJUSCULES
 7. **JEU BILINGUE (INTERDICTION FORMELLE) :**ne génère **JAMAIS** de code de tableau LaTeX. Génère UNIQUEMENT les lignes de données au format `MotSource;TraductionCible`, une par ligne. Le code de l'application créera le tableau.
+8.  **Format :** Utilise exclusivement le format Markdown.
+9.  **PAS D'INTRODUCTION :** Ta réponse doit commencer **DIRECTEMENT** par l'en-tête de la leçon. N'ajoute **AUCUNE** phrase d'introduction.
+10.  **Contexte :** Base TOUTES les questions sur le "Contexte du programme" fourni.
+11.  **Formules :** Utilise le format LaTeX (`$...$` ou `$$...$$`).
+12.  **INTERDICTION FORMELLE :** N'utilise JAMAIS, sous aucun prétexte, de balises HTML (`<b>`, `<i>`) ni de blocs de code Markdown (comme ` ```markdown ... ``` `). Ta réponse doit commencer DIRECTEMENT par le premier titre, sans aucune introduction ou balise d'enveloppement.
 
 -->
 **DONNÉES DE LA LEÇON :**
@@ -646,31 +686,30 @@ Ta mission est de créer une présentation de leçon digitalisée au format Mark
 - *(Le mot "Diapositive" doit être "Diapositive" si {langue_contenu} est le français, et "Slide " sinon.)*
 
 `## Diapositive 11 : JEU BILINGUE / BILINGUAL GAME`
-- *(Le titre de cette diapositive doit être "BILINGUAL GAME" si {langue_contenu} est le français, et "JEU BILINGUE " sinon.)*
-- *(Le mot "Diapositive" doit être "Diapositive" si {langue_contenu} est le français, et "Slide " sinon.)*
+- **Titre :** *(Le titre de cette diapositive doit être "BILINGUAL GAME" si {langue_contenu} est le français, et "JEU BILINGUE" sinon.)*
+- **Instructions pour l'IA (ne pas afficher) :**
+    <!--
+    Génère ici une liste de 5 termes importants de la leçon et leur traduction.
+    Le format doit être une simple liste à puces Markdown, comme ceci :
+    - MotSource 1 : TraductionCible 1
+    - MotSource 2 : TraductionCible 2
+    - ...
 
-<bilingual_data>
-<!-- 
-INSTRUCTIONS POUR CETTE SECTION :
-Génère ici 5 lignes de données pour le tableau bilingue en suivant ces règles STRICTES.
-
-RÈGLE DE TRADUCTION UNIQUE :
-1.  Le format de chaque ligne doit être : MotDansLaLangueSource;TraductionCible
-2.  La "Langue Source" est la langue de la leçon : {langue_contenu}.
-3.  La "Traduction Cible" est déterminée comme suit :
-    -   SI la langue source ({langue_contenu}) est 'Français', ALORS la cible est l'Anglais.
-    -   POUR TOUTES LES AUTRES langues sources (English, Deutsch, Español, etc.), la cible est TOUJOURS le Français.
-4.  - Formatte cette partie comme un table. Utilise le format LaTeX (`$...$` ou `$$...$$`) pour la table.les entetes des colones du tableau doivent etre le nom de la langue des mots contenus dans la colone. N'affiche JAMAIS de code latex dans le chat.
-5. Le titre de cette partie doit etre "BILINGUAL GAME" si la lecon est en francais et "JEU BILINGUE" pour les autres langue.
-
-Exemples concrets :
-- Si {langue_contenu} est 'Français', une ligne doit ressembler à : "Ensemble;Set"
-- Si {langue_contenu} est 'English', une ligne doit ressembler à : "Set;Ensemble"
-- Si {langue_contenu} est 'Deutsch', une ligne doit ressembler à : "Menge;Ensemble"
-
-Commence à générer les 5 lignes de données MAINTENANT.
--->
-</bilingual_data>
+    RÈGLES DE TRADUCTION :
+    1. La "Langue Source" est la langue de la leçon : {langue_contenu}.
+    2. La "Traduction Cible" est déterminée comme suit :
+        - SI la langue source ({langue_contenu}) est 'Français', ALORS la cible est l'Anglais.
+        - POUR TOUTES LES AUTRES langues sources, la cible est TOUJOURS le Français.
+    
+    Exemple si {langue_contenu} est 'English':
+    - Equation : Équation
+    - Factorization : Factorisation
+    
+    Exemple si {langue_contenu} est 'Français':
+    - Équation : Equation
+    - Factorisation : Factorization
+    -->
+- *(Affiche ici la liste des 5 mots et leur traduction sous forme de liste à puces.)*
 """
 
 

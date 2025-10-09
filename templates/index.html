@@ -503,8 +503,8 @@
         }
     }
     .app-icon {
-        width: 150px;  /* Correspond à la taille de police de 1.5rem */
-        height: 150px; /* Maintient le ratio carré */
+        width: 60px;  /* Correspond à la taille de police de 1.5rem */
+        height: 60px; /* Maintient le ratio carré */
         object-fit: contain; /* S'assure que l'image s'adapte sans être déformée */
     }
     </style>
@@ -513,38 +513,66 @@
 <body>
 
     <!-- ... (tout le HTML de la sidebar et du main-container reste inchangé) ... -->
-    <div id="sidebar">
-        <button class="btn btn-new-chat w-100 text-start mb-3"><i class="bi bi-plus-lg me-2"></i>New Chat</button>
-        <div class="history-list">
-            <h5>History</h5>
-            <ul class="list-unstyled">
-                <li><a href="#" class="history-item"><i class="bi bi-chat-left-text me-2"></i>Lesson - 6ème - Sets</a></li>
-            </ul>
+   <div id="sidebar">
+    <!-- On utilise onclick pour appeler la fonction JS globale -->
+    <button class="btn btn-new-chat w-100 text-start mb-3" onclick="startNewChat()">
+        <i class="bi bi-plus-lg me-2"></i>
+        <!-- On ajoute un <span> pour la traduction -->
+        <span data-lang-en="New Chat" data-lang-fr="Nouveau Chat">New Chat</span>
+    </button>
+    
+    <div class="history-list">
+        <!-- Le titre est maintenant traduisible -->
+        <h5 data-lang-en="History" data-lang-fr="Historique">History</h5>
+        
+        <!-- Ce conteneur sera rempli dynamiquement par la fonction loadHistory() -->
+        <ul class="list-unstyled" id="history-items-container">
+            <!-- La liste est vide au début -->
+        </ul>
+    </div>
+    
+    <div class="ia-disclaimer" data-lang-en="AI models can make mistakes. Please check important information." data-lang-fr="Les modèles d'IA peuvent faire des erreurs. Veuillez vérifier les informations importantes.">
+        AI models can make mistakes. Please check important information.
+    </div>
+</div>
+
+    <div id="main-container">
+
+    <!-- ======================================================================= -->
+    <!-- NOUVEL EN-TÊTE DYNAMIQUE -->
+    <!-- ======================================================================= -->
+    <div id="main-header">
+        <button id="menu-toggle" class="d-lg-none btn btn-sm btn-light">
+            <i class="bi bi-list"></i>
+        </button>
+        <div class="app-title-container">
+            <img src="/static/img/favicon.png" alt="TCHATCHI AI Logo" class="app-icon"> 
+            <span id="app-title" class="app-title">TCHATCHI AI <br>Pedagogical Assistant</span>
         </div>
-        <div class="ia-disclaimer">
-            AI models can make mistakes. Please check important information.
+        
+        <!-- Ce menu s'affichera pour l'utilisateur connecté -->
+        <div class="nav-menu">
+              
+            <div class="dropdown">
+                <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-person-circle me-2"></i>
+                    <!-- On affiche le nom de l'utilisateur ici -->
+                    {{ user.full_name }}
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li></li><a href="/about" class="dropdown-item"  data-lang-en="About" data-lang-fr="À Propos">About</a></li>
+                    <li></li><a href="/donate" class="dropdown-item" ><i class="bi bi-heart"></i> <span data-lang-en="Donate" data-lang-fr="Soutenir projet">Donate</span></a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="/logout">
+                        <i class="bi bi-box-arrow-right me-2"></i> Se Déconnecter
+                    </a></li>
+                </ul>
+            </div>
         </div>
     </div>
-    <div id="main-container">
-        <div id="main-header">
-            <button id="menu-toggle" class="d-lg-none btn btn-sm btn-light">
-                <i class="bi bi-list"></i>
-                </button>
-            <div class="app-title-container">
-                <img src="/static/img/favicon.png" alt="TCHATCHI AI Logo" class="app-icon"> 
-                <span id="app-title" class="app-title">TCHATCHI AI <br>Pedagogical Assistant</span>
-            </div>
-               
-                 <div class="nav-menu">
-                <div class="lang-selector">
-                    <a href="#" class="lang-btn" data-lang="en">🇬🇧 EN</a>
-                    <a href="#" class="lang-btn" data-lang="fr">🇫🇷 FR</a>
-                </div>
-                <a href="/" class="btn btn-light btn-sm active" data-lang-en="Home" data-lang-fr="Accueil">Home</a>
-                <a href="/about" class="btn btn-light btn-sm" data-lang-en="About" data-lang-fr="À Propos">About</a>
-                <a href="/donate" class="btn btn-success btn-sm"><i class="bi bi-heart"></i> <span data-lang-en="Donate" data-lang-fr="Soutenir">Donate</span></a>
-            </div>
-        </div>
+    <!-- ======================================================================= -->
+    <!-- FIN DU NOUVEL EN-TÊTE -->
+    <!-- ======================================================================= -->
         <div id="chat-container">
             <div id="chat-messages">
                 <div class="message ai">
@@ -610,8 +638,9 @@
                     <hr>
                     <h6>💡 Projet personnel, sans financement externe</h6>
                     <p>
-                        Chaque ressource générée coûte en moyenne <strong>15 FCFA</strong> en frais de calcul. Plus de <strong>18 000 ressources</strong> ont déjà été générées, soit un coût cumulé d'environ <strong>270 000 FCFA</strong>, entièrement à notre charge.
+                        Chaque ressource générée coûte en moyenne <strong>15 FCFA</strong> en frais de calcul. Plus de <strong>19 000 ressources</strong> ont déjà été générées, soit un coût cumulé d'environ <strong>285 000 FCFA</strong>, entièrement à notre charge.
                     </p>
+                    <p>Vu le taux de participations de la part des utilisateur qui était presque nul par rapport aux dépenses, nous avons du restructurer la plateforme pour une utilisation plus modérée et avantageuse pour ceux qui participent</p>
                     <h6>💰 Comment contribuer / faire un don</h6>
                     <p>Chaque don, petit ou grand, aide à couvrir les frais et à assurer l'accessibilité de la plateforme.</p>
                     <div class="donation-methods">
@@ -626,9 +655,7 @@
                     </div>
                     <p><em>Remplacez "MONTANT" par la somme de votre don.</em></p>
                     <hr>
-                    <p>
-                        🌱 Nous comptons sur votre <strong>usage modéré</strong> et votre <strong>solidarité</strong> pour garantir la pérennité de ce projet communautaire.
-                    </p>
+                
                     
                 </div>
 
@@ -639,8 +666,9 @@
                         <strong>TCHATCHI AI</strong> is a personal project with no external funding, built to help Cameroonian teachers create lesson plans and assessments aligned with local curricula.
                     </p>
                     <p>
-                        Each resource generated costs about <strong>15 FCFA</strong> in AI processing fees. Over <strong>18,000 resources</strong> have been generate, meaning over <strong>270,000 FCFA</strong> have been invested so far, free for educators.
+                        Each resource generated costs about <strong>15 FCFA</strong> in AI processing fees. Over <strong>19,000 resources</strong> have been generate, meaning over <strong>285,000 FCFA</strong> have been invested so far, free for educators.
                     </p>
+                    <p>Given the participation rate on the part of users which was almost zero compared to expenses, we had to restructure the platform for more moderate and advantageous use for those who participate</p>
                     <h6>💰 Donate via:</h6>
                      <div class="donation-methods">
                         <p><strong>✅ MTN MOMO</strong><br>
@@ -654,10 +682,7 @@
                     </div>
                     <p><em>Replace "AMOUNT" with your donation amount.</em></p>
                     <hr>
-                    <p>
-                        🎯 We rely on <strong>responsible usage</strong> and/or <strong>donations</strong> to make this community-driven project sustainable.
-                    </p>
-                </div>
+                    </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Compris / Understood</button>
@@ -668,416 +693,267 @@
 <!-- ======================================================================= -->
 <!-- FIN DE LA FENÊTRE MODALE D'INFORMATION -->
 <!-- ======================================================================= -->
+<!-- ======================================================================= -->
+<!-- DÉBUT DU BLOC DE SCRIPTS UNIQUE ET RESTRUCTURÉ -->
+<!-- ======================================================================= -->
 
-</body>
-</html>
-
-<!-- scrypt katex -->
- <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<!-- 1. Import des librairies externes -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+<!-- 2. Notre script principal d'application -->
 <script>
-    // Ce code s'exécute après que la page ET tous les scripts (y compris Bootstrap) sont chargés.
-    window.addEventListener('load', function () {
-        // On vérifie si l'indicateur 'welcomeModalShown' existe dans le sessionStorage.
-        if (!sessionStorage.getItem('welcomeModalShown')) {
-            var modalElement = document.getElementById('welcomeModal');
-            if (modalElement) {
-                // On crée une instance de la modale Bootstrap.
-                var welcomeModal = new bootstrap.Modal(modalElement);
-                // On affiche la modale.
-                welcomeModal.show();
-                // Et on enregistre l'indicateur pour que la modale n'apparaisse plus
-                // lors des prochains rafraîchissements de la page.
-                sessionStorage.setItem('welcomeModalShown', 'true');
-            }
+document.addEventListener('DOMContentLoaded', () => {
+
+    // =======================================================================
+    // SECTION A : GESTION DE LA MODALE DE BIENVENUE
+    // =======================================================================
+    if (!sessionStorage.getItem('welcomeModalShown')) {
+        const modalElement = document.getElementById('welcomeModal');
+        if (modalElement) {
+            const welcomeModal = new bootstrap.Modal(modalElement);
+            welcomeModal.show();
+            sessionStorage.setItem('welcomeModalShown', 'true');
         }
-    });
-</script>
-
-
-<!-- ... (votre balise <script> principale avec la logique du chat vient après) ... -->
-
-<script>
-// =======================================================================
-// DÉBUT DU CODE JAVASCRIPT POUR L'INTERACTIVITÉ - VERSION FINALE
-// =======================================================================
-
-// --- 1. SÉLECTION DES ÉLÉMENTS HTML ---
-const chatMessages = document.getElementById('chat-messages');
-const optionsContainer = document.getElementById('options-container');
-const chatForm = document.getElementById('chat-form');
-const chatInput = document.getElementById('chat-input');
-const appTitle = document.getElementById('app-title');
-
-
-// NOUVEAU BLOC CORRIGÉ
-
-// --- 7. LOGIC FOR AUTO-HIDING HEADER ON SCROLL (Desktop Friendly) ---
-const mainHeader = document.getElementById('main-header');
-const chatContainerForScroll = document.getElementById('chat-messages');
-let lastScrollTop = 0;
-const SCROLL_THRESHOLD = 10; 
-
-if (mainHeader && chatContainerForScroll) {
-    chatContainerForScroll.addEventListener('scroll', () => {
-        // **LA CORRECTION EST ICI**
-        // Si la largeur de la fenêtre est supérieure à 768px (taille PC/tablette large)...
-        if (window.innerWidth > 768) {
-            // ...on s'assure que la barre de menu est TOUJOURS visible...
-            mainHeader.classList.remove('header-hidden');
-            // ...et on arrête l'exécution de la fonction ici.
-            return; 
-        }
-
-        // Le reste du code ne s'exécutera que sur les écrans de moins de 768px.
-        let currentScrollTop = chatContainerForScroll.scrollTop;
-
-        if (currentScrollTop < SCROLL_THRESHOLD) {
-            mainHeader.classList.remove('header-hidden');
-            lastScrollTop = currentScrollTop;
-            return;
-        }
-        
-        if (Math.abs(currentScrollTop - lastScrollTop) <= SCROLL_THRESHOLD) {
-            return;
-        }
-
-        if (currentScrollTop > lastScrollTop) {
-            mainHeader.classList.add('header-hidden');
-        } else {
-            mainHeader.classList.remove('header-hidden');
-        }
-
-        lastScrollTop = currentScrollTop;
-    });
-}
-// END OF THE NEW CODE
-
-
-
-// --- 2. GESTION DE L'ÉTAT DE LA CONVERSATION ---
-//let lastAiResponseText = "";
-
-let conversationState = {
-    lang: null,
-    currentStep: 'start',
-    collectedData: {}
-};
-
-// --- 3. FONCTIONS DE MANIPULATION DE L'INTERFACE ---
-
-function scrollToBottom() {
-    setTimeout(() => {
-        const chatMessages = document.getElementById('chat-messages');
-        if (chatMessages) {
-            // Smooth scroll to bottom
-            chatMessages.scrollTo({
-                top: chatMessages.scrollHeight,
-                behavior: 'smooth'
-            });
-        }
-    }, 100);
-}
-
-// Add this to handle initial load and resize
-function ensureScrollToBottom() {
-    setTimeout(() => {
-        scrollToBottom();
-        // Re-check after a short delay to ensure everything is rendered
-        setTimeout(scrollToBottom, 300);
-    }, 500);
-}
-
-// Call this when the page loads and when window resizes
-document.addEventListener('DOMContentLoaded', ensureScrollToBottom);
-window.addEventListener('resize', ensureScrollToBottom);
-
-function addMessage(content, sender) {
-    const messageElement = document.createElement('div');
-    messageElement.classList.add('message', sender);
-    const contentElement = document.createElement('div');
-    contentElement.classList.add('content');
-    
-    const isSpinner = typeof content === 'string' && content.trim().startsWith('<div class="loading-content">');
-
-    if (isSpinner) {
-        contentElement.innerHTML = content;
-    } else {
-        contentElement.innerHTML = marked.parse(content);
-        try {
-            if (typeof renderMathInElement === 'function') {
-                renderMathInElement(contentElement, {
-                    delimiters: [
-                        {left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false},
-                        {left: '\\(', right: '\\)', display: false}, {left: '\\[', right: '\\]', display: true}
-                    ],
-                    throwOnError: false
-                });
-            }
-        } catch (e) { console.warn("KaTeX non prêt.", e); }
-    }
-    messageElement.appendChild(contentElement);
-    chatMessages.appendChild(messageElement);
-    scrollToBottom();
-}
-
-//AFFICHAGE DES OPTIONS
-
-function showOptions(options, is_text_input = false) {
-    optionsContainer.innerHTML = '';
-    
-    // Nouvelle logique pour le champ de saisie
-    if (is_text_input) {
-        chatInput.disabled = false;
-        chatInput.focus();
-    } else {
-        // Si ce n'est pas une saisie de texte, on désactive le champ s'il y a des options
-        chatInput.disabled = options && options.length > 0;
     }
 
-    if (options && options.length > 0) {
-        options.forEach(optionText => {
-            const button = document.createElement('button');
-            button.classList.add('btn', 'option-button');
-            button.textContent = optionText;
-            button.addEventListener('click', handleOptionClick);
-            optionsContainer.appendChild(button);
-        });
-    }
-    scrollToBottom();
-}
+    // =======================================================================
+    // SECTION B : LOGIQUE DU CHAT
+    // =======================================================================
 
-// --- 4. LOGIQUE DE COMMUNICATION ET TÉLÉCHARGEMENT ---
+    // --- 1. Sélection des éléments HTML ---
+    const chatMessages = document.getElementById('chat-messages');
+    const optionsContainer = document.getElementById('options-container');
+    const chatForm = document.getElementById('chat-form');
+    const chatInput = document.getElementById('chat-input');
+    const mainHeader = document.getElementById('main-header');
 
-// Dans index.html, dans la balise <script>, remplacez TOUTE cette fonction
-
-async function sendMessageToBackend(userMessage) {
-    let indicatorElement = null;
-
-    // On n'affiche pas l'indicateur pour les appels internes du système
-    if (!userMessage.startsWith('internal_')) {
-        // Crée le HTML pour la bulle de l'indicateur
-        const indicatorHtml = `
-            <div class="message ai" id="typing-indicator-bubble">
-                <div class="content typing-indicator">
-                    <span></span><span></span><span></span>
-                </div>
-            </div>`;
-        
-        // Ajoute immédiatement l'indicateur au chat
-        chatMessages.insertAdjacentHTML('beforeend', indicatorHtml);
-        indicatorElement = document.getElementById('typing-indicator-bubble');
-        scrollToBottom();
-    }
-
-    try {
-        const response = await fetch('/api/chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: userMessage, state: conversationState })
-        });
-
-        // Quand la réponse arrive, on retire l'indicateur
-        if (indicatorElement) {
-            indicatorElement.remove();
-        }
-
-        if (!response.ok) {
-            throw new Error(`Erreur HTTP: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        conversationState = data.state;
-
-        // On affiche la vraie réponse du bot
-        if (Array.isArray(data.response)) {
-            data.response.forEach(text => addMessage(text, 'ai'));
-        } else {
-            addMessage(data.response, 'ai');
-        }
-        
-        showOptions(data.options, data.is_text_input);
-
-    } catch (error) {
-        // S'il y a une erreur, on s'assure de retirer l'indicateur aussi
-        if (indicatorElement) {
-            indicatorElement.remove();
-        }
-
-        const errorText = conversationState.lang === 'fr' 
-            ? "Désolé, une erreur de communication est survenue. Veuillez réessayer."
-            : "Sorry, a communication error occurred. Please try again.";
-        addMessage(errorText, 'ai');
-        showOptions(["Recommencer"].filter(o => conversationState.lang === 'fr').concat(["Restart"].filter(o => conversationState.lang !== 'fr')));
-        console.error("Erreur API:", error);
-    }
-}
-
-
-
-//fonction downloadpdf
-
-async function downloadPdf() {
-    const markdown_text_to_send = conversationState.generated_text;
-    if (!markdown_text_to_send) {
-        addMessage("Erreur : Aucun contenu à télécharger.", 'ai');
-        return;
-    }
-
-    const loadingHtml = `<div class="loading-content"><div class="spinner"></div><span>Préparation du PDF...</span></div>`;
-    addMessage(loadingHtml, 'ai');
-    const loadingMessageContent = chatMessages.lastElementChild.querySelector('.content');
-
-    try {
-        const response = await fetch('/api/generate-pdf', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ markdown_text: markdown_text_to_send, state: conversationState })
-        });
-        const data = await response.json();
-
-        // NOUVELLE GESTION D'ERREUR
-        if (!response.ok || !data.success) {
-            // Au lieu de lancer une erreur, on informe le backend
-            const errorText_fr = "Échec de la conversion PDF.";
-            const errorText_en = "PDF conversion failed.";
-            loadingMessageContent.innerHTML = `<span>${conversationState.lang === 'fr' ? errorText_fr : errorText_en}</span>`;
-            // On envoie un message interne au backend pour qu'il propose les bonnes options
-            sendMessageToBackend("internal_pdf_generation_failed");
-            return; // On arrête l'exécution de la fonction ici
-        }
-        
-        const downloadUrl = `/api/download/${data.temp_filename}/${data.download_filename}`;
-        window.location.href = downloadUrl;
-
-        const successText_fr = "Votre téléchargement a commencé.";
-        const successText_en = "Your download has started.";
-        loadingMessageContent.innerHTML = `<span>${conversationState.lang === 'fr' ? successText_fr : successText_en}</span>`;
-        setTimeout(() => sendMessageToBackend("internal_pdf_download_complete"), 1500);
-
-    } catch (error) {
-        // NOUVELLE GESTION D'ERREUR AUSSI DANS LE CATCH
-        const errorText_fr = "Échec du téléchargement. Une erreur réseau est peut-être survenue.";
-        const errorText_en = "Download failed. A network error may have occurred.";
-        loadingMessageContent.innerHTML = `<span>${conversationState.lang === 'fr' ? errorText_fr : errorText_en}</span>`;
-        sendMessageToBackend("internal_pdf_generation_failed");
-        console.error("Erreur de téléchargement PDF:", error);
-    }
-}
-
-
-// --- 5. GESTION DES ÉVÉNEMENTS UTILISATEUR ---
-async function handleOptionClick(event) {
-    const userChoice = event.target.textContent;
-    addMessage(userChoice, 'user');
-    optionsContainer.innerHTML = '';
-    if (userChoice.includes('PDF')) {
-        await downloadPdf();
-    } else {
-        await sendMessageToBackend(userChoice);
-    }
-}
-
-function handleFormSubmit(event) {
-    event.preventDefault();
-    const userMessage = chatInput.value.trim();
-    if (!userMessage) return;
-    addMessage(userMessage, 'user');
-    chatInput.value = '';
-    sendMessageToBackend(userMessage);
-}
-
-// --- 6. INITIALISATION ---
-document.querySelectorAll('.option-button').forEach(button => {
-    button.addEventListener('click', handleOptionClick);
-});
-chatForm.addEventListener('submit', handleFormSubmit);
-chatInput.disabled = true;
-
-// =======================================================================
-// MOBILE MENU TOGGLE FUNCTIONALITY - ADD THIS AT THE END
-// =======================================================================
-// Update your mobile menu JavaScript
-document.addEventListener('DOMContentLoaded', function() {
-    
-    const menuToggle = document.getElementById('menu-toggle');
-    const navMenu = document.querySelector('.nav-menu');
-     const langButtons = document.querySelectorAll('.lang-btn');
-    const translatableElements = document.querySelectorAll('[data-lang-en]');
-    
-    const switchLanguage = (lang) => {
-        // Traduit chaque élément qui a les attributs data-lang-
-        translatableElements.forEach(el => {
-            const text = el.dataset[lang === 'fr' ? 'langFr' : 'langEn'];
-            // On s'assure de ne pas écraser les icônes (comme le coeur)
-            if (el.querySelector('span')) {
-                el.querySelector('span').innerHTML = text;
-            } else {
-                el.innerHTML = text;
-            }
-        });
-
-        // Met à jour le bouton de langue actif
-        langButtons.forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.lang === lang);
-        });
-        
-        // Sauvegarde la préférence pour les futures visites
-        localStorage.setItem('selectedLanguage', lang);
+    // --- 2. Gestion de l'état de la conversation ---
+    let conversationState = {
+        lang: null,
+        currentStep: 'start',
+        collectedData: {},
+        generated_text: "" // Ajout pour la cohérence
     };
 
-    // Ajoute les écouteurs d'événements aux boutons de langue
-    langButtons.forEach(button => {
-        button.addEventListener('click', (e) => {
-            e.preventDefault();
-            switchLanguage(button.dataset.lang);
-        });
+    // --- 3. Fonctions de manipulation de l'interface ---
+    function scrollToBottom() {
+        setTimeout(() => {
+            if (chatMessages) {
+                chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: 'smooth' });
+            }
+        }, 100);
+    }
+
+    function addMessage(content, sender) {
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('message', sender);
+        const contentElement = document.createElement('div');
+        contentElement.classList.add('content');
+        
+        const isSpinner = typeof content === 'string' && content.trim().startsWith('<div class="loading-content">');
+
+        if (isSpinner) {
+            contentElement.innerHTML = content;
+        } else {
+            contentElement.innerHTML = marked.parse(content);
+            try {
+                if (typeof renderMathInElement === 'function') {
+                    renderMathInElement(contentElement, {
+                        delimiters: [
+                            {left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false},
+                            {left: '\\(', right: '\\)', display: false}, {left: '\\[', right: '\\]', display: true}
+                        ],
+                        throwOnError: false
+                    });
+                }
+            } catch (e) { console.warn("Erreur KaTeX:", e); }
+        }
+        messageElement.appendChild(contentElement);
+        chatMessages.appendChild(messageElement);
+        scrollToBottom();
+    }
+
+    function showOptions(options, is_text_input = false) {
+        optionsContainer.innerHTML = '';
+        chatInput.disabled = is_text_input ? false : (options && options.length > 0);
+        if(is_text_input) chatInput.focus();
+
+        if (options && options.length > 0) {
+            options.forEach(optionText => {
+                const button = document.createElement('button');
+                button.classList.add('btn', 'option-button');
+                button.textContent = optionText;
+                button.addEventListener('click', handleOptionClick);
+                optionsContainer.appendChild(button);
+            });
+        }
+        scrollToBottom();
+    }
+
+    // --- 4. Logique de communication et téléchargement ---
+    async function sendMessageToBackend(userMessage) {
+        let indicatorElement = null;
+        if (!userMessage.startsWith('internal_')) {
+            const indicatorHtml = `<div class="message ai" id="typing-indicator-bubble"><div class="content typing-indicator"><span></span><span></span><span></span></div></div>`;
+            chatMessages.insertAdjacentHTML('beforeend', indicatorHtml);
+            indicatorElement = document.getElementById('typing-indicator-bubble');
+            scrollToBottom();
+        }
+
+        try {
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: userMessage, state: conversationState })
+            });
+
+            if (indicatorElement) indicatorElement.remove();
+
+            if (!response.ok) {
+                // Si on reçoit 401 ou autre, on affiche l'erreur ici.
+                const errorData = await response.json().catch(() => ({}));
+                console.error(`Erreur HTTP: ${response.status}`, errorData.error || "Pas de détails");
+                throw new Error(`Erreur HTTP: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            conversationState = data.state;
+            addMessage(data.response, 'ai');
+            showOptions(data.options, data.is_text_input);
+
+        } catch (error) {
+            if (indicatorElement) indicatorElement.remove();
+            const errorText = conversationState.lang === 'fr' 
+                ? "Désolé, une erreur de communication est survenue. Veuillez réessayer."
+                : "Sorry, a communication error occurred. Please try again.";
+            addMessage(errorText, 'ai');
+            const restartOption = conversationState.lang === 'fr' ? "Recommencer" : "Restart";
+            showOptions([restartOption]);
+            console.error("Erreur API:", error);
+        }
+    }
+
+    async function downloadPdf() {
+        const markdown_text_to_send = conversationState.generated_text;
+        if (!markdown_text_to_send) {
+            addMessage("Erreur : Aucun contenu à télécharger.", 'ai');
+            return;
+        }
+
+        const loadingHtml = `<div class="loading-content"><div class="spinner"></div><span>Préparation du PDF...</span></div>`;
+        addMessage(loadingHtml, 'ai');
+        const loadingMessageContent = chatMessages.lastElementChild.querySelector('.content');
+
+        try {
+            const response = await fetch('/api/generate-pdf', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ markdown_text: markdown_text_to_send, state: conversationState })
+            });
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                sendMessageToBackend("internal_pdf_generation_failed");
+                return;
+            }
+            
+            window.location.href = `/api/download/${data.temp_filename}/${data.download_filename}`;
+            const successText = conversationState.lang === 'fr' ? "Votre téléchargement a commencé." : "Your download has started.";
+            loadingMessageContent.innerHTML = `<span>${successText}</span>`;
+            setTimeout(() => sendMessageToBackend("internal_pdf_download_complete"), 1500);
+
+        } catch (error) {
+            sendMessageToBackend("internal_pdf_generation_failed");
+            console.error("Erreur de téléchargement PDF:", error);
+        }
+    }
+
+    // --- 5. Gestion des événements utilisateur ---
+    function handleOptionClick(event) {
+        const userChoice = event.target.textContent;
+        addMessage(userChoice, 'user');
+        optionsContainer.innerHTML = '';
+        if (userChoice.includes('PDF')) {
+            downloadPdf();
+        } else {
+            sendMessageToBackend(userChoice);
+        }
+    }
+
+    chatForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const userMessage = chatInput.value.trim();
+        if (!userMessage) return;
+        addMessage(userMessage, 'user');
+        chatInput.value = '';
+        sendMessageToBackend(userMessage);
     });
 
-    // Au chargement, applique la langue sauvegardée ou l'anglais par défaut
-    const savedLang = localStorage.getItem('selectedLanguage') || 'en';
-    switchLanguage(savedLang);
-    
-    if (menuToggle && navMenu) {
-        menuToggle.addEventListener('click', function(e) {
-            e.stopPropagation();
-            navMenu.classList.toggle('show');
-        });
-        
-        // Close menu when clicking outside
-        document.addEventListener('click', function(e) {
-            if (navMenu.classList.contains('show') && 
-                !navMenu.contains(e.target) && 
-                !menuToggle.contains(e.target)) {
-                navMenu.classList.remove('show');
-            }
-        });
-        
-        // Prevent menu from closing when clicking inside it
-        navMenu.addEventListener('click', function(e) {
-            e.stopPropagation();
-        });
-    }
-});
+    // --- 6. Initialisation du chat ---
+    document.querySelectorAll('.option-button').forEach(button => {
+        button.addEventListener('click', handleOptionClick);
+    });
+    chatInput.disabled = true;
 
-// Test function to check scrolling
-function testScrolling() {
-    setTimeout(() => {
-        const chatMessages = document.getElementById('chat-messages');
-        if (chatMessages) {
-            console.log('Chat messages height:', chatMessages.scrollHeight);
-            console.log('Container height:', chatMessages.clientHeight);
-            console.log('Scroll position:', chatMessages.scrollTop);
+    // =======================================================================
+    // SECTION C : LOGIQUE DE L'HISTORIQUE ET AUTRES
+    // =======================================================================
+    async function loadHistory() {
+        const container = document.getElementById('history-items-container');
+        if (!container) return;
+        try {
+            const response = await fetch('/api/history');
+            if (!response.ok) throw new Error('Failed to fetch history');
+            const historyItems = await response.json();
+            container.innerHTML = '';
+            historyItems.forEach(item => {
+                const li = document.createElement('li');
+                li.innerHTML = `<a href="#" class="history-item" data-id="${item.id}"><i class="bi bi-chat-left-text me-2"></i>${item.title}</a>`;
+                li.firstChild.onclick = handleHistoryClick;
+                container.appendChild(li);
+            });
+        } catch (error) {
+            console.error("Erreur de chargement de l'historique:", error);
+            container.innerHTML = '<li><span class="history-item text-danger">Erreur</span></li>';
         }
-    }, 1000);
-}
+    }
 
-// Call this after page load
-testScrolling();
+    async function handleHistoryClick(event) {
+        event.preventDefault();
+        const generationId = event.currentTarget.dataset.id;
+        try {
+            const response = await fetch(`/api/history/${generationId}`);
+            if (!response.ok) throw new Error('Failed to fetch generation');
+            const data = await response.json();
+            
+            chatMessages.innerHTML = '';
+            addMessage(data.content, 'ai');
+            
+            conversationState.generated_text = data.content;
+            const flow_type = data.flow_type;
+            const options = (flow_type === 'digital')
+                ? ["Recommencer", " régénérer", "Télécharger en Présentation (PDF)"]
+                : ["Recommencer", " régénérer", "Télécharger en PDF"];
+            showOptions(options);
+
+        } catch (error) {
+            console.error("Erreur de chargement de la génération:", error);
+            addMessage("Impossible de charger cette conversation.", 'ai');
+        }
+    }
+    
+    // On expose la fonction pour qu'elle soit appelable depuis le HTML (onclick)
+    window.startNewChat = function() {
+        window.location.href = '/app';
+    }
+
+    // Chargement initial
+    loadHistory();
+    scrollToBottom();
+});
 </script>
-
 </body>
 </html>
