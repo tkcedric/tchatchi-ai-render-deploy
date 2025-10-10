@@ -7,6 +7,8 @@ __pycache__/
 
 # Fichiers générés
 *.pdf
+# Ne PAS ignorer le contenu du dossier static/pdf/
+!static/pdf/
 
 # .gitignore
 venv/

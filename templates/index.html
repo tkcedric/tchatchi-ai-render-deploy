@@ -315,45 +315,7 @@
 }
 
 
-    /* ===========================
-       RESPONSIVE DESIGN
-    ============================ */
-    /* Mobile menu toggle */
-#menu-toggle {
-    display: none;
-    border: none;
-    background: transparent;
-    font-size: 1.5rem;
-    cursor: pointer;
-    padding: 0.25rem;
-}
-
-/* --- 4. Le bouton Burger Menu (sur mobile) --- */
-
-    @media (max-width: 1200px) {
-        #sidebar {
-            width: 260px;
-        }
-        
-        .message .content {
-            max-width: 75%;
-        }
-    }
     
-    @media (max-width: 992px) {
-        #sidebar {
-            width: 240px;
-        }
-        
-        #main-header .app-title {
-            font-size: 1.1rem;
-        }
-        
-        .message .content {
-            max-width: 80%;
-            padding: 0.75rem 1rem;
-        }
-    }
 /* NOUVEAU BLOC UNIFIÉ À AJOUTER */
 
     @media (max-width: 768px) {
@@ -538,53 +500,7 @@
         height: 60px; /* Maintient le ratio carré */
         object-fit: contain; /* S'assure que l'image s'adapte sans être déformée */
     }
-    /* Menu mobile amélioré */
-.nav-menu-mobile {
-    position: fixed;
-    top: 0;
-    right: -100%;
-    width: 85%;
-    max-width: 300px;
-    height: 100%;
-    background: white;
-    box-shadow: -5px 0 15px rgba(0,0,0,0.15);
-    padding: 1.5rem;
-    transition: right 0.3s ease-in-out;
-    z-index: 1040;
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-}
-
-.nav-menu-mobile.show {
-    right: 0;
-}
-
-.nav-link-mobile {
-    padding: 1rem 0;
-    font-size: 1.1rem;
-    font-weight: 500;
-    color: var(--text-dark);
-    text-decoration: none;
-    border-bottom: 1px solid var(--bg-light);
-    display: block;
-}
-
-/* Overlay pour le menu mobile */
-.mobile-menu-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-    z-index: 1039;
-    display: none;
-}
-
-.mobile-menu-overlay.show {
-    display: block;
-}
+ 
 /* ======================================================================= */
 /* CORRECTIONS RESPONSIVES POUR LA PAGE DE CHAT */
 /* ======================================================================= */
@@ -862,6 +778,198 @@
         max-height: 200px;
     }
 }
+
+
+/* ======================================================================= */
+/* MENU MOBILE AMÉLIORÉ - COMPACT ET CENTRÉ */
+/* ======================================================================= */
+
+/* Overlay pour le menu mobile */
+.mobile-menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+    z-index: 1039;
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.mobile-menu-overlay.show {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Menu Mobile Compact Centré */
+.nav-menu-compact {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.9);
+    width: 90%;
+    max-width: 300px;
+    background: white;
+    border-radius: 20px;
+    padding: 2rem 1.5rem;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    z-index: 1040;
+    display: none;
+    text-align: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-menu-compact.show {
+    display: block;
+    animation: popIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes popIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+.nav-compact-header {
+    margin-bottom: 1.5rem;
+}
+
+.nav-compact-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin: 0 0 0.5rem 0;
+}
+
+.nav-compact-subtitle {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.nav-compact-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.nav-compact-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    background: #f8f9fa;
+    color: var(--text-dark);
+    text-decoration: none;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.nav-compact-link:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.nav-compact-link i {
+    font-size: 1.1rem;
+}
+
+.nav-compact-login {
+    width: 100%;
+    padding: 1rem 1.5rem;
+    background: linear-gradient(135deg, var(--primary-color) 0%, #1976d2 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: block;
+}
+
+.nav-compact-login:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(11, 87, 208, 0.4);
+    color: white;
+}
+
+.nav-compact-lang {
+    display: flex;
+    background: #f8f9fa;
+    border-radius: 50px;
+    padding: 0.25rem;
+    border: 1px solid #e9ecef;
+}
+
+.nav-compact-lang-btn {
+    flex: 1;
+    padding: 0.5rem;
+    text-decoration: none;
+    color: #6c757d;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.nav-compact-lang-btn.active {
+    background: white;
+    color: var(--primary-color);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+/* Media Queries pour le menu compact */
+@media (max-width: 480px) {
+    .nav-menu-compact {
+        width: 95%;
+        padding: 1.5rem 1rem;
+    }
+    
+    .nav-compact-title {
+        font-size: 1.2rem;
+    }
+    
+    .nav-compact-link {
+        padding: 0.875rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .nav-compact-login {
+        padding: 0.875rem 1rem;
+    }
+}
+
+@media (max-width: 360px) {
+    .nav-menu-compact {
+        width: 98%;
+        padding: 1rem 0.75rem;
+    }
+    
+    .nav-compact-links {
+        gap: 0.5rem;
+    }
+    
+    .nav-compact-link {
+        padding: 0.75rem;
+        font-size: 0.85rem;
+    }
+}
     </style>
       
 </head>
@@ -928,6 +1036,45 @@
     <!-- ======================================================================= -->
     <!-- FIN DU NOUVEL EN-TÊTE -->
     <!-- ======================================================================= -->
+
+    <!-- ======================================================================= -->
+    <!-- DEBUT EN-TÊTE  MOBILE-->
+    <!-- ======================================================================= -->
+
+    <!-- Overlay pour le menu mobile -->
+<div class="mobile-menu-overlay" id="mobile-menu-overlay"></div>
+
+<!-- Menu Mobile Compact Centré -->
+<div class="nav-menu-compact" id="mobile-menu">
+    <div class="nav-compact-header">
+        <h3 class="nav-compact-title">Menu</h3>
+        <p class="nav-compact-subtitle">Navigation</p>
+    </div>
+    
+    <div class="nav-compact-links">
+        <a href="/about" class="nav-compact-link" data-lang-en="About" data-lang-fr="À Propos">
+            <i class="bi bi-info-circle"></i>
+            <span>À Propos</span>
+        </a>
+        
+        <a href="/donate" class="nav-compact-link" data-lang-en="Support" data-lang-fr="Soutenir">
+            <i class="bi bi-heart"></i>
+            <span>Soutenir</span>
+        </a>
+    </div>
+    
+    <a href="/login" class="nav-compact-login" data-lang-en="Login / Sign Up" data-lang-fr="Connexion / Inscription">
+        <i class="bi bi-google me-2"></i>
+        <span>Connexion / Inscription</span>
+    </a>
+    
+    <div class="nav-compact-lang">
+        <a href="#" class="nav-compact-lang-btn" data-lang="en">🇬🇧 EN</a>
+        <a href="#" class="nav-compact-lang-btn active" data-lang="fr">🇫🇷 FR</a>
+    </div>
+</div>
+
+
         <div id="chat-container">
             <div id="chat-messages">
                 <div class="message ai">
@@ -3152,6 +3299,95 @@ function insertQuickTable(rows = 3, cols = 3, hasHeader = true) {
         }
     }
 }
+
+</script>
+
+<!-- SCRIPT MENU MOBIE-->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- GESTION DU MENU MOBILE COMPACT ---
+        const menuToggle = document.getElementById('menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileOverlay = document.getElementById('mobile-menu-overlay');
+        
+        function openMobileMenu() {
+            if (mobileMenu && mobileOverlay) {
+                mobileMenu.classList.add('show');
+                mobileOverlay.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+        
+        function closeMobileMenu() {
+            if (mobileMenu && mobileOverlay) {
+                mobileMenu.classList.remove('show');
+                mobileOverlay.classList.remove('show');
+                document.body.style.overflow = '';
+            }
+        }
+        
+        if (menuToggle && mobileMenu) {
+            // Créer l'overlay s'il n'existe pas
+            if (!mobileOverlay) {
+                const overlay = document.createElement('div');
+                overlay.id = 'mobile-menu-overlay';
+                overlay.className = 'mobile-menu-overlay';
+                document.body.appendChild(overlay);
+                
+                overlay.addEventListener('click', closeMobileMenu);
+            }
+            
+            menuToggle.addEventListener('click', openMobileMenu);
+            
+            // Fermer avec la touche Échap
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeMobileMenu();
+            });
+            
+            // Fermer en cliquant sur les liens
+            const menuLinks = mobileMenu.querySelectorAll('a');
+            menuLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    setTimeout(closeMobileMenu, 300);
+                });
+            });
+        }
+
+        // --- GESTION DE LA TRADUCTION ---
+        const langButtons = document.querySelectorAll('.lang-btn, .nav-compact-lang-btn');
+        const translatableElements = document.querySelectorAll('[data-lang-en]');
+
+        const switchLanguage = (lang) => {
+            translatableElements.forEach(el => {
+                const text = el.getAttribute(lang === 'fr' ? 'data-lang-fr' : 'data-lang-en');
+                if (text) {
+                    const span = el.querySelector('span');
+                    if (span) {
+                        span.textContent = text;
+                    } else {
+                        el.textContent = text;
+                    }
+                }
+            });
+            langButtons.forEach(btn => {
+                btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+            });
+            document.documentElement.lang = lang;
+            localStorage.setItem('selectedLanguage', lang);
+        };
+
+        langButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                switchLanguage(button.getAttribute('data-lang'));
+            });
+        });
+        
+        const savedLang = localStorage.getItem('selectedLanguage') || 'fr';
+        switchLanguage(savedLang);
+        
+        
+    });
 </script>
 </body>
 </html>
