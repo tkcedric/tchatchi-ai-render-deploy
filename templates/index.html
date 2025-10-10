@@ -1,6 +1,17 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+        <!-- Viewport optimisé pour mobile -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+    <!-- Icônes pour iOS -->
+    <link rel="apple-touch-icon" href="/static/img/favicon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <!-- Theme color -->
+    <meta name="theme-color" content="#0b57d0">
+    <meta name="msapplication-TileColor" content="#0b57d0">
     <!-- ... (toute la partie <head> et <style> reste inchangée) ... -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -11,6 +22,26 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-PVE22CBKK7"></script>
+
+    <!-- Ajoutez ces lignes après les autres CDN -->
+    <script src="https://unpkg.com/easymde/dist/easymde.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/easymde/dist/easymde.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+    <!-- MathJax pour les formules mathématiques -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- ChemDoodle pour la chimie -->
+    <script src="https://web.chemdoodle.com/install/chemdoodle.min.js"></script>
+    <link rel="stylesheet" href="https://web.chemdoodle.com/install/chemdoodle.min.css">
+
+    <!-- Chart.js pour les graphiques -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Geogebra pour les mathématiques -->
+    <script src="https://www.geogebra.org/apps/deployggb.js"></script>
+
+
     <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
@@ -252,7 +283,7 @@
         }
     }  
     
-    /* ==================================================
+/* ==================================================
    STYLE POUR LA FENÊTRE MODALE D'INFORMATION
 ================================================== */
 #welcomeModal .modal-header {
@@ -507,6 +538,330 @@
         height: 60px; /* Maintient le ratio carré */
         object-fit: contain; /* S'assure que l'image s'adapte sans être déformée */
     }
+    /* Menu mobile amélioré */
+.nav-menu-mobile {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 85%;
+    max-width: 300px;
+    height: 100%;
+    background: white;
+    box-shadow: -5px 0 15px rgba(0,0,0,0.15);
+    padding: 1.5rem;
+    transition: right 0.3s ease-in-out;
+    z-index: 1040;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.nav-menu-mobile.show {
+    right: 0;
+}
+
+.nav-link-mobile {
+    padding: 1rem 0;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--text-dark);
+    text-decoration: none;
+    border-bottom: 1px solid var(--bg-light);
+    display: block;
+}
+
+/* Overlay pour le menu mobile */
+.mobile-menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1039;
+    display: none;
+}
+
+.mobile-menu-overlay.show {
+    display: block;
+}
+/* ======================================================================= */
+/* CORRECTIONS RESPONSIVES POUR LA PAGE DE CHAT */
+/* ======================================================================= */
+
+@media (max-width: 768px) {
+    /* Structure principale */
+    body {
+        flex-direction: column;
+        height: 100vh;
+        overflow: hidden;
+    }
+    
+    #sidebar {
+        position: fixed;
+        top: 0;
+        left: -100%;
+        width: 85%;
+        max-width: 280px;
+        height: 100%;
+        z-index: 1050;
+        transition: left 0.3s ease-in-out;
+        box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    }
+    
+    #sidebar.show {
+        left: 0;
+    }
+    
+    /* Overlay pour la sidebar mobile */
+    .sidebar-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 1049;
+        display: none;
+    }
+    
+    .sidebar-overlay.show {
+        display: block;
+    }
+    
+    /* Header du chat */
+    #main-header {
+        padding: 0.5rem 1rem;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+    
+    .app-title {
+        font-size: 0.9rem;
+    }
+    
+    /* Zone de chat */
+    #chat-messages {
+        padding: 1rem 0.75rem;
+        margin-bottom: env(safe-area-inset-bottom, 0);
+    }
+    
+    .message .content {
+        max-width: 90%;
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+    }
+    
+    /* Zone d'input */
+    #chat-input-area {
+        padding: 0.75rem;
+        padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
+    }
+    
+    #chat-input {
+        font-size: 16px; /* Empêche le zoom sur iOS */
+    }
+    
+    /* Options */
+    #options-container {
+        max-height: 200px;
+        padding-bottom: 0.75rem;
+    }
+    
+    .option-button {
+        padding: 0.75rem 1rem;
+        margin: 0.25rem;
+        font-size: 0.9rem;
+        min-height: 44px;
+    }
+    
+    /* Boutons d'action */
+    #menu-toggle, #chat-submit-btn {
+        min-width: 44px;
+        min-height: 44px;
+    }
+}
+
+@media (max-width: 576px) {
+    /* Très petits écrans */
+    #chat-messages {
+        padding: 0.5rem;
+    }
+    
+    .message .content {
+        max-width: 95%;
+        padding: 0.6rem 0.9rem;
+    }
+    
+    #options-container {
+        flex-direction: column;
+    }
+    
+    .option-button {
+        width: 100%;
+        text-align: center;
+    }
+    
+    /* Input group compact */
+    #chat-form .input-group {
+        padding: 0.25rem;
+    }
+    
+    #chat-input {
+        padding: 0.75rem;
+    }
+}
+
+
+/* Styles pour l'éditeur amélioré */
+.editor-container {
+    margin-bottom: 1rem;
+}
+
+#markdown-preview {
+    font-family: system-ui, -apple-system, sans-serif;
+    line-height: 1.6;
+}
+
+#markdown-preview img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+#markdown-preview pre {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    padding: 1rem;
+    overflow-x: auto;
+}
+
+#markdown-preview code {
+    background: #f8f9fa;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+#markdown-preview blockquote {
+    border-left: 4px solid #0d6efd;
+    padding-left: 1rem;
+    margin-left: 0;
+    color: #6c757d;
+    font-style: italic;
+}
+
+/* Styles pour les diagrammes Mermaid */
+.mermaid {
+    text-align: center;
+    margin: 1rem 0;
+}
+
+.mermaid svg {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Styles pour l'éditeur multidisciplinaire */
+.modal-xxl {
+    max-width: 95%;
+}
+
+#tools-sidebar {
+    min-height: 60vh;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.tool-card {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.tool-card:hover {
+    border-color: #0d6efd;
+    background-color: #f8f9fa;
+}
+
+.tool-card.active {
+    border-color: #0d6efd;
+    background-color: #e7f1ff;
+}
+
+.tool-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Styles pour les formules mathématiques */
+.math-preview {
+    font-size: 1.2em;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Styles pour la chimie */
+#chemdoodle-canvas {
+    background-color: white;
+}
+
+.chem-element-btn {
+    margin: 2px;
+}
+
+/* Styles pour les graphiques */
+.chart-container {
+    position: relative;
+    height: 300px;
+}
+
+/* Styles pour l'aperçu enrichi */
+#markdown-preview .math-formula {
+    display: inline-block;
+    margin: 0 0.2em;
+    padding: 0.2em 0.4em;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+#markdown-preview .chemical-equation {
+    font-family: 'Times New Roman', serif;
+    font-size: 1.1em;
+    padding: 0.5em;
+    background: #fff3cd;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+#markdown-preview .molecule-diagram {
+    text-align: center;
+    margin: 1em 0;
+    padding: 1em;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .modal-xxl {
+        max-width: 100%;
+        margin: 0.5rem;
+    }
+    
+    #tools-sidebar {
+        min-height: auto;
+        max-height: 200px;
+    }
+}
     </style>
       
 </head>
@@ -693,6 +1048,671 @@
 <!-- ======================================================================= -->
 <!-- FIN DE LA FENÊTRE MODALE D'INFORMATION -->
 <!-- ======================================================================= -->
+ <!-- ======================================================================= -->
+<!-- DÉBUT DE LA NOUVELLE FENÊTRE MODALE D'ÉDITION AMÉLIORÉE -->
+<!-- ======================================================================= -->
+ <!-- ======================================================================= -->
+<!-- FENÊTRE MODALE D'ÉDITION MULTIDISCIPLINAIRE COMPLÈTE -->
+<!-- ======================================================================= -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xxl modal-dialog-centered modal-dialog-scrollable" style="max-width: 95%;">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="editModalLabel">
+                    <i class="bi bi-tools"></i> Éditeur Multidisciplinaire-TCHATCHI AI
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <!-- Barre d'outils principale -->
+                <div class="bg-light border-bottom p-3">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <div class="d-flex flex-wrap gap-2">
+                            <!-- Outils généraux -->
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-sm btn-outline-primary" id="preview-toggle">
+                                    <i class="bi bi-eye"></i> Aperçu
+                                </button>
+                            </div>
+                            
+                            <!-- Outils par discipline -->
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-success dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    <i class="bi bi-calculator"></i> Mathématiques
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" data-tool="math-formula">
+                                        <i class="bi bi-square"></i> Formule LaTeX
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="#" data-tool="math-graph">
+                                        <i class="bi bi-graph-up"></i> Traceur de fonctions
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="#" data-tool="math-geometry">
+                                        <i class="bi bi-triangle"></i> Géométrie
+                                    </a></li>
+                                </ul>
+                            </div>
+                            
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-danger dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    <i class="bi bi-flask"></i> Chimie
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" data-tool="chem-molecule">
+                                        <i class="bi bi-circle"></i> Éditeur de molécules
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="#" data-tool="chem-reaction">
+                                        <i class="bi bi-arrow-right"></i> Équations chimiques
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="#" data-tool="chem-periodic">
+                                        <i class="bi bi-grid-3x3"></i> Tableau périodique
+                                    </a></li>
+                                </ul>
+                            </div>
+                            
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-info dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    <i class="bi bi-diagram-3"></i> Sciences
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" data-tool="science-diagram">
+                                        <i class="bi bi-diagram-3"></i> Diagrammes Mermaid
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="#" data-tool="science-chart">
+                                        <i class="bi bi-bar-chart"></i> Graphiques
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="#" data-tool="science-circuit">
+                                        <i class="bi bi-lightning"></i> Circuits électriques
+                                    </a></li>
+                                </ul>
+                            </div>
+                            
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-warning dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    <i class="bi bi-image"></i> Multimédia
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" data-tool="media-image">
+                                        <i class="bi bi-image"></i> Insérer image
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="#" data-tool="media-table">
+                                        <i class="bi bi-table"></i> Tableaux
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="#" data-tool="media-code">
+                                        <i class="bi bi-code-slash"></i> Code
+                                    </a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="text-muted small">
+                            <i class="bi bi-info-circle"></i> Sélectionnez votre discipline
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Conteneur principal avec sidebar -->
+                <div class="row g-0" style="min-height: 60vh;">
+                    <!-- Sidebar des outils -->
+                    <div class="col-md-3 border-end bg-light" id="tools-sidebar">
+                        <div class="p-3">
+                            <h6 class="border-bottom pb-2">Outils disponibles</h6>
+                            <div id="tools-list">
+                                <!-- Les outils seront chargés dynamiquement ici -->
+                                <div class="text-center text-muted py-4">
+                                    <i class="bi bi-magic display-6"></i>
+                                    <p class="mt-2 small">Sélectionnez une discipline pour voir les outils</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Zone d'édition principale -->
+                    <div class="col-md-9">
+                        <div class="p-3">
+                            <ul class="nav nav-tabs" id="editorTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="edit-tab" data-bs-toggle="tab" data-bs-target="#edit" type="button" role="tab">
+                                        <i class="bi bi-pencil"></i> Éditeur
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="preview-tab" data-bs-toggle="tab" data-bs-target="#preview" type="button" role="tab">
+                                        <i class="bi bi-eye"></i> Aperçu
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="live-tab" data-bs-toggle="tab" data-bs-target="#live" type="button" role="tab">
+                                        <i class="bi bi-play-circle"></i> Vue Live
+                                    </button>
+                                </li>
+                            </ul>
+                            
+                            <div class="tab-content border border-top-0 rounded-bottom">
+                                <!-- Onglet Éditeur -->
+                                <div class="tab-pane fade show active" id="edit" role="tabpanel">
+                                    <textarea id="editor-textarea" class="form-control border-0" style="height: 50vh; font-family: 'Courier New', monospace; resize: none;"></textarea>
+                                </div>
+                                
+                                <!-- Onglet Aperçu -->
+                                <div class="tab-pane fade" id="preview" role="tabpanel">
+                                    <div id="markdown-preview" style="height: 50vh; overflow-y: auto; padding: 1rem;"></div>
+                                </div>
+                                
+                                <!-- Onglet Vue Live -->
+                                <div class="tab-pane fade" id="live" role="tabpanel">
+                                    <div id="live-preview" style="height: 50vh; overflow-y: auto; padding: 1rem;">
+                                        <div class="text-center text-muted py-5">
+                                            <i class="bi bi-arrow-repeat display-4"></i>
+                                            <p class="mt-2">Vue live en temps réel</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle"></i> Annuler
+                </button>
+                <button type="button" class="btn btn-success" id="save-content-btn">
+                    <i class="bi bi-check-circle"></i> Sauvegarder
+                </button>
+                <button type="button" class="btn btn-primary" id="save-and-download-btn">
+                    <i class="bi bi-file-earmark-arrow-down-fill"></i> Télécharger PDF
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ======================================================================= -->
+<!-- MODALES SPÉCIALISÉES PAR DISCIPLINE -->
+<!-- ======================================================================= -->
+
+<!-- Modal Formules Mathématiques -->
+<div class="modal fade" id="mathFormulaModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="bi bi-square"></i> Éditeur de Formules Mathématiques</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label">Éditeur LaTeX :</label>
+                        <textarea class="form-control" id="latex-editor" rows="6" placeholder="\frac{a}{b} = \sqrt{c}">\frac{a}{b} = \sqrt{c}</textarea>
+                        <div class="mt-2">
+                            <small class="text-muted">Exemples : </small>
+                            <div class="btn-group btn-group-sm mt-1">
+                                <button type="button" class="btn btn-outline-secondary" data-example="\frac{a}{b}">Fraction</button>
+                                <button type="button" class="btn btn-outline-secondary" data-example="\sqrt{x}">Racine</button>
+                                <button type="button" class="btn btn-outline-secondary" data-example="\int_{a}^{b} f(x)dx">Intégrale</button>
+                                <button type="button" class="btn btn-outline-secondary" data-example="\sum_{i=1}^{n} i">Somme</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Aperçu :</label>
+                        <div id="latex-preview" class="border rounded p-3 bg-light text-center" style="min-height: 150px;">
+                            <div class="text-muted">Aperçu de la formule</div>
+                        </div>
+                        <div class="mt-3">
+                            <label class="form-label">Options :</label>
+                            <select class="form-select" id="latex-display">
+                                <option value="inline">En ligne : \(...\)</option>
+                                <option value="block">Bloc : \[...\]</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-success" id="insert-latex">Insérer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Traceur de Fonctions -->
+<div class="modal fade" id="mathGraphModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="bi bi-graph-up"></i> Traceur de Fonctions Mathématiques</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label">Fonction f(x) :</label>
+                            <input type="text" class="form-control" id="function-input" placeholder="x^2 + 2*x + 1" value="x^2">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Intervalle x :</label>
+                            <div class="row g-2">
+                                <div class="col">
+                                    <input type="number" class="form-control" id="x-min" placeholder="Min" value="-5">
+                                </div>
+                                <div class="col">
+                                    <input type="number" class="form-control" id="x-max" placeholder="Max" value="5">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Couleur :</label>
+                            <input type="color" class="form-control form-control-color" id="graph-color" value="#ff0000">
+                        </div>
+                        <button class="btn btn-primary w-100" id="plot-function">
+                            <i class="bi bi-play-fill"></i> Tracer
+                        </button>
+                        <div class="mt-3">
+                            <small class="text-muted">Syntaxe supportée :</small>
+                            <ul class="small">
+                                <li><code>x^2</code> - Carré</li>
+                                <li><code>sin(x)</code> - Sinus</li>
+                                <li><code>sqrt(x)</code> - Racine</li>
+                                <li><code>log(x)</code> - Logarithme</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <canvas id="function-canvas" width="600" height="400" style="border: 1px solid #ddd; border-radius: 8px;"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-success" id="insert-graph">Insérer Graphique</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Éditeur de Molécules Chimiques -->
+<div class="modal fade" id="chemMoleculeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title"><i class="bi bi-circle"></i> Éditeur de Structures Chimiques</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div id="chemdoodle-canvas" style="width: 100%; height: 400px; border: 1px solid #ddd;"></div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label">Outils :</label>
+                            <div class="btn-group-vertical w-100">
+                                <button type="button" class="btn btn-outline-primary" id="chem-carbon">Carbone (C)</button>
+                                <button type="button" class="btn btn-outline-primary" id="chem-oxygen">Oxygène (O)</button>
+                                <button type="button" class="btn btn-outline-primary" id="chem-hydrogen">Hydrogène (H)</button>
+                                <button type="button" class="btn btn-outline-primary" id="chem-nitrogen">Azote (N)</button>
+                                <button type="button" class="btn btn-outline-secondary" id="chem-bond">Liaison</button>
+                                <button type="button" class="btn btn-outline-danger" id="chem-clear">Effacer</button>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Modèles prédéfinis :</label>
+                            <select class="form-select" id="chem-templates">
+                                <option value="">Sélectionner...</option>
+                                <option value="water">Eau (H₂O)</option>
+                                <option value="methane">Méthane (CH₄)</option>
+                                <option value="ethanol">Éthanol (C₂H₅OH)</option>
+                                <option value="benzene">Benzène (C₆H₆)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-danger" id="insert-molecule">Insérer Molécule</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Équations Chimiques -->
+<div class="modal fade" id="chemReactionModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title"><i class="bi bi-arrow-right"></i> Éditeur d'Équations Chimiques</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Réactifs :</label>
+                    <input type="text" class="form-control" id="reactants-input" placeholder="2H₂ + O₂">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Produits :</label>
+                    <input type="text" class="form-control" id="products-input" placeholder="2H₂O">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Conditions :</label>
+                    <input type="text" class="form-control" id="conditions-input" placeholder="Δ, 400°C">
+                </div>
+                <div class="border rounded p-3 bg-light text-center">
+                    <span id="reactants-preview"></span> 
+                    <span class="mx-2">→</span>
+                    <span id="products-preview"></span>
+                    <br>
+                    <small id="conditions-preview" class="text-muted"></small>
+                </div>
+                <div class="mt-3">
+                    <small class="text-muted">Utilisez _ pour les indices : H_2, O_2</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-danger" id="insert-reaction">Insérer Équation</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Graphiques Scientifiques -->
+<div class="modal fade" id="scienceChartModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title"><i class="bi bi-bar-chart"></i> Créateur de Graphiques</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label">Type de graphique :</label>
+                            <select class="form-select" id="chart-type">
+                                <option value="bar">Barres</option>
+                                <option value="line">Ligne</option>
+                                <option value="pie">Camembert</option>
+                                <option value="scatter">Nuage de points</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Données (CSV) :</label>
+                            <textarea class="form-control" id="chart-data" rows="6" placeholder="Matière,Note
+Maths,15
+Physique,18
+Chimie,12">Matière,Note
+Maths,15
+Physique,18
+Chimie,12</textarea>
+                        </div>
+                        <button class="btn btn-primary w-100" id="update-chart">
+                            <i class="bi bi-arrow-clockwise"></i> Mettre à jour
+                        </button>
+                    </div>
+                    <div class="col-md-8">
+                        <canvas id="science-chart" width="400" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-info" id="insert-chart">Insérer Graphique</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal pour les autres outils (image, diagramme, etc. - garder ceux existants) -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editModalLabel">Éditer la ressource</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Barre d'outils d'édition -->
+                <div class="d-flex justify-content-between align-items-center mb-3 p-3 bg-light rounded">
+                    <div>
+                        <small class="text-muted">Utilisez la syntaxe Markdown pour formater votre texte</small>
+                    </div>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="preview-toggle">
+                            <i class="bi bi-eye"></i> Aperçu
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-primary" id="insert-image-btn">
+                            <i class="bi bi-image"></i> Image
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-info" id="insert-diagram-btn">
+                            <i class="bi bi-diagram-3"></i> Diagramme
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Conteneur principal avec onglets -->
+                <div class="editor-container">
+                    <ul class="nav nav-tabs" id="editorTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="edit-tab" data-bs-toggle="tab" data-bs-target="#edit" type="button" role="tab">
+                                <i class="bi bi-pencil"></i> Éditeur
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="preview-tab" data-bs-toggle="tab" data-bs-target="#preview" type="button" role="tab">
+                                <i class="bi bi-eye"></i> Aperçu
+                            </button>
+                        </li>
+                    </ul>
+                    
+                    <div class="tab-content border border-top-0 rounded-bottom p-3">
+                        <!-- Onglet Éditeur -->
+                        <div class="tab-pane fade show active" id="edit" role="tabpanel">
+                            <textarea id="editor-textarea" class="form-control" style="height: 50vh; font-family: 'Courier New', monospace;"></textarea>
+                        </div>
+                        
+                        <!-- Onglet Aperçu -->
+                        <div class="tab-pane fade" id="preview" role="tabpanel">
+                            <div id="markdown-preview" style="height: 50vh; overflow-y: auto; padding: 1rem;"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Guide de syntaxe rapide -->
+                <div class="mt-3 p-3 bg-light rounded">
+                    <h6 class="mb-2"><i class="bi bi-info-circle"></i> Syntaxe rapide :</h6>
+                    <div class="row small text-muted">
+                        <div class="col-md-4">
+                            <strong>Images :</strong><br>
+                            <code>![texte](url)</code>
+                        </div>
+                        <div class="col-md-4">
+                            <strong>Diagrammes :</strong><br>
+                            <code>```mermaid<br>graph TD<br>A --> B```</code>
+                        </div>
+                        <div class="col-md-4">
+                            <strong>Formatage :</strong><br>
+                            <code>**gras** *italique*</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-primary" id="save-and-download-btn">
+                    <i class="bi bi-file-earmark-arrow-down-fill"></i> Sauvegarder et Télécharger en PDF
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal pour insérer une image -->
+<div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Insérer une image</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="image-url" class="form-label">URL de l'image :</label>
+                    <input type="url" class="form-control" id="image-url" placeholder="https://example.com/image.jpg">
+                </div>
+                <div class="mb-3">
+                    <label for="image-alt" class="form-label">Texte alternatif :</label>
+                    <input type="text" class="form-control" id="image-alt" placeholder="Description de l'image">
+                </div>
+                <div class="form-text">
+                    <small>Assurez-vous que l'URL de l'image est accessible publiquement.</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-primary" id="insert-image-confirm">Insérer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal pour insérer un diagramme -->
+<div class="modal fade" id="diagramModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Insérer un diagramme Mermaid</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="diagram-code" class="form-label">Code Mermaid :</label>
+                        <textarea class="form-control" id="diagram-code" rows="10" placeholder="graph TD&#10;    A[Start] --> B{Decision}&#10;    B -->|Yes| C[Action 1]&#10;    B -->|No| D[Action 2]"></textarea>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Aperçu :</label>
+                        <div id="diagram-preview" class="border rounded p-3 bg-light" style="min-height: 200px;">
+                            <small class="text-muted">L'aperçu apparaîtra ici...</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <h6>Exemples :</h6>
+                    <div class="row small">
+                        <div class="col-md-4">
+                            <strong>Graphique :</strong><br>
+                            <code>graph TD<br>A --> B</code>
+                        </div>
+                        <div class="col-md-4">
+                            <strong>Séquence :</strong><br>
+                            <code>sequenceDiagram<br>A->>B: Hello</code>
+                        </div>
+                        <div class="col-md-4">
+                            <strong>Classe :</strong><br>
+                            <code>classDiagram<br>Class01 : method()</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-primary" id="insert-diagram-confirm">Insérer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal pour insérer un tableau -->
+<div class="modal fade" id="tableModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title"><i class="bi bi-table"></i> Éditeur de Tableaux</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Dimensions du tableau :</label>
+                            <div class="row g-2">
+                                <div class="col">
+                                    <label class="form-label small">Lignes</label>
+                                    <input type="number" class="form-control" id="table-rows" min="1" max="10" value="3">
+                                </div>
+                                <div class="col">
+                                    <label class="form-label small">Colonnes</label>
+                                    <input type="number" class="form-control" id="table-cols" min="1" max="8" value="3">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">En-têtes :</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="table-header" checked>
+                                <label class="form-check-label" for="table-header">
+                                    Première ligne comme en-tête
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="table-align" checked>
+                                <label class="form-check-label" for="table-align">
+                                    Alignement centré
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Modèles prédéfinis :</label>
+                            <select class="form-select" id="table-templates">
+                                <option value="">Personnalisé</option>
+                                <option value="comparison">Tableau de comparaison</option>
+                                <option value="data">Tableau de données</option>
+                                <option value="schedule">Emploi du temps</option>
+                                <option value="grades">Notes d'évaluation</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label class="form-label">Aperçu :</label>
+                        <div id="table-preview" class="border rounded p-3 bg-light" style="min-height: 200px; max-height: 300px; overflow-y: auto;">
+                            <small class="text-muted">L'aperçu du tableau apparaîtra ici...</small>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <button class="btn btn-sm btn-outline-secondary" id="update-table-preview">
+                                <i class="bi bi-arrow-clockwise"></i> Actualiser l'aperçu
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Éditeur de contenu du tableau (apparaît dynamiquement) -->
+                <div id="table-content-editor" class="mt-3" style="display: none;">
+                    <label class="form-label">Contenu du tableau :</label>
+                    <div id="table-cells-container" class="border rounded p-3 bg-light">
+                        <!-- Les champs de saisie seront générés ici dynamiquement -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-warning" id="insert-table">Insérer Tableau</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- ======================================================================= -->
+<!-- FIN DE LA NOUVELLE FENÊTRE MODALE D'ÉDITION AMÉLIORÉE -->
+<!-- ======================================================================= -->
+
 <!-- ======================================================================= -->
 <!-- DÉBUT DU BLOC DE SCRIPTS UNIQUE ET RESTRUCTURÉ -->
 <!-- ======================================================================= -->
@@ -777,64 +1797,118 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function showOptions(options, is_text_input = false) {
+        // 1. On vide le conteneur des options précédentes.
         optionsContainer.innerHTML = '';
-        chatInput.disabled = is_text_input ? false : (options && options.length > 0);
-        if(is_text_input) chatInput.focus();
+        
+        // 2. On gère l'état du champ de saisie de texte.
+        // S'il faut une saisie texte, on l'active.
+        // Sinon, on le désactive s'il y a des boutons d'option, pour guider l'utilisateur.
+        if (is_text_input) {
+            chatInput.disabled = false;
+            chatInput.focus(); // Met le curseur directement dans le champ de saisie.
+        } else {
+            chatInput.disabled = options && options.length > 0;
+        }
 
+        // 3. On crée et affiche les boutons d'option fournis par le backend.
         if (options && options.length > 0) {
             options.forEach(optionText => {
                 const button = document.createElement('button');
                 button.classList.add('btn', 'option-button');
                 button.textContent = optionText;
+                // On attache le gestionnaire de clic à chaque bouton.
                 button.addEventListener('click', handleOptionClick);
                 optionsContainer.appendChild(button);
             });
         }
+        
+        // 4. NOUVEL AJOUT : Logique pour afficher le bouton "Éditer".
+        // On vérifie si un document a été généré (conversationState.generated_text existe).
+        if (conversationState.generated_text) {
+            // On s'assure qu'on est bien sur le menu final (celui qui propose le PDF)
+            // pour ne pas afficher "Éditer" au mauvais moment.
+            const isFinalMenu = options.some(opt => opt.includes('PDF'));
+            
+            if (isFinalMenu) {
+                const editButton = document.createElement('button');
+                editButton.classList.add('btn', 'btn-outline-secondary'); // Un style un peu différent pour le distinguer.
+                editButton.innerHTML = '<i class="bi bi-pencil-square"></i> Éditer';
+                
+                // On définit ce qui se passe quand on clique sur "Éditer".
+                editButton.addEventListener('click', () => {
+                    // On récupère la zone de texte de notre fenêtre modale.
+                    const editorTextarea = document.getElementById('editor-textarea');
+                    // On y place le contenu du document généré.
+                    editorTextarea.value = conversationState.generated_text;
+                    
+                    // On récupère le bouton "Sauvegarder" de la modale pour lui passer des informations.
+                    const saveBtn = document.getElementById('save-and-download-btn');
+                    // On lui attache le 'flow_type' (lecon, digital...) pour savoir quel format PDF générer.
+                    saveBtn.dataset.flowType = conversationState.collectedData.flow_type;
+                    
+                    // On crée une instance de la modale Bootstrap et on l'affiche.
+                    const editModal = new bootstrap.Modal(document.getElementById('editModal'));
+                    editModal.show();
+                });
+                
+                // On ajoute le bouton "Éditer" à la liste des options.
+                optionsContainer.appendChild(editButton);
+            }
+        }
+
+        // 5. On s'assure que la vue du chat est scrollée vers le bas pour voir les nouvelles options.
         scrollToBottom();
     }
 
     // --- 4. Logique de communication et téléchargement ---
     async function sendMessageToBackend(userMessage) {
-        let indicatorElement = null;
-        if (!userMessage.startsWith('internal_')) {
-            const indicatorHtml = `<div class="message ai" id="typing-indicator-bubble"><div class="content typing-indicator"><span></span><span></span><span></span></div></div>`;
-            chatMessages.insertAdjacentHTML('beforeend', indicatorHtml);
-            indicatorElement = document.getElementById('typing-indicator-bubble');
-            scrollToBottom();
-        }
-
-        try {
-            const response = await fetch('/api/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: userMessage, state: conversationState })
-            });
-
-            if (indicatorElement) indicatorElement.remove();
-
-            if (!response.ok) {
-                // Si on reçoit 401 ou autre, on affiche l'erreur ici.
-                const errorData = await response.json().catch(() => ({}));
-                console.error(`Erreur HTTP: ${response.status}`, errorData.error || "Pas de détails");
-                throw new Error(`Erreur HTTP: ${response.status}`);
-            }
-            
-            const data = await response.json();
-            conversationState = data.state;
-            addMessage(data.response, 'ai');
-            showOptions(data.options, data.is_text_input);
-
-        } catch (error) {
-            if (indicatorElement) indicatorElement.remove();
-            const errorText = conversationState.lang === 'fr' 
-                ? "Désolé, une erreur de communication est survenue. Veuillez réessayer."
-                : "Sorry, a communication error occurred. Please try again.";
-            addMessage(errorText, 'ai');
-            const restartOption = conversationState.lang === 'fr' ? "Recommencer" : "Restart";
-            showOptions([restartOption]);
-            console.error("Erreur API:", error);
-        }
+    let indicatorElement = null;
+    if (!userMessage.startsWith('internal_')) {
+        const indicatorHtml = `<div class="message ai" id="typing-indicator-bubble"><div class="content typing-indicator"><span></span><span></span><span></span></div></div>`;
+        chatMessages.insertAdjacentHTML('beforeend', indicatorHtml);
+        indicatorElement = document.getElementById('typing-indicator-bubble');
+        scrollToBottom();
     }
+
+    try {
+        const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: userMessage, state: conversationState })
+        });
+
+        // CORRECTION : Toujours supprimer l'indicateur, même en cas d'erreur
+        if (indicatorElement) {
+            indicatorElement.remove();
+            indicatorElement = null;
+        }
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            console.error(`Erreur HTTP: ${response.status}`, errorData.error || "Pas de détails");
+            throw new Error(`Erreur HTTP: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        conversationState = data.state;
+        addMessage(data.response, 'ai');
+        showOptions(data.options, data.is_text_input);
+
+    } catch (error) {
+        // CORRECTION : S'assurer que l'indicateur est supprimé en cas d'erreur
+        if (indicatorElement) {
+            indicatorElement.remove();
+            indicatorElement = null;
+        }
+        const errorText = conversationState.lang === 'fr' 
+            ? "Désolé, une erreur de communication est survenue. Veuillez réessayer."
+            : "Sorry, a communication error occurred. Please try again.";
+        addMessage(errorText, 'ai');
+        const restartOption = conversationState.lang === 'fr' ? "Recommencer" : "Restart";
+        showOptions([restartOption]);
+        console.error("Erreur API:", error);
+    }
+}
 
     async function downloadPdf() {
         const markdown_text_to_send = conversationState.generated_text;
@@ -871,6 +1945,32 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+     // --- NOUVELLE FONCTION POUR GÉRER L'ÉDITION ET LE TÉLÉCHARGEMENT ---
+        document.getElementById('save-and-download-btn').addEventListener('click', async () => {
+        const editorTextarea = document.getElementById('editor-textarea');
+        const editedContent = editorTextarea.value; // On récupère le texte modifié
+        
+        const saveBtn = document.getElementById('save-and-download-btn');
+        const flowType = saveBtn.dataset.flowType; // On récupère le type de document
+
+        // On met à jour l'état de la conversation avec le nouveau contenu.
+        // C'est crucial pour que la fonction de téléchargement ait la bonne info.
+        conversationState.generated_text = editedContent;
+        if (conversationState.collectedData) {
+            conversationState.collectedData.flow_type = flowType;
+        } else {
+             conversationState.collectedData = { flow_type: flowType };
+        }
+        
+        // On ferme la modale.
+        const editModal = bootstrap.Modal.getInstance(document.getElementById('editModal'));
+        editModal.hide();
+
+        // On appelle la fonction de téléchargement existante.
+        // Elle utilisera automatiquement le 'generated_text' que nous venons de mettre à jour.
+        await downloadPdf();
+    });
+
     // --- 5. Gestion des événements utilisateur ---
     function handleOptionClick(event) {
         const userChoice = event.target.textContent;
@@ -902,50 +2002,128 @@ document.addEventListener('DOMContentLoaded', () => {
     // SECTION C : LOGIQUE DE L'HISTORIQUE ET AUTRES
     // =======================================================================
     async function loadHistory() {
-        const container = document.getElementById('history-items-container');
-        if (!container) return;
-        try {
-            const response = await fetch('/api/history');
-            if (!response.ok) throw new Error('Failed to fetch history');
-            const historyItems = await response.json();
-            container.innerHTML = '';
-            historyItems.forEach(item => {
-                const li = document.createElement('li');
-                li.innerHTML = `<a href="#" class="history-item" data-id="${item.id}"><i class="bi bi-chat-left-text me-2"></i>${item.title}</a>`;
-                li.firstChild.onclick = handleHistoryClick;
-                container.appendChild(li);
-            });
-        } catch (error) {
-            console.error("Erreur de chargement de l'historique:", error);
-            container.innerHTML = '<li><span class="history-item text-danger">Erreur</span></li>';
-        }
-    }
-
-    async function handleHistoryClick(event) {
-        event.preventDefault();
-        const generationId = event.currentTarget.dataset.id;
-        try {
-            const response = await fetch(`/api/history/${generationId}`);
-            if (!response.ok) throw new Error('Failed to fetch generation');
-            const data = await response.json();
-            
-            chatMessages.innerHTML = '';
-            addMessage(data.content, 'ai');
-            
-            conversationState.generated_text = data.content;
-            const flow_type = data.flow_type;
-            const options = (flow_type === 'digital')
-                ? ["Recommencer", " régénérer", "Télécharger en Présentation (PDF)"]
-                : ["Recommencer", " régénérer", "Télécharger en PDF"];
-            showOptions(options);
-
-        } catch (error) {
-            console.error("Erreur de chargement de la génération:", error);
-            addMessage("Impossible de charger cette conversation.", 'ai');
-        }
-    }
+    const container = document.getElementById('history-items-container');
+    if (!container) return;
     
+    try {
+        const response = await fetch('/api/history');
+        if (!response.ok) throw new Error(`Erreur HTTP: ${response.status}`);
+        
+        const historyItems = await response.json();
+        container.innerHTML = '';
+        
+        if (historyItems.length === 0) {
+            const noHistoryText = conversationState.lang === 'fr' 
+                ? "Aucun historique" 
+                : "No history";
+            container.innerHTML = `<li><span class="history-item text-muted">${noHistoryText}</span></li>`;
+            return;
+        }
+        
+        historyItems.forEach(item => {
+            const li = document.createElement('li');
+            li.innerHTML = `<a href="#" class="history-item" data-id="${item.id}">
+                <i class="bi bi-chat-left-text me-2"></i>${item.title || 'Sans titre'}
+            </a>`;
+            li.firstChild.onclick = handleHistoryClick;
+            container.appendChild(li);
+        });
+        
+    } catch (error) {
+        console.error("Erreur de chargement de l'historique:", error);
+        
+        const errorText = conversationState.lang === 'fr' 
+            ? "Erreur de chargement de l'historique" 
+            : "Error loading history";
+        
+        container.innerHTML = `<li><span class="history-item text-danger">${errorText}</span></li>`;
+    }
+}
+
+
+    
+/* ================================================================
+    FONCTION AFFICHE L'HISTORIQUE DANS LA FENETRE MODALE
+================================================================*/
+
+async function handleHistoryClick(event) {
+    event.preventDefault();
+    const generationId = event.currentTarget.dataset.id;
+    console.log("Tentative de chargement de l'historique ID:", generationId);
+      // Afficher un indicateur de chargement
+    const loadingHtml = `<div class="loading-content"><div class="spinner"></div><span>Chargement...</span></div>`;
+    addMessage(loadingHtml, 'ai');
+
+    try {
+        const response = await fetch(`/api/history/${generationId}`);
+        console.log("Réponse API:", response.status, response.statusText);
+
+        if (!response.ok) throw new Error('Failed to fetch generation');
+        
+        const data = await response.json();
+        console.log("Données reçues:", data);
+        
+        // Mettre à jour l'état global
+        conversationState.generated_text = data.content;
+        if (!conversationState.collectedData) {
+            conversationState.collectedData = {};
+        }
+        conversationState.collectedData.flow_type = data.flow_type;
+        conversationState.lang = conversationState.lang || 'fr';
+
+        // CORRECTION : Initialiser l'éditeur AVANT d'ouvrir la modale
+        if (typeof multidisciplinaryEditor !== 'undefined') {
+            multidisciplinaryEditor.init();
+            multidisciplinaryEditor.setContent(data.content);
+            multidisciplinaryEditor.setFlowType(data.flow_type);
+            
+             // CORRECTION : Passer l'ID aux deux boutons de sauvegarde
+        const saveBtn = document.getElementById('save-content-btn');
+        const saveDownloadBtn = document.getElementById('save-and-download-btn');
+        
+        if (saveBtn) saveBtn.dataset.generationId = generationId;
+        if (saveDownloadBtn) saveDownloadBtn.dataset.generationId = generationId;
+            
+            // Forcer la mise à jour de l'aperçu
+            setTimeout(() => {
+                multidisciplinaryEditor.updatePreview();
+            }, 100);
+        }
+
+        // Ouvrir la modale
+        const editModal = new bootstrap.Modal(document.getElementById('editModal'));
+        
+        // S'assurer que l'onglet éditeur est actif
+        const editTab = document.getElementById('edit-tab');
+        if (editTab) {
+            editTab.click();
+        }
+        
+        editModal.show();
+
+               // Supprimer l'indicateur de chargement en cas de succès
+        if (chatMessages.lastElementChild && chatMessages.lastElementChild.querySelector('.loading-content')) {
+            chatMessages.lastElementChild.remove();
+        }
+
+    } catch (error) {
+        console.error("Erreur complète:", error);
+        // Supprimer l'indicateur de chargement en cas d'erreur
+        if (chatMessages.lastElementChild && chatMessages.lastElementChild.querySelector('.loading-content')) {
+            chatMessages.lastElementChild.remove();
+        }
+        console.error("Erreur de chargement de la génération:", error);
+        const errorMessage = conversationState.lang === 'fr' 
+            ? "Impossible de charger cette conversation. L'historique peut être temporairement indisponible."
+            : "Unable to load this conversation. History may be temporarily unavailable.";
+        addMessage(errorMessage, 'ai');
+    }
+}
+
+
+
     // On expose la fonction pour qu'elle soit appelable depuis le HTML (onclick)
+
     window.startNewChat = function() {
         window.location.href = '/app';
     }
@@ -954,6 +2132,1026 @@ document.addEventListener('DOMContentLoaded', () => {
     loadHistory();
     scrollToBottom();
 });
+// Gestion améliorée du menu mobile
+function initMobileMenu() {
+    const menuToggle = document.getElementById('menu-toggle');
+    const closeMenuBtn = document.getElementById('close-menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const mobileOverlay = document.getElementById('mobile-menu-overlay');
+    
+    if (menuToggle && mobileMenu) {
+        // Créer l'overlay s'il n'existe pas
+        if (!mobileOverlay) {
+            const overlay = document.createElement('div');
+            overlay.id = 'mobile-menu-overlay';
+            overlay.className = 'mobile-menu-overlay';
+            document.body.appendChild(overlay);
+            
+            overlay.addEventListener('click', () => {
+                mobileMenu.classList.remove('show');
+                overlay.classList.remove('show');
+            });
+        }
+        
+        menuToggle.addEventListener('click', () => {
+            mobileMenu.classList.add('show');
+            document.getElementById('mobile-menu-overlay').classList.add('show');
+            document.body.style.overflow = 'hidden'; // Empêche le scroll du body
+        });
+        
+        if (closeMenuBtn) {
+            closeMenuBtn.addEventListener('click', () => {
+                mobileMenu.classList.remove('show');
+                document.getElementById('mobile-menu-overlay').classList.remove('show');
+                document.body.style.overflow = ''; // Rétablit le scroll
+            });
+        }
+    }
+}
+
+// Gestion du clavier virtuel
+function handleVirtualKeyboard() {
+    const chatInput = document.getElementById('chat-input');
+    const chatInputArea = document.getElementById('chat-input-area');
+    
+    if (chatInput && chatInputArea) {
+        chatInput.addEventListener('focus', () => {
+            // Ajuste la position quand le clavier s'ouvre
+            setTimeout(() => {
+                chatInputArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 300);
+        });
+    }
+}
+
+// Initialisation au chargement
+document.addEventListener('DOMContentLoaded', () => {
+    initMobileMenu();
+    handleVirtualKeyboard();
+    
+    // Détection des appareils tactiles
+    if ('ontouchstart' in window) {
+        document.body.classList.add('touch-device');
+    }
+});
+
+// =======================================================================
+// ÉDITEUR MULTIDISCIPLINAIRE COMPLET
+// =======================================================================
+
+function initMultidisciplinaryEditor() {
+    let easyMDE = null;
+    let currentFlowType = '';
+    let currentChart = null;
+    let chemCanvas = null;
+
+    // Outils par discipline
+    const toolsByDiscipline = {
+        mathematics: [
+            {
+                id: 'math-formula',
+                name: 'Formules LaTeX',
+                icon: 'bi-square',
+                description: 'Éditeur de formules mathématiques',
+                category: 'Mathématiques'
+            },
+            {
+                id: 'math-graph',
+                name: 'Traceur de fonctions',
+                icon: 'bi-graph-up',
+                description: 'Tracer des fonctions mathématiques',
+                category: 'Mathématiques'
+            },
+            {
+                id: 'math-geometry',
+                name: 'Géométrie interactive',
+                icon: 'bi-triangle',
+                description: 'Figures géométriques',
+                category: 'Mathématiques'
+            }
+        ],
+        chemistry: [
+            {
+                id: 'chem-molecule',
+                name: 'Éditeur de molécules',
+                icon: 'bi-circle',
+                description: 'Structures chimiques',
+                category: 'Chimie'
+            },
+            {
+                id: 'chem-reaction',
+                name: 'Équations chimiques',
+                icon: 'bi-arrow-right',
+                description: 'Éditeur d\'équations',
+                category: 'Chimie'
+            },
+            {
+                id: 'chem-periodic',
+                name: 'Tableau périodique',
+                icon: 'bi-grid-3x3',
+                description: 'Éléments chimiques',
+                category: 'Chimie'
+            }
+        ],
+        science: [
+            {
+                id: 'science-diagram',
+                name: 'Diagrammes Mermaid',
+                icon: 'bi-diagram-3',
+                description: 'Diagrammes scientifiques',
+                category: 'Sciences'
+            },
+            {
+                id: 'science-chart',
+                name: 'Graphiques',
+                icon: 'bi-bar-chart',
+                description: 'Graphiques de données',
+                category: 'Sciences'
+            },
+            {
+                id: 'science-circuit',
+                name: 'Circuits électriques',
+                icon: 'bi-lightning',
+                description: 'Schémas électriques',
+                category: 'Sciences'
+            }
+        ],
+        media: [
+            {
+                id: 'media-image',
+                name: 'Insérer image',
+                icon: 'bi-image',
+                description: 'Images et photos',
+                category: 'Multimédia'
+            },
+            {
+                id: 'media-table',
+                name: 'Tableaux',
+                icon: 'bi-table',
+                description: 'Tableaux de données',
+                category: 'Multimédia'
+            },
+            {
+                id: 'media-code',
+                name: 'Code',
+                icon: 'bi-code-slash',
+                description: 'Blocs de code',
+                category: 'Multimédia'
+            }
+        ]
+    };
+
+    // Initialiser l'éditeur
+    function initEditor() {
+        if (easyMDE) {
+            easyMDE.toTextArea();
+            easyMDE = null;
+        }
+        
+        easyMDE = new EasyMDE({
+            element: document.getElementById('editor-textarea'),
+            spellChecker: false,
+            autosave: { enabled: false },
+            toolbar: false, // On utilise notre propre toolbar
+            status: false,
+            minHeight: '50vh'
+        });
+
+        // Charger les outils mathématiques par défaut
+        loadTools('mathematics');
+    }
+
+    // Charger les outils d'une discipline
+    function loadTools(discipline) {
+        const toolsList = document.getElementById('tools-list');
+        const tools = toolsByDiscipline[discipline] || [];
+        
+        toolsList.innerHTML = tools.map(tool => `
+            <div class="tool-card" data-tool="${tool.id}">
+                <div class="tool-icon text-primary">
+                    <i class="${tool.icon}"></i>
+                </div>
+                <h6 class="mb-1">${tool.name}</h6>
+                <p class="small text-muted mb-0">${tool.description}</p>
+            </div>
+        `).join('');
+
+        // Ajouter les événements
+        document.querySelectorAll('.tool-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const toolId = this.dataset.tool;
+                openToolModal(toolId);
+            });
+        });
+    }
+
+    // Ouvrir la modale d'un outil spécifique
+    function openToolModal(toolId) {
+        switch(toolId) {
+            case 'math-formula':
+                $('#mathFormulaModal').modal('show');
+                updateLatexPreview();
+                break;
+            case 'math-graph':
+                $('#mathGraphModal').modal('show');
+                initFunctionPlotter();
+                break;
+            case 'chem-molecule':
+                $('#chemMoleculeModal').modal('show');
+                initChemDoodle();
+                break;
+            case 'chem-reaction':
+                $('#chemReactionModal').modal('show');
+                updateReactionPreview();
+                break;
+            case 'science-chart':
+                $('#scienceChartModal').modal('show');
+                initScienceChart();
+                break;
+            case 'media-image':
+                $('#imageModal').modal('show');
+                break;
+            case 'science-diagram':
+                $('#diagramModal').modal('show');
+                break;
+        }
+    }
+
+    // =======================================================================
+    // OUTILS MATHÉMATIQUES
+    // =======================================================================
+
+    // Formules LaTeX
+    function updateLatexPreview() {
+        const latexCode = document.getElementById('latex-editor').value;
+        const previewElement = document.getElementById('latex-preview');
+        
+        try {
+            previewElement.innerHTML = `\\(${latexCode}\\)`;
+            MathJax.typeset([previewElement]);
+        } catch (error) {
+            previewElement.innerHTML = '<span class="text-danger">Erreur dans la formule</span>';
+        }
+    }
+
+    // Traceur de fonctions
+    function initFunctionPlotter() {
+        const canvas = document.getElementById('function-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        window.plotFunction = function() {
+            const funcStr = document.getElementById('function-input').value;
+            const xMin = parseFloat(document.getElementById('x-min').value);
+            const xMax = parseFloat(document.getElementById('x-max').value);
+            const color = document.getElementById('graph-color').value;
+            
+            // Effacer le canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Dessiner les axes
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 1;
+            
+            // Axe X
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height/2);
+            ctx.lineTo(canvas.width, canvas.height/2);
+            ctx.stroke();
+            
+            // Axe Y
+            ctx.beginPath();
+            ctx.moveTo(canvas.width/2, 0);
+            ctx.lineTo(canvas.width/2, canvas.height);
+            ctx.stroke();
+            
+            // Tracer la fonction
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            
+            const scaleX = canvas.width / (xMax - xMin);
+            const scaleY = canvas.height / 20; // Échelle Y arbitraire
+            
+            for (let x = xMin; x <= xMax; x += 0.1) {
+                try {
+                    // Évaluation simple de la fonction
+                    const y = eval(funcStr.replace(/x/g, `(${x})`));
+                    const canvasX = (x - xMin) * scaleX;
+                    const canvasY = canvas.height/2 - y * scaleY;
+                    
+                    if (x === xMin) {
+                        ctx.moveTo(canvasX, canvasY);
+                    } else {
+                        ctx.lineTo(canvasX, canvasY);
+                    }
+                } catch (e) {
+                    console.error('Erreur fonction:', e);
+                }
+            }
+            
+            ctx.stroke();
+        };
+        
+        // Événements
+        document.getElementById('plot-function').addEventListener('click', plotFunction);
+        document.getElementById('function-input').addEventListener('keyup', function(e) {
+            if (e.key === 'Enter') plotFunction();
+        });
+        
+        // Tracer par défaut
+        plotFunction();
+    }
+
+    // =======================================================================
+    // OUTILS CHIMIE
+    // =======================================================================
+
+    function initChemDoodle() {
+        if (typeof ChemDoodle !== 'undefined') {
+            chemCanvas = new ChemDoodle.ViewerCanvas('chemdoodle-canvas', 400, 400);
+            chemCanvas.styles.atoms_displayTerminalCarbonLabels_2D = true;
+            
+            // Événements des boutons
+            document.getElementById('chem-carbon').addEventListener('click', () => addAtom('C'));
+            document.getElementById('chem-oxygen').addEventListener('click', () => addAtom('O'));
+            document.getElementById('chem-hydrogen').addEventListener('click', () => addAtom('H'));
+            document.getElementById('chem-nitrogen').addEventListener('click', () => addAtom('N'));
+            document.getElementById('chem-clear').addEventListener('click', clearCanvas);
+            
+            // Modèles prédéfinis
+            document.getElementById('chem-templates').addEventListener('change', function(e) {
+                loadTemplate(e.target.value);
+            });
+        }
+    }
+
+    function addAtom(element) {
+        if (chemCanvas) {
+            const molecule = chemCanvas.getMolecule();
+            const atom = new ChemDoodle.structures.Atom(element, 200, 200);
+            molecule.addAtom(atom);
+            chemCanvas.repaint();
+        }
+    }
+
+    function clearCanvas() {
+        if (chemCanvas) {
+            chemCanvas.clear();
+            chemCanvas.repaint();
+        }
+    }
+
+    function loadTemplate(template) {
+        if (!chemCanvas) return;
+        
+        clearCanvas();
+        const molecule = chemCanvas.getMolecule();
+        
+        switch(template) {
+            case 'water':
+                // H-O-H
+                const o = new ChemDoodle.structures.Atom('O', 200, 200);
+                const h1 = new ChemDoodle.structures.Atom('H', 150, 200);
+                const h2 = new ChemDoodle.structures.Atom('H', 250, 200);
+                molecule.addAtom(o);
+                molecule.addAtom(h1);
+                molecule.addAtom(h2);
+                break;
+            case 'methane':
+                // CH4 tétraédrique
+                const c = new ChemDoodle.structures.Atom('C', 200, 200);
+                molecule.addAtom(c);
+                // Simplifié - positions approximatives
+                for (let i = 0; i < 4; i++) {
+                    const angle = (i * 90) * Math.PI / 180;
+                    const h = new ChemDoodle.structures.Atom('H', 
+                        200 + 50 * Math.cos(angle), 
+                        200 + 50 * Math.sin(angle)
+                    );
+                    molecule.addAtom(h);
+                }
+                break;
+        }
+        
+        chemCanvas.repaint();
+    }
+
+    // Équations chimiques
+    function updateReactionPreview() {
+        const reactants = document.getElementById('reactants-input').value;
+        const products = document.getElementById('products-input').value;
+        const conditions = document.getElementById('conditions-input').value;
+        
+        document.getElementById('reactants-preview').textContent = formatChemical(reactants);
+        document.getElementById('products-preview').textContent = formatChemical(products);
+        document.getElementById('conditions-preview').textContent = conditions;
+    }
+
+    function formatChemical(formula) {
+        return formula.replace(/_(\d)/g, '<sub>$1</sub>');
+    }
+
+    // =======================================================================
+    // OUTILS SCIENCES
+    // =======================================================================
+
+    function initScienceChart() {
+        updateScienceChart();
+        
+        document.getElementById('update-chart').addEventListener('click', updateScienceChart);
+        document.getElementById('chart-type').addEventListener('change', updateScienceChart);
+    }
+
+    function updateScienceChart() {
+        const chartType = document.getElementById('chart-type').value;
+        const dataText = document.getElementById('chart-data').value;
+        
+        const ctx = document.getElementById('science-chart').getContext('2d');
+        
+        if (currentChart) {
+            currentChart.destroy();
+        }
+        
+        // Parser les données CSV simples
+        const lines = dataText.trim().split('\n');
+        const headers = lines[0].split(',');
+        const labels = [];
+        const data = [];
+        
+        for (let i = 1; i < lines.length; i++) {
+            const values = lines[i].split(',');
+            labels.push(values[0]);
+            data.push(parseFloat(values[1]));
+        }
+        
+        const chartData = {
+            labels: labels,
+            datasets: [{
+                label: headers[1],
+                data: data,
+                backgroundColor: [
+                    '#ff6384', '#36a2eb', '#ffce56', '#4bc0c0',
+                    '#9966ff', '#ff9f40', '#ff6384', '#c9cbcf'
+                ],
+                borderWidth: 1
+            }]
+        };
+        
+        const config = {
+            type: chartType,
+            data: chartData,
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                }
+            }
+        };
+        
+        currentChart = new Chart(ctx, config);
+    }
+
+    // =======================================================================
+    // GESTION DU CONTENU
+    // =======================================================================
+
+    function insertContent(content) {
+        if (easyMDE) {
+            easyMDE.codemirror.replaceSelection(content + '\n\n');
+        } else {
+            const textarea = document.getElementById('editor-textarea');
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            textarea.value = textarea.value.substring(0, start) + content + '\n\n' + textarea.value.substring(end);
+            textarea.selectionStart = textarea.selectionEnd = start + content.length + 2;
+            textarea.focus();
+        }
+    }
+
+    function updatePreview() {
+        const markdownContent = easyMDE ? easyMDE.value() : document.getElementById('editor-textarea').value;
+        const previewElement = document.getElementById('markdown-preview');
+        
+        if (previewElement) {
+            let htmlContent = marked.parse(markdownContent);
+            
+            // Traiter les diagrammes Mermaid
+            htmlContent = htmlContent.replace(/<pre><code class="language-mermaid">([\s\S]*?)<\/code><\/pre>/g, 
+                (match, diagramCode) => `<div class="mermaid">${diagramCode}</div>`
+            );
+            
+            previewElement.innerHTML = htmlContent;
+            
+            // MathJax
+            if (typeof MathJax !== 'undefined') {
+                MathJax.typeset([previewElement]);
+            }
+            
+            // Mermaid
+            if (typeof mermaid !== 'undefined') {
+                mermaid.initialize({ startOnLoad: true, theme: 'default' });
+                mermaid.init(undefined, previewElement.querySelectorAll('.mermaid'));
+            }
+        }
+    }
+
+    // =======================================================================
+    // ÉVÉNEMENTS ET INITIALISATION
+    // =======================================================================
+
+    function initEvents() {
+        // Navigation par discipline
+        document.querySelectorAll('.dropdown-menu a[data-tool]').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                const tool = this.dataset.tool;
+                openToolModal(tool);
+            });
+        });
+
+        // Boutons de discipline
+        document.querySelectorAll('.dropdown-toggle').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const discipline = this.textContent.trim().toLowerCase();
+                if (discipline.includes('math')) loadTools('mathematics');
+                else if (discipline.includes('chim')) loadTools('chemistry');
+                else if (discipline.includes('science')) loadTools('science');
+                else if (discipline.includes('média')) loadTools('media');
+            });
+        });
+
+        // Formules LaTeX
+        document.getElementById('latex-editor').addEventListener('input', updateLatexPreview);
+        document.querySelectorAll('[data-example]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.getElementById('latex-editor').value = this.dataset.example;
+                updateLatexPreview();
+            });
+        });
+        document.getElementById('insert-latex').addEventListener('click', function() {
+            const latexCode = document.getElementById('latex-editor').value;
+            const displayMode = document.getElementById('latex-display').value;
+            const wrapper = displayMode === 'block' ? '\\[' + latexCode + '\\]' : '\\(' + latexCode + '\\)';
+            insertContent(wrapper);
+            $('#mathFormulaModal').modal('hide');
+        });
+
+        // Graphiques de fonctions
+        document.getElementById('insert-graph').addEventListener('click', function() {
+            const funcStr = document.getElementById('function-input').value;
+            insertContent(`**Graphique de la fonction:** \\(f(x) = ${funcStr}\\)\n\n*[Graphique généré]*`);
+            $('#mathGraphModal').modal('hide');
+        });
+
+        // Équations chimiques
+        document.getElementById('reactants-input').addEventListener('input', updateReactionPreview);
+        document.getElementById('products-input').addEventListener('input', updateReactionPreview);
+        document.getElementById('conditions-input').addEventListener('input', updateReactionPreview);
+        document.getElementById('insert-reaction').addEventListener('click', function() {
+            const reactants = document.getElementById('reactants-input').value;
+            const products = document.getElementById('products-input').value;
+            const conditions = document.getElementById('conditions-input').value;
+            const equation = `${formatChemical(reactants)} → ${formatChemical(products)}`;
+            let content = `**Équation chimique:** ${equation}`;
+            if (conditions) content += `\n\n*Conditions: ${conditions}*`;
+            insertContent(content);
+            $('#chemReactionModal').modal('hide');
+        });
+
+        // Graphiques scientifiques
+        document.getElementById('insert-chart').addEventListener('click', function() {
+            insertContent('*[Graphique inséré - les données seront incluses dans le PDF]*');
+            $('#scienceChartModal').modal('hide');
+        });
+
+        // Aperçu
+        document.getElementById('preview-toggle').addEventListener('click', function() {
+            const previewTab = document.getElementById('preview-tab');
+            if (previewTab.classList.contains('active')) {
+                document.getElementById('edit-tab').click();
+            } else {
+                updatePreview();
+                previewTab.click();
+            }
+        });
+
+        // Onglet aperçu
+        document.getElementById('preview-tab').addEventListener('click', function() {
+            setTimeout(updatePreview, 100);
+        });
+    }
+
+    // Initialiser l'éditeur de tableaux
+    initTableEditor();
+    // Initialisation
+    initEvents();
+
+    return {
+        init: initEditor,
+        getContent: function() {
+            return easyMDE ? easyMDE.value() : document.getElementById('editor-textarea').value;
+        },
+        setContent: function(content) {
+            if (easyMDE) {
+                easyMDE.value(content);
+            } else {
+                document.getElementById('editor-textarea').value = content;
+            }
+        },
+        setFlowType: function(flowType) {
+            currentFlowType = flowType;
+        },
+        getFlowType: function() {
+            return currentFlowType;
+        }
+    };
+}
+
+// =======================================================================
+// INTÉGRATION AVEC L'APPLICATION EXISTANTE
+// =======================================================================
+
+// Initialiser l'éditeur multidisciplinaire
+const multidisciplinaryEditor = initMultidisciplinaryEditor();
+
+// Remplacer l'ancien gestionnaire d'édition
+document.addEventListener('DOMContentLoaded', () => {
+    // ... votre code existant ...
+    
+    // MODIFIER cette partie pour utiliser le nouvel éditeur
+    document.querySelectorAll('.option-button').forEach(button => {
+        if (button.innerHTML.includes('Éditer') || button.textContent.includes('Éditer')) {
+            button.addEventListener('click', () => {
+                // Initialiser l'éditeur multidisciplinaire
+                multidisciplinaryEditor.init();
+                multidisciplinaryEditor.setContent(conversationState.generated_text);
+                multidisciplinaryEditor.setFlowType(conversationState.collectedData.flow_type);
+                
+                const editModal = new bootstrap.Modal(document.getElementById('editModal'));
+                editModal.show();
+            });
+        }
+    });
+    
+    // MODIFIER le gestionnaire de sauvegarde
+    document.getElementById('save-and-download-btn').addEventListener('click', async () => {
+        const editedContent = multidisciplinaryEditor.getContent();
+        const flowType = multidisciplinaryEditor.getFlowType();
+        
+        conversationState.generated_text = editedContent;
+        if (conversationState.collectedData) {
+            conversationState.collectedData.flow_type = flowType;
+        } else {
+            conversationState.collectedData = { flow_type: flowType };
+        }
+        
+        const editModal = bootstrap.Modal.getInstance(document.getElementById('editModal'));
+        editModal.hide();
+        
+        await downloadPdf();
+    });
+    
+    // Nouveau bouton de sauvegarde seule
+    document.getElementById('save-content-btn').addEventListener('click', function() {
+        const editedContent = multidisciplinaryEditor.getContent();
+        conversationState.generated_text = editedContent;
+        
+        // Afficher un message de confirmation
+        const toast = new bootstrap.Toast(document.createElement('div'));
+        // ... code pour toast ...
+        
+        console.log('Contenu sauvegardé (mais pas téléchargé)');
+    });
+});
+
+/*==============================================================
+// Nouvelle fonction pour sauvegarder les modifications
+================================================================*/
+// Nouvelle fonction pour sauvegarder les modifications
+async function saveEditedContent(content, flowType, generationId) {
+    try {
+        const response = await fetch('/api/history/update', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                generation_id: generationId,
+                content: content,
+                flow_type: flowType
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error('Erreur lors de la sauvegarde');
+        }
+        
+        return await response.json();
+    } catch (error) {
+        console.error("Erreur de sauvegarde:", error);
+        throw error;
+    }
+}
+
+// Modifiez le gestionnaire de sauvegarde existant
+document.getElementById('save-content-btn').addEventListener('click', async function() {
+    const editedContent = multidisciplinaryEditor.getContent();
+    const flowType = multidisciplinaryEditor.getFlowType();
+    
+    // Mettre à jour l'état local
+    conversationState.generated_text = editedContent;
+    
+    try {
+        // CORRECTION : Sauvegarder aussi dans la base de données
+        const generationId = this.dataset.generationId; // Vous devrez passer l'ID
+        if (generationId) {
+            await saveEditedContent(editedContent, flowType, generationId);
+        }
+        
+        // Afficher un message de confirmation
+        const toast = document.createElement('div');
+        toast.className = 'alert alert-success alert-dismissible fade show';
+        toast.innerHTML = `
+            <strong>Succès!</strong> Modifications sauvegardées.
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.querySelector('.modal-footer').prepend(toast);
+        
+        setTimeout(() => {
+            toast.remove();
+        }, 3000);
+        
+    } catch (error) {
+        const toast = document.createElement('div');
+        toast.className = 'alert alert-danger alert-dismissible fade show';
+        toast.innerHTML = `
+            <strong>Erreur!</strong> Impossible de sauvegarder les modifications.
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.querySelector('.modal-footer').prepend(toast);
+    }
+});
+
+
+// =======================================================================
+// FONCTIONS POUR LA GESTION DES TABLEAUX
+// =======================================================================
+
+function initTableEditor() {
+    // Ouvrir la modale tableau
+    document.querySelectorAll('[data-tool="media-table"]').forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            $('#tableModal').modal('show');
+            generateTablePreview();
+        });
+    });
+
+    // Événements pour la modale tableau
+    document.getElementById('table-rows').addEventListener('input', generateTablePreview);
+    document.getElementById('table-cols').addEventListener('input', generateTablePreview);
+    document.getElementById('table-header').addEventListener('change', generateTablePreview);
+    document.getElementById('table-align').addEventListener('change', generateTablePreview);
+    document.getElementById('table-templates').addEventListener('change', applyTableTemplate);
+    document.getElementById('update-table-preview').addEventListener('click', generateTablePreview);
+    document.getElementById('insert-table').addEventListener('click', insertTableIntoEditor);
+}
+
+function generateTablePreview() {
+    const rows = parseInt(document.getElementById('table-rows').value);
+    const cols = parseInt(document.getElementById('table-cols').value);
+    const hasHeader = document.getElementById('table-header').checked;
+    const isCentered = document.getElementById('table-align').checked;
+    
+    const previewElement = document.getElementById('table-preview');
+    const contentEditor = document.getElementById('table-content-editor');
+    const cellsContainer = document.getElementById('table-cells-container');
+    
+    // Générer le markup Markdown du tableau
+    let tableMarkdown = '';
+    
+    // En-tête du tableau
+    if (hasHeader) {
+        tableMarkdown += '|';
+        for (let c = 0; c < cols; c++) {
+            tableMarkdown += ` En-tête ${c+1} |`;
+        }
+        tableMarkdown += '\n|';
+        
+        // Ligne de séparation
+        for (let c = 0; c < cols; c++) {
+            tableMarkdown += isCentered ? ' :---: |' : ' --- |';
+        }
+        tableMarkdown += '\n';
+    } else {
+        // Ligne de séparation sans en-tête
+        tableMarkdown += '|';
+        for (let c = 0; c < cols; c++) {
+            tableMarkdown += isCentered ? ' :---: |' : ' --- |';
+        }
+        tableMarkdown += '\n';
+    }
+    
+    // Corps du tableau
+    const startRow = hasHeader ? 0 : 1;
+    for (let r = startRow; r < rows + startRow; r++) {
+        tableMarkdown += '|';
+        for (let c = 0; c < cols; c++) {
+            tableMarkdown += ` Cellule ${r+1}-${c+1} |`;
+        }
+        tableMarkdown += '\n';
+    }
+    
+    // Afficher l'aperçu
+    previewElement.innerHTML = marked.parse(tableMarkdown);
+    
+    // Générer les champs de saisie pour le contenu
+    generateTableInputs(rows, cols, hasHeader);
+    contentEditor.style.display = 'block';
+}
+
+function generateTableInputs(rows, cols, hasHeader) {
+    const cellsContainer = document.getElementById('table-cells-container');
+    cellsContainer.innerHTML = '';
+    
+    const totalRows = hasHeader ? rows + 1 : rows;
+    
+    for (let r = 0; r < totalRows; r++) {
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'row g-2 mb-2';
+        
+        for (let c = 0; c < cols; c++) {
+            const colDiv = document.createElement('div');
+            colDiv.className = 'col';
+            
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'form-control form-control-sm';
+            input.placeholder = `L${r+1}C${c+1}`;
+            input.dataset.row = r;
+            input.dataset.col = c;
+            
+            // Pré-remplir avec des valeurs par défaut
+            if (hasHeader && r === 0) {
+                input.value = `En-tête ${c+1}`;
+            } else {
+                const actualRow = hasHeader ? r : r + 1;
+                input.value = `Cellule ${actualRow}-${c+1}`;
+            }
+            
+            colDiv.appendChild(input);
+            rowDiv.appendChild(colDiv);
+        }
+        
+        cellsContainer.appendChild(rowDiv);
+    }
+}
+
+function applyTableTemplate() {
+    const template = document.getElementById('table-templates').value;
+    
+    switch(template) {
+        case 'comparison':
+            document.getElementById('table-rows').value = 4;
+            document.getElementById('table-cols').value = 3;
+            document.getElementById('table-header').checked = true;
+            break;
+            
+        case 'data':
+            document.getElementById('table-rows').value = 5;
+            document.getElementById('table-cols').value = 4;
+            document.getElementById('table-header').checked = true;
+            break;
+            
+        case 'schedule':
+            document.getElementById('table-rows').value = 6;
+            document.getElementById('table-cols').value = 6;
+            document.getElementById('table-header').checked = true;
+            break;
+            
+        case 'grades':
+            document.getElementById('table-rows').value = 8;
+            document.getElementById('table-cols').value = 5;
+            document.getElementById('table-header').checked = true;
+            break;
+    }
+    
+    generateTablePreview();
+}
+
+function insertTableIntoEditor() {
+    const rows = parseInt(document.getElementById('table-rows').value);
+    const cols = parseInt(document.getElementById('table-cols').value);
+    const hasHeader = document.getElementById('table-header').checked;
+    const isCentered = document.getElementById('table-align').checked;
+    
+    // Récupérer les valeurs des cellules
+    const inputs = document.querySelectorAll('#table-cells-container input');
+    const cellValues = Array.from(inputs).map(input => input.value.trim() || input.placeholder);
+    
+    // Générer le tableau Markdown final
+    let tableMarkdown = '\n\n'; // Espace avant le tableau
+    
+    let cellIndex = 0;
+    
+    // En-tête
+    if (hasHeader) {
+        tableMarkdown += '|';
+        for (let c = 0; c < cols; c++) {
+            tableMarkdown += ` ${cellValues[cellIndex++]} |`;
+        }
+        tableMarkdown += '\n|';
+        
+        // Ligne de séparation
+        for (let c = 0; c < cols; c++) {
+            tableMarkdown += isCentered ? ' :---: |' : ' --- |';
+        }
+        tableMarkdown += '\n';
+    } else {
+        // Ligne de séparation sans en-tête
+        tableMarkdown += '|';
+        for (let c = 0; c < cols; c++) {
+            tableMarkdown += isCentered ? ' :---: |' : ' --- |';
+        }
+        tableMarkdown += '\n';
+    }
+    
+    // Corps du tableau
+    const startRow = hasHeader ? 1 : 0;
+    const totalRows = hasHeader ? rows + 1 : rows;
+    
+    for (let r = startRow; r < totalRows; r++) {
+        tableMarkdown += '|';
+        for (let c = 0; c < cols; c++) {
+            if (cellIndex < cellValues.length) {
+                tableMarkdown += ` ${cellValues[cellIndex++]} |`;
+            }
+        }
+        tableMarkdown += '\n';
+    }
+    
+    tableMarkdown += '\n'; // Espace après le tableau
+    
+    // Insérer dans l'éditeur
+    if (typeof multidisciplinaryEditor !== 'undefined' && multidisciplinaryEditor.getContent) {
+        const currentContent = multidisciplinaryEditor.getContent();
+        multidisciplinaryEditor.setContent(currentContent + tableMarkdown);
+    } else {
+        const editorTextarea = document.getElementById('editor-textarea');
+        if (editorTextarea) {
+            editorTextarea.value += tableMarkdown;
+        }
+    }
+    
+    // Fermer la modale
+    $('#tableModal').modal('hide');
+    
+    // Mettre à jour l'aperçu si disponible
+    if (typeof multidisciplinaryEditor !== 'undefined' && multidisciplinaryEditor.updatePreview) {
+        multidisciplinaryEditor.updatePreview();
+    }
+}
+
+// Fonction utilitaire pour insérer un tableau simple rapidement
+function insertQuickTable(rows = 3, cols = 3, hasHeader = true) {
+    let tableMarkdown = '\n\n';
+    
+    // En-tête
+    if (hasHeader) {
+        tableMarkdown += '|';
+        for (let c = 0; c < cols; c++) {
+            tableMarkdown += ` Colonne ${c+1} |`;
+        }
+        tableMarkdown += '\n|';
+        
+        for (let c = 0; c < cols; c++) {
+            tableMarkdown += ' --- |';
+        }
+        tableMarkdown += '\n';
+    }
+    
+    // Données
+    for (let r = 0; r < rows; r++) {
+        tableMarkdown += '|';
+        for (let c = 0; c < cols; c++) {
+            tableMarkdown += ` Ligne ${r+1} Col ${c+1} |`;
+        }
+        tableMarkdown += '\n';
+    }
+    
+    tableMarkdown += '\n';
+    
+    // Insérer dans l'éditeur
+    if (typeof multidisciplinaryEditor !== 'undefined' && multidisciplinaryEditor.getContent) {
+        const currentContent = multidisciplinaryEditor.getContent();
+        multidisciplinaryEditor.setContent(currentContent + tableMarkdown);
+    } else {
+        const editorTextarea = document.getElementById('editor-textarea');
+        if (editorTextarea) {
+            editorTextarea.value += tableMarkdown;
+        }
+    }
+}
 </script>
 </body>
 </html>

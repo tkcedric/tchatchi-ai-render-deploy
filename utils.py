@@ -16,6 +16,11 @@ def create_pdf_with_pandoc(text, filename="document.pdf", lang_contenu_code='fr'
     et en insérant un en-tête d'images personnalisé.
     """
     try:
+        # --- CORRECTION DE SÉCURITÉ ---
+        # Si pour une raison quelconque lang_contenu_code est None, on le met à 'fr' par défaut.
+        if lang_contenu_code is None:
+            lang_contenu_code = 'fr'
+        # --- FIN DE LA CORRECTION ---
         logging.info(f"Création du document : {filename} (type: {doc_type}, format: {output_format})")
 
         # --- ÉTAPE DE NETTOYAGE ET NORMALISATION ---

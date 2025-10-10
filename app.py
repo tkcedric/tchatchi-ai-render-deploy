@@ -464,11 +464,17 @@ def handle_generate_pdf():
 
     markdown_text = data.get('markdown_text')
     state = data.get('state')
-    doc_type = state.get('flow_type', 'document')
-    lang = state.get('lang', 'en')
+    
+    # --- DÉBUT DE LA CORRECTION DE SÉCURITÉ ---
+    # EXPLICATION : On récupère la langue de manière sécurisée, avec une valeur
+    # par défaut ('fr') si la clé 'lang' n'est pas présente dans l'état.
+    lang = state.get('lang', 'fr') 
+    if lang is None: # Double sécurité si 'lang' est explicitement envoyé comme 'null'.
+        lang = 'fr'
+    # --- FIN DE LA CORRECTION DE SÉCURITÉ ---
+    
     collected_data = state.get('collectedData', {})
-
-      # On récupère 'flow_type' depuis 'collectedData' et non plus depuis 'state'.
+    # On s'assure de récupérer le 'flow_type' depuis 'collectedData' où il est stocké.
     doc_type = collected_data.get('flow_type', 'document')
 
     # --- Logique de nommage du fichier final (pour l'utilisateur) ---
@@ -491,7 +497,8 @@ def handle_generate_pdf():
     temp_filepath = os.path.join(TEMP_FOLDER, temp_filename)
 
     try:
-        lang_code = state.get('lang', 'en').lower()
+        # EXPLICATION : On utilise la variable 'lang' maintenant sécurisée pour créer lang_code.
+        lang_code = lang.lower()
         output_format = 'beamer' if doc_type == 'digital' else 'pdf'
 
         pdf_success = create_pdf_with_pandoc(
@@ -509,6 +516,7 @@ def handle_generate_pdf():
         })
 
     except Exception as e:
+        # EXPLICATION : On log l'erreur spécifique pour faciliter le débogage futur.
         logging.error(f"Erreur lors de la création du PDF : {e}")
         return jsonify({"error": "Une erreur interne est survenue.", "details": str(e)}), 500
 
@@ -568,6 +576,9 @@ def get_history():
         logging.error(f"Erreur lors de la récupération de l'historique: {e}")
         return jsonify({'error': 'Impossible de charger l''historique'}), 500
 
+# =======================================================================
+# ROUTE POUR RÉCUPÉRER UNE GÉNÉRATION SPÉCIFIQUE
+# =======================================================================
 @app.route('/api/history/<generation_id>', methods=['GET'])
 @login_required
 @check_session
@@ -582,7 +593,6 @@ def get_generation(generation_id):
     except Exception as e:
         logging.error(f"Erreur lors de la récupération d'une génération: {e}")
         return jsonify({'error': 'Erreur interne'}), 500
-
 
 # =======================================================================
 # ROUTES FOR STATS
@@ -679,6 +689,46 @@ def authorize():
 def logout():
     logout_user()
     return redirect(url_for('index'))
+
+
+# =======================================================================
+# ROUTE POUR METTRE À JOUR UNE GÉNÉRATION
+# =======================================================================
+@app.route('/api/history/update', methods=['POST'])
+@login_required
+@check_session
+def update_generation():
+    """Met à jour le contenu d'une génération existante."""
+    try:
+        data = request.get_json()
+        generation_id = data.get('generation_id')
+        content = data.get('content')
+        flow_type = data.get('flow_type')
+        
+        if not generation_id or not content:
+            return jsonify({'error': 'Données manquantes'}), 400
+        
+        # Vérifier que l'utilisateur possède cette génération
+        response = supabase.table('generations').select('id').eq('id', generation_id).eq('user_id', current_user.id).single().execute()
+        
+        if not response.data:
+            return jsonify({'error': 'Génération non trouvée ou non autorisée'}), 404
+        
+        # Mettre à jour la génération
+        update_response = supabase.table('generations').update({
+            'content': content,
+            'flow_type': flow_type,
+            'updated_at': 'now()'
+        }).eq('id', generation_id).execute()
+        
+        if update_response.data:
+            return jsonify({'success': True, 'message': 'Contenu mis à jour avec succès'}), 200
+        else:
+            return jsonify({'error': 'Erreur lors de la mise à jour'}), 500
+            
+    except Exception as e:
+        logging.error(f"Erreur lors de la mise à jour de la génération: {e}")
+        return jsonify({'error': 'Erreur interne'}), 500
 
 
 # =======================================================================
