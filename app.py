@@ -21,6 +21,12 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user, login_
 from authlib.integrations.flask_client import OAuth
 from config import GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, APP_SECRET_KEY
 from monetbil_service import demander_lien_paiement, verifier_signature
+from campay_service import collect_payment, check_transaction_status
+
+# NOUVEAU : interrupteur pour choisir le fournisseur de paiement actif.
+# Change juste la variable d'environnement PAYMENT_PROVIDER sur Render
+# ("monetbil" ou "campay") pour basculer, sans toucher au code.
+PAYMENT_PROVIDER = os.getenv("PAYMENT_PROVIDER", "monetbil").lower()
 from database import PLANS_CONFIG, record_transaction, activate_subscription, reinitialiser_quota_gratuit_si_necessaire
 
 
@@ -912,7 +918,7 @@ def index():
             **plan,
             "price_display": f"{plan['price']:,}".replace(",", " ")
         }
-    return render_template('landing.html', user=current_user, plans=plans_affichage)
+    return render_template('landing.html', user=current_user, plans=plans_affichage, payment_provider=PAYMENT_PROVIDER)
 
 @app.route('/app')
 @login_required
@@ -934,7 +940,7 @@ def donate_page():
 @login_required
 def initiate_payment():
     data = request.get_json()
-    plan_type = data.get("plan_type")  # 'weekly', 'monthly', 'annual'
+    plan_type = data.get("plan_type")
 
     if plan_type not in PLANS_CONFIG:
         return jsonify({"success": False, "message": "Forfait invalide."}), 400
@@ -942,29 +948,76 @@ def initiate_payment():
     plan = PLANS_CONFIG[plan_type]
     user_email = current_user.email
 
-    # Référence unique par tentative (même principe que pour CamPay : évite
-    # tout risque de réutilisation d'une ancienne transaction)
-    payment_ref = f"{user_email}-{plan_type}-{uuid.uuid4().hex[:8]}"
+    if PAYMENT_PROVIDER == "campay":
+        phone = data.get("phone")
+        if not phone:
+            return jsonify({"success": False, "message": "Numéro de téléphone requis."}), 400
 
-    notify_url = f"{request.host_url.rstrip('/')}/api/payment/notify"
-    return_url = f"{request.host_url.rstrip('/')}/app"
+        reference_unique = f"{user_email}-{uuid.uuid4().hex[:8]}"
+        result = collect_payment(
+            phone_number=phone,
+            amount=plan["price"],
+            description=f"Abonnement {plan['name']} - TCHATCHI AI",
+            external_reference=reference_unique
+        )
+        if result.get("success"):
+            record_transaction(user_email, result["reference"], plan["price"], plan_type, phone)
+            return jsonify({"success": True, "reference": result["reference"], "ussd_code": result.get("ussd_code")})
+        else:
+            return jsonify({"success": False, "message": result.get("message", "Le paiement n'a pas pu être initié. Réessayez.")}), 400
 
-    resultat = demander_lien_paiement(
-        amount=plan["price"],
-        description=f"Abonnement {plan['name']} - TCHATCHI AI",
-        payment_ref=payment_ref,
-        notify_url=notify_url,
-        return_url=return_url,
-        user_email=user_email
-    )
+    else:  # monetbil (par défaut)
+        payment_ref = f"{user_email}-{plan_type}-{uuid.uuid4().hex[:8]}"
+        notify_url = f"{request.host_url.rstrip('/')}/api/payment/notify"
+        return_url = f"{request.host_url.rstrip('/')}/app"
 
-    if resultat.get("success"):
-        record_transaction(user_email, payment_ref, plan["price"], plan_type, "")
-        return jsonify({"success": True, "payment_url": resultat["payment_url"]})
-    else:
-        return jsonify({"success": False, "message": resultat.get("message", "Le paiement n'a pas pu être initié. Réessayez.")}), 400
+        resultat = demander_lien_paiement(
+            amount=plan["price"],
+            description=f"Abonnement {plan['name']} - TCHATCHI AI",
+            payment_ref=payment_ref,
+            notify_url=notify_url,
+            return_url=return_url,
+            user_email=user_email
+        )
+        if resultat.get("success"):
+            record_transaction(user_email, payment_ref, plan["price"], plan_type, "")
+            return jsonify({"success": True, "payment_url": resultat["payment_url"]})
+        else:
+            return jsonify({"success": False, "message": resultat.get("message", "Le paiement n'a pas pu être initié. Réessayez.")}), 400
 
 # Ajout des routes de paiement 
+
+@app.route('/api/payment/check-status/<reference>', methods=['GET'])
+def check_status(reference):
+    """Vérifie si le paiement CamPay a été validé (non utilisé en mode Monetbil, qui fonctionne par redirection + notification)."""
+    status = check_transaction_status(reference)
+    if status == "SUCCESSFUL":
+        activated = activate_subscription(reference)
+        if activated:
+            return jsonify({"status": "SUCCESSFUL", "message": "Paiement réussi ! Votre abonnement est activé."})
+        else:
+            return jsonify({"status": "ERROR", "message": "Paiement confirmé mais erreur lors de l'activation. Contactez le support."}), 500
+    elif status == "FAILED":
+        return jsonify({"status": "FAILED", "message": "Le paiement a échoué ou a été annulé."})
+    return jsonify({"status": "PENDING", "message": "En attente de validation..."})
+
+
+@app.route('/api/payment/webhook', methods=['POST'])
+def campay_webhook():
+    """Webhook CamPay (non utilisé en mode Monetbil)."""
+    data = request.get_json() or {}
+    reference = data.get("reference")
+
+    if not reference:
+        return jsonify({"status": "ignored"}), 200
+
+    statut_reel = check_transaction_status(reference)
+    if statut_reel == "SUCCESSFUL":
+        activate_subscription(reference)
+        return jsonify({"status": "processed"}), 200
+
+    return jsonify({"status": "ignored"}), 200
+
 
 @app.route('/api/payment/notify', methods=['GET', 'POST'])
 def monetbil_notify():

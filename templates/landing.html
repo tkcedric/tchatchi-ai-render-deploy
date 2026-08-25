@@ -751,11 +751,23 @@
                     <span class="fs-4 fw-bold text-primary" id="modalPlanPrice">500 FCFA</span>
                 </div>
 
+                {% if payment_provider == 'monetbil' %}
                 <p class="text-muted small mb-3">
                     <i class="bi bi-info-circle me-1"></i>Tu seras redirigé vers une page sécurisée pour choisir ton opérateur (MTN ou Orange) et entrer ton numéro.
                 </p>
+                {% endif %}
 
                 <form id="paymentForm">
+                    {% if payment_provider == 'campay' %}
+                    <div class="mb-3">
+                        <label for="phoneNumber" class="form-label fw-bold">Numéro MTN MoMo ou Orange Money</label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text bg-light fw-bold text-muted">+237</span>
+                            <input type="tel" class="form-control" id="phoneNumber" placeholder="6XXXXXXXX" maxlength="9" required>
+                        </div>
+                        <small class="text-muted">Exemple : 670000000 ou 690000000</small>
+                    </div>
+                    {% endif %}
                     <!-- Zone de chargement (brève, avant redirection) -->
                     <div id="paymentStatusArea" class="d-none text-center my-3 p-3 rounded bg-light border">
                         <div class="spinner-border text-primary mb-2" role="status" id="paymentSpinner"></div>
@@ -873,7 +885,7 @@
         switchLanguage(savedLang);
     });
 
-    
+
 
    // --- GESTION DU PAIEMENT MONETBIL ---
 let paymentModalInstance = null;
@@ -934,10 +946,23 @@ function openPaymentModal() {
     paymentModalInstance.show();
 }
 
+// NOUVEAU : le fournisseur actif, transmis par Flask, détermine le
+// comportement du formulaire (redirection Monetbil vs saisie + polling CamPay).
+const paymentProvider = "{{ payment_provider }}";
+
 document.getElementById('paymentForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const selectedPlan = document.querySelector('input[name="selectedPlan"]:checked').value;
+    let phone = null;
+
+    if (paymentProvider === 'campay') {
+        phone = document.getElementById('phoneNumber').value.trim();
+        if (!phone || phone.length < 9) {
+            alert("Veuillez saisir un numéro de téléphone valide à 9 chiffres (ex: 699000000).");
+            return;
+        }
+    }
 
     const btnPay = document.getElementById('btnPay');
     const statusArea = document.getElementById('paymentStatusArea');
@@ -954,19 +979,28 @@ document.getElementById('paymentForm').addEventListener('submit', async (e) => {
     subStatus.textContent = "Connexion au service de paiement...";
 
     try {
+        const bodyData = paymentProvider === 'campay'
+            ? { plan_type: selectedPlan, phone: phone }
+            : { plan_type: selectedPlan };
+
         const response = await fetch('/api/payment/initiate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ plan_type: selectedPlan })
+            body: JSON.stringify(bodyData)
         });
 
         const data = await response.json();
 
         if (response.ok && data.success && data.payment_url) {
+            // Cas Monetbil : redirection directe
             statusText.textContent = "✅ Redirection en cours...";
             subStatus.textContent = "Tu vas être redirigé vers la page de paiement sécurisée.";
-            // NOUVEAU : redirection directe vers la page Monetbil, plus de polling.
             window.location.href = data.payment_url;
+        } else if (response.ok && data.success && data.reference) {
+            // Cas CamPay : on lance la vérification automatique (polling)
+            statusText.textContent = "🔔 Message envoyé sur votre téléphone !";
+            subStatus.innerHTML = "Veuillez <strong>taper votre code secret (PIN)</strong> sur votre écran pour valider.";
+            pollPaymentStatus(data.reference);
         } else {
             statusText.textContent = "❌ Erreur";
             subStatus.textContent = data.message || "Impossible de lancer le paiement.";
@@ -982,6 +1016,47 @@ document.getElementById('paymentForm').addEventListener('submit', async (e) => {
         btnPay.classList.remove('d-none');
     }
 });
+
+// Fonction de vérification automatique du statut (utilisée uniquement en mode CamPay)
+function pollPaymentStatus(reference) {
+    let attempts = 0;
+    const maxAttempts = 60;
+    let currentPollInterval = null;
+
+    if (window.currentPollInterval) clearInterval(window.currentPollInterval);
+
+    window.currentPollInterval = setInterval(async () => {
+        attempts++;
+        try {
+            const res = await fetch(`/api/payment/check-status/${reference}`);
+            const result = await res.json();
+
+            if (result.status === "SUCCESSFUL") {
+                clearInterval(window.currentPollInterval);
+                document.getElementById('paymentSpinner').classList.add('d-none');
+                document.getElementById('paymentStatusText').innerHTML = "🎉 <span class='text-success'>Paiement Validé avec Succès !</span>";
+                document.getElementById('paymentSubStatus').textContent = "Votre abonnement est activé. Redirection vers votre espace...";
+                setTimeout(() => { window.location.href = "/app"; }, 2500);
+            } else if (result.status === "FAILED") {
+                clearInterval(window.currentPollInterval);
+                document.getElementById('paymentSpinner').classList.add('d-none');
+                document.getElementById('paymentStatusText').innerHTML = "❌ <span class='text-danger'>Paiement Échoué ou Annulé</span>";
+                document.getElementById('paymentSubStatus').textContent = "La transaction n'a pas abouti. Veuillez réessayer.";
+                document.getElementById('btnPay').disabled = false;
+                document.getElementById('btnPay').classList.remove('d-none');
+            } else if (attempts >= maxAttempts) {
+                clearInterval(window.currentPollInterval);
+                document.getElementById('paymentSpinner').classList.add('d-none');
+                document.getElementById('paymentStatusText').textContent = "⏱️ Délai dépassé";
+                document.getElementById('paymentSubStatus').textContent = "Si vous avez été débité, votre compte s'activera d'ici quelques instants.";
+                document.getElementById('btnPay').disabled = false;
+                document.getElementById('btnPay').classList.remove('d-none');
+            }
+        } catch (e) {
+            console.error("Erreur polling :", e);
+        }
+    }, 3000);
+}
 
     </script>
 </body>
