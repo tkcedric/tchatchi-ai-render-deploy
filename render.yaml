@@ -33,3 +33,7 @@ services:
         sync: false
       - key: CAMPAY_ENV
         value: demo
+      - key: MONETBIL_SERVICE_KEY
+        sync: false
+      - key: MONETBIL_SERVICE_SECRET
+        sync: false

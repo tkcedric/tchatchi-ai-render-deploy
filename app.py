@@ -20,7 +20,7 @@ from database import increment_stat, get_all_stats, init_db , supabase
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from authlib.integrations.flask_client import OAuth
 from config import GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, APP_SECRET_KEY
-from campay_service import collect_payment, check_transaction_status
+from monetbil_service import demander_lien_paiement, verifier_signature
 from database import PLANS_CONFIG, record_transaction, activate_subscription, reinitialiser_quota_gratuit_si_necessaire
 
 
@@ -931,86 +931,59 @@ def donate_page():
     return redirect(url_for('index'))
 
 @app.route('/api/payment/initiate', methods=['POST'])
+@login_required
 def initiate_payment():
-    """Déclenche la demande de paiement MoMo / OM."""
-    # Correction : On vérifie avec Flask-Login (current_user)
-    if not current_user.is_authenticated:
-        return jsonify({"success": False, "message": "Veuillez vous connecter."}), 401
-    
-    data = request.get_json() or {}
-    plan_type = data.get("plan_type") # 'weekly', 'monthly', 'annual'
-    phone = data.get("phone") # ex: "694064655"
+    data = request.get_json()
+    plan_type = data.get("plan_type")  # 'weekly', 'monthly', 'annual'
 
     if plan_type not in PLANS_CONFIG:
-        return jsonify({"success": False, "message": "Plan d'abonnement invalide."}), 400
-    
-    if not phone or len(str(phone).strip()) < 9:
-        return jsonify({"success": False, "message": "Numéro de téléphone invalide."}), 400
+        return jsonify({"success": False, "message": "Forfait invalide."}), 400
 
-    # On récupère l'email directement depuis current_user
-    user_email = current_user.email
     plan = PLANS_CONFIG[plan_type]
+    user_email = current_user.email
 
-    # NOUVEAU : on ajoute un identifiant unique à chaque tentative. Avant,
-    # external_reference=user_email restait identique à chaque essai du même
-    # utilisateur, et CamPay traitait ça comme une requête déjà connue —
-    # renvoyant une ANCIENNE référence/transaction au lieu d'en créer une
-    # nouvelle, donc aucun nouveau push USSD n'était réellement envoyé.
-    reference_unique = f"{user_email}-{uuid.uuid4().hex[:8]}"
+    # Référence unique par tentative (même principe que pour CamPay : évite
+    # tout risque de réutilisation d'une ancienne transaction)
+    payment_ref = f"{user_email}-{plan_type}-{uuid.uuid4().hex[:8]}"
 
-    # Appel de CamPay vers le numéro Orange Money / MTN
-    result = collect_payment(
-        phone_number=phone,
+    notify_url = f"{request.host_url.rstrip('/')}/api/payment/notify"
+    return_url = f"{request.host_url.rstrip('/')}/app"
+
+    resultat = demander_lien_paiement(
         amount=plan["price"],
         description=f"Abonnement {plan['name']} - TCHATCHI AI",
-        external_reference=reference_unique
+        payment_ref=payment_ref,
+        notify_url=notify_url,
+        return_url=return_url,
+        user_email=user_email
     )
 
-    if result.get("success"):
-        ref = result.get("reference")
-        # Enregistrer la transaction en BD
-        record_transaction(user_email, ref, plan["price"], plan_type, phone)
-        return jsonify({
-            "success": True,
-            "reference": ref,
-            "message": "Veuillez valider le paiement sur votre téléphone (tapez votre code PIN)."
-        })
+    if resultat.get("success"):
+        record_transaction(user_email, payment_ref, plan["price"], plan_type, "")
+        return jsonify({"success": True, "payment_url": resultat["payment_url"]})
     else:
-        # NOUVEAU : le message est déjà traduit en clair par traduire_erreur_campay()
-        # dans campay_service.py — on le transmet tel quel au frontend.
-        return jsonify({"success": False, "message": result.get("message", "Le paiement n'a pas pu être initié. Réessayez.")}), 400
+        return jsonify({"success": False, "message": resultat.get("message", "Le paiement n'a pas pu être initié. Réessayez.")}), 400
 
 # Ajout des routes de paiement 
-@app.route('/api/payment/check-status/<reference>', methods=['GET'])
-def check_status(reference):
-    """Vérifie si le paiement a été validé par l'utilisateur."""
-    status = check_transaction_status(reference)
-    if status == "SUCCESSFUL":
-        # NOUVEAU : on vérifie maintenant le résultat réel de l'activation.
-        # Avant, on renvoyait toujours "succès" même si l'écriture en base
-        # échouait en interne (ex: colonne manquante) — ce qui a causé la
-        # confusion qu'on vient de déboguer.
-        activated = activate_subscription(reference)
-        if activated:
-            return jsonify({"status": "SUCCESSFUL", "message": "Paiement réussi ! Votre abonnement est activé."})
-        else:
-            # Le paiement est bien confirmé par CamPay, mais l'activation en
-            # base a échoué : on le signale clairement au lieu de mentir.
-            return jsonify({"status": "ERROR", "message": "Paiement confirmé mais erreur lors de l'activation. Contactez le support."}), 500
-    elif status == "FAILED":
-        return jsonify({"status": "FAILED", "message": "Le paiement a échoué ou a été annulé."})
-    return jsonify({"status": "PENDING", "message": "En attente de validation..."})
 
+@app.route('/api/payment/notify', methods=['GET', 'POST'])
+def monetbil_notify():
+    """Notification appelée par Monetbil lors de la confirmation d'un paiement."""
+    # Monetbil peut appeler en GET ou POST selon la doc — on gère les deux.
+    params = request.values.to_dict()
 
-@app.route('/api/payment/webhook', methods=['POST'])
-def campay_webhook():
-    """Webhook appelé instantanément par CamPay lors de la confirmation."""
-    data = request.get_json() or {}
-    reference = data.get("reference")
-    status = data.get("status")
+    # SÉCURITÉ : on vérifie la signature avant de faire quoi que ce soit.
+    # Sans ça, n'importe qui connaissant l'URL pourrait activer un abonnement
+    # sans payer, en forgeant une fausse notification "status=success".
+    if not verifier_signature(params):
+        logging.warning(f"Notification Monetbil avec signature invalide ignorée : {params}")
+        return jsonify({"status": "ignored"}), 200
 
-    if reference and status == "SUCCESSFUL":
-        activate_subscription(reference)
+    payment_ref = params.get("payment_ref")
+    status = params.get("status")
+
+    if payment_ref and status == "success":
+        activate_subscription(payment_ref)
         return jsonify({"status": "processed"}), 200
 
     return jsonify({"status": "ignored"}), 200
