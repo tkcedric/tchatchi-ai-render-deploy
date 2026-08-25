@@ -119,6 +119,9 @@ def check_transaction_status(reference):
 
     try:
         response = requests.get(url, headers=headers, timeout=10)
+        # NOUVEAU : on log la réponse de CamPay pour chaque vérification de
+        # statut, pour pouvoir diagnostiquer les cas comme MTN vs Orange.
+        logger.info(f"🔍 VÉRIFICATION STATUT {reference} (HTTP {response.status_code}) | CONTENU: {response.text}")
         if response.status_code == 200:
             return response.json().get("status")
     except Exception as e:
