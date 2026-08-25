@@ -83,17 +83,11 @@ def collect_payment(phone_number, amount, description, external_reference):
     }
 
     try:
-        print("\n" + "="*50)
-        print(f"👉 ENVOI REQUÊTE VERS CAMPAY: {url}")
-        print(f"👉 PAYLOAD: {payload}")
-        print("="*50)
+        logger.info(f"👉 ENVOI REQUÊTE VERS CAMPAY: {url} | PAYLOAD: {payload}")
 
         response = requests.post(url, json=payload, headers=headers, timeout=25)
-        
-        print("\n" + "="*50)
-        print(f"👈 RÉPONSE DE CAMPAY (Code HTTP: {response.status_code})")
-        print(f"👈 CONTENU: {response.text}")
-        print("="*50 + "\n")
+
+        logger.info(f"👈 RÉPONSE DE CAMPAY (Code HTTP: {response.status_code}) | CONTENU: {response.text}")
 
         data = response.json()
         
