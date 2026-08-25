@@ -70,7 +70,7 @@ def get_all_stats():
 
 # Configuration des plans
 PLANS_CONFIG = {
-    "weekly": {"price": 500, "days": 7, "generations": 35, "name": "Pass Semaine"},
+    "weekly": {"price": 25, "days": 7, "generations": 35, "name": "Pass Semaine"},
     "monthly": {"price": 1500, "days": 30, "generations": 140, "name": "Pass Mensuel"},
     "annual": {"price": 5000, "days": 365, "generations": 750, "name": "Pass Annuel"}
 }
