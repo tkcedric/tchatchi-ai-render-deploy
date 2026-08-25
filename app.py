@@ -109,10 +109,18 @@ class User(UserMixin):
 
 @login_manager.user_loader
 def load_user(user_id):
-    # Charge l'utilisateur depuis la base de données
-    response = supabase.table('users').select('*').eq('id', user_id).single().execute()
-    if response.data:
-        return User(response.data)
+    # Charge l'utilisateur depuis la base de données.
+    # NOUVEAU : si l'id du cookie de session ne correspond à aucun utilisateur
+    # (vieux cookie, compte supprimé, changement d'environnement...), .single()
+    # lève une exception au lieu de renvoyer une réponse vide. On l'attrape
+    # pour renvoyer None proprement — Flask-Login traitera alors la personne
+    # comme non connectée, plutôt que de faire planter toute la page.
+    try:
+        response = supabase.table('users').select('*').eq('id', user_id).single().execute()
+        if response.data:
+            return User(response.data)
+    except Exception as e:
+        logging.warning(f"load_user : aucun utilisateur trouvé pour l'id {user_id} ({e})")
     return None
 
 
@@ -893,9 +901,18 @@ def update_generation():
 @app.route('/')
 def index():
     """Rend la page d'accueil (Landing Page)."""
-    # On passe 'current_user' au template. S'il n'est pas connecté,
-    # current_user.is_authenticated sera False.
-    return render_template('landing.html', user=current_user)
+    # NOUVEAU : on formate les prix ICI, en Python (plus fiable que de le
+    # faire dans le template Jinja, où mélanger {{ }} avec des accolades de
+    # formatage Python comme "{:,}" peut casser le rendu). On construit une
+    # copie de PLANS_CONFIG enrichie d'un prix déjà formaté ("5 000" au lieu
+    # de "5000"), prête à afficher telle quelle.
+    plans_affichage = {}
+    for cle, plan in PLANS_CONFIG.items():
+        plans_affichage[cle] = {
+            **plan,
+            "price_display": f"{plan['price']:,}".replace(",", " ")
+        }
+    return render_template('landing.html', user=current_user, plans=plans_affichage)
 
 @app.route('/app')
 @login_required
@@ -934,12 +951,19 @@ def initiate_payment():
     user_email = current_user.email
     plan = PLANS_CONFIG[plan_type]
 
+    # NOUVEAU : on ajoute un identifiant unique à chaque tentative. Avant,
+    # external_reference=user_email restait identique à chaque essai du même
+    # utilisateur, et CamPay traitait ça comme une requête déjà connue —
+    # renvoyant une ANCIENNE référence/transaction au lieu d'en créer une
+    # nouvelle, donc aucun nouveau push USSD n'était réellement envoyé.
+    reference_unique = f"{user_email}-{uuid.uuid4().hex[:8]}"
+
     # Appel de CamPay vers le numéro Orange Money / MTN
     result = collect_payment(
         phone_number=phone,
         amount=plan["price"],
         description=f"Abonnement {plan['name']} - TCHATCHI AI",
-        external_reference=user_email
+        external_reference=reference_unique
     )
 
     if result.get("success"):
