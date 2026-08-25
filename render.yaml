@@ -6,12 +6,30 @@ services:
     plan: free
     region: frankfurt
 
-    # On garde les variables d'environnement.
-    # Elles seront injectées dans notre machine Docker.
+    # Variables d'environnement : toutes en "sync: false" pour ne jamais
+    # écrire de valeur secrète dans ce fichier (qui est sur GitHub, public
+    # ou non). Render te demandera la valeur de chacune une seule fois,
+    # au moment de la synchronisation, puis les gardera en mémoire.
     envVars:
       - key: SUPABASE_URL
-        fromSecret: true
+        sync: false
       - key: SUPABASE_KEY
-        fromSecret: true
+        sync: false
       - key: OPENAI_API_KEY
-        fromSecret: true
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: APP_SECRET_KEY
+        sync: false
+      - key: CAMPAY_APP_USERNAME
+        sync: false
+      - key: CAMPAY_APP_PASSWORD
+        sync: false
+      - key: CAMPAY_PERMANENT_TOKEN
+        sync: false
+      - key: CAMPAY_ENV
+        value: demo
