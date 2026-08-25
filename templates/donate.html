@@ -744,7 +744,241 @@
         font-size: 0.85rem;
     }
 }
-    </style>
+
+/* Fichier : templates/donate.html */
+/* AJOUTEZ CE BLOC À L'INTÉRIEUR DE VOTRE BALISE <style> */
+
+.activation-card {
+    border: 2px solid var(--primary-color);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+}
+
+.contact-method {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+    margin-bottom: 0.75rem;
+}
+
+.contact-method i {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+}
+
+/* ======================================================================= */
+/* STYLES AMÉLIORÉS POUR LES STEP BOXES - PLUS PROFESSIONNELLES */
+/* ======================================================================= */
+
+.step-card {
+    background: linear-gradient(135deg, #e2dede 0%, #f8f9fa 100%);
+    border-radius: 16px;
+    padding: 2rem 1.5rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    height: 100%;
+    border: 1px solid rgba(11, 87, 208, 0.1);
+    position: relative;
+    transition: all 0.3s ease;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-top: 4px solid var(--primary-color);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.step-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+    border-color: rgba(11, 87, 208, 0.2);
+}
+
+.step-badge {
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, var(--primary-color) 0%, #1976d2 100%);
+    color: white;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.3rem;
+    box-shadow: 0 4px 15px rgba(11, 87, 208, 0.3);
+    border: 3px solid white;
+}
+
+.step-card h4 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin: 1.5rem 0 1rem 0;
+    text-align: center;
+}
+
+.step-card p {
+    color: #6c757d;
+    line-height: 1.6;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    flex-grow: 1;
+}
+
+.step-card .btn {
+    margin-top: auto;
+    border-radius: 25px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+}
+
+/* Conteneurs de contact dans les steps */
+.step-card .contact-option {
+    width: 100%;
+    text-align: left;
+    margin: 0.75rem 0;
+    padding: 1rem;
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    background: white;
+}
+
+.step-card .contact-option.recommended {
+    border-color: var(--accent-color);
+    background: rgba(52, 168, 83, 0.05);
+}
+
+.step-card .contact-option i {
+    font-size: 1.4rem;
+    color: var(--primary-color);
+    min-width: 30px;
+}
+
+.step-card .contact-option.recommended i {
+    color: var(--accent-color);
+}
+
+/* QR Code container amélioré */
+.step-card .qr-code-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+}
+
+.step-card .qr-code-container img {
+    width: 180px;
+    height: 280px;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.step-card .qr-code-container a {
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+/* Alert dans les steps */
+.step-card .alert {
+    width: 100%;
+    text-align: center;
+    border-radius: 10px;
+    margin-top: auto;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .step-card {
+        padding: 1.5rem 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .step-badge {
+        width: 45px;
+        height: 45px;
+        font-size: 1.2rem;
+    }
+    
+    .step-card h4 {
+        font-size: 1.1rem;
+        margin: 1.25rem 0 0.75rem 0;
+    }
+    
+    .step-card .contact-option {
+        padding: 0.75rem;
+    }
+    
+    .step-card .qr-code-container img {
+        width: 70px;
+        height: 70px;
+    }
+}
+
+@media (max-width: 576px) {
+    .step-card {
+        padding: 1.25rem 0.75rem;
+    }
+    
+    .step-badge {
+        width: 50px;
+        height: 50px;
+        font-size: 1.1rem;
+    }
+    
+    .step-card h4 {
+        font-size: 1rem;
+    }
+    
+    .step-card p {
+        font-size: 0.9rem;
+    }
+}
+/* Amélioration de la section globale */
+.activation-section {
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+}
+
+.activation-section .container {
+    max-width: 1200px;
+}
+
+/* Ajustement de l'espacement entre les colonnes */
+.activation-section .row {
+    align-items: stretch;
+}
+
+/* Hauteur uniforme pour toutes les step boxes */
+.activation-section .col-lg-4 {
+    display: flex;
+}
+
+.activation-section .col-lg-4 > .step-card {
+    width: 100%;
+}
+
+   /* Styles pour la section de paiement existante */
+    .payment-card {
+        background: white;
+        border-radius: 10px;
+        padding: 2.5rem;
+        margin: 2rem auto;
+        max-width: 800px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+    .payment-method { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid #eee; }
+    .payment-method:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    .payment-method h3 { margin-bottom: 1.5rem; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+    .payment-method.orange-money h3 { color: #FF6B00; }
+    .payment-method.momo h3 { color: #F9C80E; }
+    .payment-code { background: #f8f9fa; padding: 1rem; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 1.1rem; color: var(--primary-color); border: 1px solid #dee2e6; margin: 1rem 0; width: 100%; text-align: center; }
+    .account-info { margin: 1.25rem 0; padding: 1rem; background: #f8f9fa; border-radius: 8px; border-left: 4px solid var(--primary-color); }
+   </style>
 </head>
 <body>
     <div id="main-container">
@@ -770,7 +1004,6 @@
                 <ul class="dropdown-menu dropdown-menu-end">
                     <li><a class="dropdown-item" href="/app">Chat Tchatci AI</a></li>
                     <li><a class="dropdown-item" href="/about">À Propos</a></li>
-                    <li><a class="dropdown-item" href="/donate">Soutenir</a></li>
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item" href="/logout"><i class="bi bi-box-arrow-right me-2"></i>Se Déconnecter</a></li>
                 </ul>
@@ -839,7 +1072,75 @@
         </div>
     </section>
 
+
+
+<!-- ======================================================================= -->
+<!-- NOUVELLE SECTION D'ACTIVATION PREMIUM (DESIGN PROFESSIONNEL) -->
+<!-- ======================================================================= -->
+<section id="premium" class="activation-section py-5">
     <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold" data-lang-en="Activate Your Premium Plan" data-lang-fr="Activez Votre Plan Premium">Activez Votre Plan Premium</h2>
+            <p class="lead text-muted" data-lang-en="Follow these 3 simple steps to unlock all features." data-lang-fr="Suivez ces 3 étapes simples pour débloquer toutes les fonctionnalités.">Suivez ces 3 étapes simples pour débloquer toutes les fonctionnalités.</p>
+        </div>
+
+        <div class="row g-4 justify-content-center">
+            <!-- ÉTAPE 1 -->
+            <div class="col-lg-4 col-md-6 d-flex">
+                <div class="step-card w-100">
+                    <span class="step-badge">1</span>
+                    <h4 class="mb-3" data-lang-en="Make Payment" data-lang-fr="Effectuez le Paiement">Effectuez le Paiement</h4>
+                    <p class="text-muted" data-lang-en="Choose your plan and pay using one of the Mobile Money methods below." data-lang-fr="Choisissez votre plan et payez via l'une des méthodes Mobile Money ci-dessous.">Choisissez votre plan et payez via l'une des méthodes Mobile Money ci-dessous.</p>
+                    <a href="#payment-methods" class="btn btn-primary mt-auto" data-lang-en="Go to Payment Methods" data-lang-fr="Voir les Méthodes de Paiement">Voir les Méthodes de Paiement</a>
+                </div>
+            </div>
+
+            <!-- ÉTAPE 2 -->
+            <div class="col-lg-4 col-md-6 d-flex">
+                <div class="step-card w-100">
+                    <span class="step-badge">2</span>
+                    <h4 class="mb-3" data-lang-en="Send Proof of Payment" data-lang-fr="Envoyez la Preuve">Envoyez la Preuve</h4>
+                    <p class="text-muted small" data-lang-en="To activate your account, send the transaction details (ID, phone number) to one of our contacts." data-lang-fr="Pour activer votre compte, envoyez les détails de la transaction (ID, numéro) à l'un de nos contacts.">Pour activer votre compte, envoyez les détails...</p>
+                    
+                    <div class="contact-option recommended mt-3">
+                        <i class="bi bi-whatsapp"></i>
+                        <div>
+                            <strong data-lang-en="WhatsApp (Recommended)" data-lang-fr="WhatsApp (Recommandé)">WhatsApp (Recommandé)</strong>
+                            <div class="qr-code-container">
+                                <img src="/static/img/whatsapp_qr.png" alt="QR Code WhatsApp">
+                                <a href="https://chat.whatsapp.com/Fep6O35edNdHH5lkxC1qRl" target="_blank" data-lang-en="Join and contact an admin" data-lang-fr="Rejoindre et contacter un admin">Rejoindre et contacter un admin</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="contact-option">
+                        <i class="bi bi-envelope-fill"></i>
+                        <div>
+                            <strong>Email</strong><br>
+                            <a href="mailto:tchatchiai@gmail.com">tchatchiai@gmail.com</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ÉTAPE 3 -->
+            <div class="col-lg-4 col-md-6 d-flex">
+                <div class="step-card w-100">
+                    <span class="step-badge">3</span>
+                    <h4 class="mb-3" data-lang-en="Get Activated!" data-lang-fr="Recevez l'Activation !">Recevez l'Activation !</h4>
+                    <p class="text-muted" data-lang-en="Our team will manually verify your payment and upgrade your account to Premium within a few hours." data-lang-fr="Notre équipe vérifiera manuellement votre paiement et activera votre compte Premium en quelques heures.">Notre équipe vérifiera manuellement votre paiement et activera votre compte Premium en quelques heures.</p>
+                    <div class="alert alert-info mt-auto small" data-lang-en="Thank you for your support!" data-lang-fr="Merci pour votre soutien !">Merci pour votre soutien !</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- ======================================================================= -->
+<!-- FIN DE LA NOUVELLE SECTION -->
+<!-- ======================================================================= -->   
+
+   
+<div class="container" id="payment-methods">
         <div class="payment-card">
             <h2 class="text-center mb-5" data-lang-en="Make a Donation" data-lang-fr="Faire un Don">Make a Donation</h2>
             
@@ -889,7 +1190,7 @@
 
      <!-- Footer -->
      <footer id="main-footer" style="text-align: center; font-size: 0.8rem; color: #999; padding: 0.5rem; background-color: #f8f9fa; border-top: 1px solid #dee2e6;">
-        <p data-lang-en="© 2025 TCHATCHI AI Project - All rights reserved." data-lang-fr="© 2025 Projet TCHATCHI AI - Tous droits réservés.">© 2025 TCHATCHI AI Project - All rights reserved.</p>
+   <p data-lang-en="© {{ current_year }} TCHATCHI AI Project - All rights reserved." data-lang-fr="© {{ current_year }} Projet TCHATCHI AI - Tous droits réservés.">© {{ current_year }} TCHATCHI AI Project - All rights reserved.</p>
         <p>Powered by TKC@Co</p>
     </footer>
 

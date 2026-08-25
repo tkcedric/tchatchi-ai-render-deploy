@@ -394,6 +394,76 @@
                 font-size: 0.85rem;
             }
         }
+
+        /* Fichier : templates/landing.html */
+
+/* AJOUTEZ CE BLOC À L'INTÉRIEUR DE VOTRE BALISE <style> */
+
+.pricing-section {
+    background-color: var(--bg-light);
+}
+
+.pricing-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+}
+
+.pricing-card .price {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 1rem 0;
+}
+.pricing-card .price .period {
+    font-size: 1rem;
+    font-weight: 400;
+    color: var(--text-light);
+}
+
+.feature-list li {
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+}
+.feature-list i {
+    margin-right: 0.75rem;
+    font-size: 1.2rem;
+}
+
+.premium-card {
+    border: 2px solid var(--primary-color) !important;
+}
+
+.recommended-badge {
+    position: absolute;
+    top: 15px;
+    right: -40px;
+    background: var(--primary-color);
+    color: white;
+    padding: 5px 40px;
+    transform: rotate(45deg);
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.premium-options {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 1rem 0;
+    border: 1px solid #e9ecef;
+}
+
+
+.feature-list .text-muted {
+    text-decoration: line-through;
+}
     </style>
 </head>
 <body>
@@ -426,7 +496,6 @@
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item" href="/app">Chat Tchatci ai</a></li>
                             <li><a class="dropdown-item" href="/about">À Propos</a></li>
-                            <li><a class="dropdown-item" href="/donate">Soutenir</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="/logout"><i class="bi bi-box-arrow-right me-2"></i>Se Déconnecter</a></li>
                         </ul>
@@ -559,8 +628,161 @@
             </div>
         </section>
 
+
+<!-- ======================================================================= -->
+<!-- DÉBUT DE LA SECTION PRIX (VERSION TRÈS ATTRACTIVE) -->
+<!-- ======================================================================= -->
+
+<section class="pricing-section py-5 bg-light" id="tarifs">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold" data-lang-en="Choose Your Plan" data-lang-fr="Choisissez Votre Plan">Choisissez Votre Plan</h2>
+            <p class="lead text-muted" data-lang-en="Affordable pricing designed for teachers (MTN & Orange Money)." data-lang-fr="Des forfaits accessibles pensés pour les enseignants (MTN & Orange Money).">Des forfaits accessibles pensés pour les enseignants (MTN & Orange Money).</p>
+        </div>
+        <div class="row justify-content-center g-4">
+            
+            <!-- PLAN GRATUIT -->
+            <div class="col-lg-5 col-md-6">
+                <div class="pricing-card h-100">
+                    <h3 class="fw-normal" data-lang-en="Free Plan" data-lang-fr="Plan Découverte">Plan Découverte</h3>
+                    <p class="price">
+                        0 FCFA <span class="period" data-lang-en="/ forever" data-lang-fr="/ toujours">/ toujours</span>
+                    </p>
+                    <p class="text-muted" data-lang-en="Perfect for getting started." data-lang-fr="Idéal pour tester l'assistant.">Idéal pour tester l'assistant.</p>
+                    <ul class="list-unstyled feature-list">
+                        <li><i class="bi bi-check-circle-fill text-success"></i> <strong data-lang-en="5 Generations / Week" data-lang-fr="5 Générations / Semaine">5 Générations / Semaine</strong></li>
+                        <li><i class="bi bi-check-circle-fill text-success"></i> <span data-lang-en="Access to all resource types" data-lang-fr="Accès à toutes les ressources">Accès à toutes les ressources</span></li>
+                        <li><i class="bi bi-check-circle-fill text-success"></i> <span data-lang-en="PDF Export" data-lang-fr="Exportation en PDF">Exportation en PDF</span></li>
+                        <li class="text-muted"><i class="bi bi-x-circle-fill text-danger"></i> <span data-lang-en="Full Generation History" data-lang-fr="Historique complet">Historique complet</span></li>
+                        <li class="text-muted"><i class="bi bi-x-circle-fill text-danger"></i> <span data-lang-en="Online Content Editor" data-lang-fr="Éditeur en ligne">Éditeur en ligne</span></li>
+                    </ul>
+                    <a href="/login" class="btn btn-outline-primary w-100 mt-auto" data-lang-en="Start for Free" data-lang-fr="Commencer Gratuitement">Commencer Gratuitement</a>
+                </div>
+            </div>
+
+            <!-- PLAN PREMIUM -->
+            <div class="col-lg-5 col-md-6">
+                <div class="pricing-card premium-card h-100 border-primary">
+                    <div class="recommended-badge" data-lang-en="Best Value" data-lang-fr="Populaire">Populaire</div>
+                    <h3 class="text-primary" data-lang-en="Premium Plans" data-lang-fr="Formules Premium">Formules Premium</h3>
+                    <p class="text-muted" data-lang-en="Cover all your 20h/week of classes with peace of mind." data-lang-fr="Préparez vos 20h de cours par semaine en toute sérénité.">Préparez vos 20h de cours par semaine en toute sérénité.</p>
+                    
+                    <!-- Choix du Forfait -->
+                    <div class="premium-options text-start">
+                        <div class="form-check p-2 rounded mb-2 border bg-white">
+                            <input class="form-check-input ms-1" type="radio" name="selectedPlan" id="planWeekly" value="weekly" checked>
+                            <label class="form-check-label ms-2 d-flex justify-content-between align-items-center w-100 pe-3" for="planWeekly">
+                                <span><strong>Pass Semaine</strong> (25 gén.)</span>
+                                <span class="badge bg-primary fs-6">500 F</span>
+                            </label>
+                        </div>
+                        <div class="form-check p-2 rounded mb-2 border bg-white">
+                            <input class="form-check-input ms-1" type="radio" name="selectedPlan" id="planMonthly" value="monthly">
+                            <label class="form-check-label ms-2 d-flex justify-content-between align-items-center w-100 pe-3" for="planMonthly">
+                                <span><strong>Pass Mensuel</strong> (100 gén.)</span>
+                                <span class="badge bg-success fs-6">2 000 F</span>
+                            </label>
+                        </div>
+                        <div class="form-check p-2 rounded border bg-white">
+                            <input class="form-check-input ms-1" type="radio" name="selectedPlan" id="planAnnual" value="annual">
+                            <label class="form-check-label ms-2 d-flex justify-content-between align-items-center w-100 pe-3" for="planAnnual">
+                                <span><strong>Pass Annuel</strong> (600 gén. - Année scolaire)</span>
+                                <span class="badge bg-warning text-dark fs-6">12 000 F</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <p class="mt-3 mb-2 fw-bold" data-lang-en="Included in all Premium plans:" data-lang-fr="Inclus dans tous les forfaits Premium :">Inclus dans tous les forfaits Premium :</p>
+                    <ul class="list-unstyled feature-list">
+                        <li><i class="bi bi-check-circle-fill text-success"></i> <strong>Jusqu'à 600 générations</strong></li>
+                        <li><i class="bi bi-check-circle-fill text-success"></i> <strong>Historique complet de vos cours</strong></li>
+                        <li><i class="bi bi-check-circle-fill text-success"></i> <strong>Éditeur en ligne avant téléchargement</strong></li>
+                        <li><i class="bi bi-check-circle-fill text-success"></i> <span>Support prioritaire WhatsApp</span></li>
+                    </ul>
+
+                    {% if user.is_authenticated %}
+                        <button type="button" class="btn btn-primary w-100 mt-auto py-2 fw-bold" onclick="openPaymentModal()">
+                            <i class="bi bi-phone me-2"></i>Activer mon Forfait
+                        </button>
+                                        {% else %}
+                        <!--
+                            AVANT : <a href="/login">, qui ne transmettait aucune info
+                            sur le plan choisi (weekly/monthly/annual).
+                            MAINTENANT : un bouton qui appelle redirectToLoginWithPlan()
+                            en JS, pour construire l'URL /login?plan=xxx avec le plan
+                            actuellement sélectionné dans les radios ci-dessus.
+                        -->
+                        <button type="button" class="btn btn-primary w-100 mt-auto py-2 fw-bold" onclick="redirectToLoginWithPlan()">
+                            <i class="bi bi-google me-2"></i>Se connecter pour souscrire
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- ======================================================================= -->
+<!-- FIN DE LA NOUVELLE SECTION PRIX -->
+<!-- ======================================================================= -->
+
+<!-- MODALE DE PAIEMENT CAMPAY -->
+<div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+            <div class="modal-header bg-primary text-white" style="border-top-left-radius: 20px; border-top-right-radius: 20px;">
+                <h5 class="modal-title fw-bold" id="paymentModalLabel">
+                    <i class="bi bi-shield-check me-2"></i>Paiement Sécurisé Mobile Money
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                
+                <!-- Résumé de la commande -->
+                <div class="alert alert-primary d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <strong id="modalPlanName">Pass Semaine</strong><br>
+                        <small class="text-muted" id="modalPlanQuota">25 générations incluses</small>
+                    </div>
+                    <span class="fs-4 fw-bold text-primary" id="modalPlanPrice">500 FCFA</span>
+                </div>
+
+                <!-- Formulaire de saisie du numéro -->
+                <form id="paymentForm">
+                    <div class="mb-3">
+                        <label for="phoneNumber" class="form-label fw-bold">Numéro MTN MoMo ou Orange Money</label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text bg-light fw-bold text-muted">+237</span>
+                            <input type="tel" class="form-control" id="phoneNumber" placeholder="6XXXXXXXX" maxlength="9" required>
+                        </div>
+                        <small class="text-muted">Exemple : 670000000 ou 690000000</small>
+                    </div>
+
+                    <!-- Zone de chargement et statut -->
+                    <div id="paymentStatusArea" class="d-none text-center my-3 p-3 rounded bg-light border">
+                        <div class="spinner-border text-primary mb-2" role="status" id="paymentSpinner"></div>
+                        <p class="mb-0 fw-bold" id="paymentStatusText">Envoi de la demande sur votre téléphone...</p>
+                        <small class="text-muted" id="paymentSubStatus">Tapez votre code secret dès l'affichage du message.</small>
+                    </div>
+
+                    <button type="submit" class="btn btn-success btn-lg w-100 fw-bold mt-2 shadow-sm" id="btnPay">
+                        <i class="bi bi-lock-fill me-2"></i>Confirmer et Payer
+                    </button>
+                </form>
+
+            </div>
+            <div class="modal-footer bg-light py-2 text-center justify-content-center" style="border-bottom-left-radius: 20px; border-bottom-right-radius: 20px;">
+                <small class="text-muted"><i class="bi bi-shield-lock me-1"></i>Paiement 100% sécurisé via CamPay</small>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- FIN MODALE DE PAIEMENT CAMPAY -->
+
         <footer class="text-center py-4 text-muted border-top">
-            <p>© 2025 TCHATCHI AI Project - Tous droits réservés.</p>
+              <p data-lang-en="© {{ current_year }} TCHATCHI AI Project - All rights reserved." data-lang-fr="© {{ current_year }} Projet TCHATCHI AI - Tous droits réservés.">© {{ current_year }} TCHATCHI AI Project - All rights reserved.</p>
+        <p>Powered by TKC@Co</p>
         </footer>
     </div>
     
@@ -649,6 +871,172 @@
         const savedLang = localStorage.getItem('selectedLanguage') || 'fr';
         switchLanguage(savedLang);
     });
+
+    // --- GESTION DU PAIEMENT CAMPAY ---
+let paymentModalInstance = null;
+let currentPollInterval = null;
+
+const plansData = {
+    weekly: { name: "Pass Semaine", price: "500 FCFA", quota: "25 générations (Couvre vos 20h de cours)" },
+    monthly: { name: "Pass Mensuel", price: "2 000 FCFA", quota: "100 générations (Couvre tout votre mois)" },
+    annual: { name: "Pass Annuel", price: "12 000 FCFA", quota: "600 générations (Toute l'année scolaire)" }
+};
+
+// NOUVEAU : appelée quand un utilisateur NON connecté clique sur
+// "Se connecter pour souscrire". On récupère le plan actuellement
+// sélectionné (radio button coché) et on redirige vers /login en
+// l'ajoutant dans l'URL, pour que le serveur Flask puisse le mémoriser
+// (voir la route /login dans app.py).
+function redirectToLoginWithPlan() {
+    const selectedPlan = document.querySelector('input[name="selectedPlan"]:checked').value;
+    window.location.href = '/login?plan=' + selectedPlan;
+}
+
+// NOUVEAU : au chargement de la page, on regarde si l'URL contient
+// ?plan=xxx&open_payment=1 (c'est le cas juste après une connexion Google
+// suite à un clic sur "Se connecter pour souscrire", voir authorize() dans
+// app.py). Si oui, on pré-sélectionne le bon plan et on ouvre directement
+// le modal de paiement, comme si l'utilisateur avait cliqué dessus lui-même.
+document.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const planFromUrl = urlParams.get('plan');
+    const shouldOpenPayment = urlParams.get('open_payment') === '1';
+
+    if (planFromUrl && shouldOpenPayment) {
+        // On coche le bon radio button correspondant au plan (weekly/monthly/annual)
+        const radioToCheck = document.getElementById('plan' + planFromUrl.charAt(0).toUpperCase() + planFromUrl.slice(1));
+        if (radioToCheck) {
+            radioToCheck.checked = true;
+        }
+
+        // On ouvre le modal de paiement automatiquement
+        openPaymentModal();
+
+        // On "nettoie" l'URL (retire ?plan=...&open_payment=1) sans recharger
+        // la page, pour que le modal ne se rouvre pas si l'utilisateur
+        // rafraîchit la page plus tard.
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+});
+
+function openPaymentModal() {
+    const selectedPlan = document.querySelector('input[name="selectedPlan"]:checked').value;
+    const plan = plansData[selectedPlan];
+
+    document.getElementById('modalPlanName').textContent = plan.name;
+    document.getElementById('modalPlanPrice').textContent = plan.price;
+    document.getElementById('modalPlanQuota').textContent = plan.quota;
+
+    // Réinitialiser le formulaire
+    document.getElementById('paymentStatusArea').classList.add('d-none');
+    document.getElementById('btnPay').disabled = false;
+    document.getElementById('btnPay').classList.remove('d-none');
+
+    paymentModalInstance = new bootstrap.Modal(document.getElementById('paymentModal'));
+    paymentModalInstance.show();
+}
+
+document.getElementById('paymentForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const selectedPlan = document.querySelector('input[name="selectedPlan"]:checked').value;
+    let phone = document.getElementById('phoneNumber').value.trim();
+
+    if (!phone || phone.length < 9) {
+        alert("Veuillez saisir un numéro de téléphone valide à 9 chiffres (ex: 699000000).");
+        return;
+    }
+
+    const btnPay = document.getElementById('btnPay');
+    const statusArea = document.getElementById('paymentStatusArea');
+    const statusText = document.getElementById('paymentStatusText');
+    const subStatus = document.getElementById('paymentSubStatus');
+    const spinner = document.getElementById('paymentSpinner');
+
+    // UI : Début du traitement
+    btnPay.disabled = true;
+    btnPay.classList.add('d-none');
+    statusArea.classList.remove('d-none');
+    spinner.classList.remove('d-none');
+    statusText.textContent = "Initiation du paiement...";
+    subStatus.textContent = "Connexion aux serveurs Orange Money / MTN MoMo...";
+
+    try {
+        const response = await fetch('/api/payment/initiate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                plan_type: selectedPlan,
+                phone: phone
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            statusText.textContent = "🔔 Message envoyé sur votre téléphone !";
+            subStatus.innerHTML = `Veuillez <strong>taper votre code secret (PIN)</strong> sur votre écran pour valider.`;
+
+            // Lancer la vérification automatique toutes les 3 secondes
+            pollPaymentStatus(data.reference);
+        } else {
+            statusText.textContent = "❌ Erreur";
+            subStatus.textContent = data.message || "Impossible de lancer le paiement.";
+            spinner.classList.add('d-none');
+            btnPay.disabled = false;
+            btnPay.classList.remove('d-none');
+        }
+    } catch (err) {
+        statusText.textContent = "❌ Erreur de connexion";
+        subStatus.textContent = "Veuillez vérifier votre connexion internet.";
+        spinner.classList.add('d-none');
+        btnPay.disabled = false;
+        btnPay.classList.remove('d-none');
+    }
+});
+
+// Fonction qui interroge l'état du paiement (polling)
+function pollPaymentStatus(reference) {
+    let attempts = 0;
+    const maxAttempts = 60; // 20 x 3s = 60 secondes d'attente maximum
+
+    if (currentPollInterval) clearInterval(currentPollInterval);
+
+    currentPollInterval = setInterval(async () => {
+        attempts++;
+        try {
+            const res = await fetch(`/api/payment/check-status/${reference}`);
+            const result = await res.json();
+
+            if (result.status === "SUCCESSFUL") {
+                clearInterval(currentPollInterval);
+                document.getElementById('paymentSpinner').classList.add('d-none');
+                document.getElementById('paymentStatusText').innerHTML = "🎉 <span class='text-success'>Paiement Validé avec Succès !</span>";
+                document.getElementById('paymentSubStatus').textContent = "Votre abonnement est activé. Redirection vers votre espace...";
+
+                setTimeout(() => {
+                    window.location.href = "/app";
+                }, 2500);
+            } else if (result.status === "FAILED") {
+                clearInterval(currentPollInterval);
+                document.getElementById('paymentSpinner').classList.add('d-none');
+                document.getElementById('paymentStatusText').innerHTML = "❌ <span class='text-danger'>Paiement Échoué ou Annulé</span>";
+                document.getElementById('paymentSubStatus').textContent = "La transaction n'a pas abouti. Veuillez réessayer.";
+                document.getElementById('btnPay').disabled = false;
+                document.getElementById('btnPay').classList.remove('d-none');
+            } else if (attempts >= maxAttempts) {
+                clearInterval(currentPollInterval);
+                document.getElementById('paymentSpinner').classList.add('d-none');
+                document.getElementById('paymentStatusText').textContent = "⏱️ Délai dépassé";
+                document.getElementById('paymentSubStatus').textContent = "Si vous avez été débité, votre compte s'activera d'ici quelques instants.";
+                document.getElementById('btnPay').disabled = false;
+                document.getElementById('btnPay').classList.remove('d-none');
+            }
+        } catch (e) {
+            console.error("Erreur polling :", e);
+        }
+    }, 3000);
+}
     </script>
 </body>
 </html>

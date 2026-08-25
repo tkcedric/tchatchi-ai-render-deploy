@@ -3,6 +3,7 @@ import logging
 from openai import OpenAI
 import google.generativeai as genai
 from config import OPENAI_API_KEY, GEMINI_API_KEY, TITLES
+from simulation_service import trouver_simulation  # NOUVEAU : liens de simulations vérifiés
 
 
 # Configuration du logging
@@ -31,6 +32,48 @@ else:
 
 # --- NOUVELLE FONCTION D'APPEL API AVEC GEMINI EN PRIORITÉ ---
 
+class GenerationError(Exception):
+    """
+    NOUVEAU : exception personnalisée pour distinguer les types d'échec de
+    génération IA (quota épuisé, clé invalide, réseau, etc.) afin d'afficher
+    un message clair et actionnable à l'utilisateur, au lieu d'un message
+    générique "une erreur est survenue".
+    """
+    def __init__(self, message_fr, message_en):
+        self.message_fr = message_fr
+        self.message_en = message_en
+        super().__init__(message_fr)
+
+
+def categoriser_erreur_ia(exception):
+    """
+    Analyse le texte de l'exception technique pour deviner sa catégorie et
+    renvoyer un message clair. Le texte technique original reste dans les
+    logs (via logging.error ailleurs) pour le débogage.
+    """
+    texte = str(exception).lower()
+
+    if "quota" in texte or "429" in texte or "rate limit" in texte or "resourceexhausted" in texte:
+        return GenerationError(
+            "Le service IA a atteint sa limite d'utilisation du moment. Réessayez dans quelques minutes.",
+            "The AI service has reached its usage limit for now. Please try again in a few minutes."
+        )
+    if "401" in texte or "authentication" in texte or "invalid api key" in texte or "permission" in texte:
+        return GenerationError(
+            "Problème de configuration technique côté serveur. L'équipe a été notifiée, réessayez plus tard.",
+            "Server-side configuration issue. The team has been notified, please try again later."
+        )
+    if "timeout" in texte or "timed out" in texte:
+        return GenerationError(
+            "Le service IA met trop de temps à répondre (connexion lente). Réessayez.",
+            "The AI service is taking too long to respond (slow connection). Please try again."
+        )
+    return GenerationError(
+        "Une erreur est survenue pendant la génération. Réessayez, ou contactez le support si ça persiste.",
+        "An error occurred during generation. Please try again, or contact support if this persists."
+    )
+
+
 def call_llm_api(prompt, model_provider='gemini'):
     """
     Appelle l'API du LLM spécifié, avec Gemini en priorité.
@@ -39,7 +82,7 @@ def call_llm_api(prompt, model_provider='gemini'):
     if model_provider == 'gemini' and GEMINI_API_KEY:
         try:
             logging.info("Tentative d'appel à l'API Gemini (Principal)...")
-            model = genai.GenerativeModel("gemini-pro")
+            model = genai.GenerativeModel("gemini-3.1-flash-lite")
             response = model.generate_content(prompt, request_options={'timeout': 110})
             logging.info("Appel Gemini (Principal) réussi.")
             return response.text
@@ -63,13 +106,16 @@ def call_llm_api(prompt, model_provider='gemini'):
             return response.choices[0].message.content
         except Exception as e:
             logging.error(f"ERREUR lors de l'appel à l'API OpenAI (Fallback): {e}")
-            # Si OpenAI échoue aussi, c'est une erreur finale
-            raise e
+            # NOUVEAU : on transforme l'erreur technique en erreur catégorisée et compréhensible
+            raise categoriser_erreur_ia(e)
     else:
         # Si aucune des deux clés n'est valide ou disponible
         error_message = "Aucune clé API (Gemini ou OpenAI) n'est configurée ou valide. Impossible de générer le contenu."
         logging.critical(error_message)
-        raise ValueError(error_message)
+        raise GenerationError(
+            "Le service IA n'est pas disponible actuellement. L'équipe a été notifiée.",
+            "The AI service is currently unavailable. The team has been notified."
+        )
     
 
 # Le "Prompt Maître" pour la leçon - Version complète et vérifiée
@@ -635,7 +681,7 @@ Ta mission est de créer une présentation de leçon digitalisée au format Mark
 **GÉNÈRE MAINTENANT LA PRÉSENTATION EN SUIVANT SCRUPULEUSEMENT CE PLAN ET CES RÈGLES :**
 
 
-`## Diapositive 1 : TITLE AND INTRODUCTION`
+`## Diapositive 1 : {titre_et_introduction}`
 - **Matière :** {matiere}
 - **Classe :** {classe}
 - **Module:** {module}
@@ -654,14 +700,10 @@ Ta mission est de créer une présentation de leçon digitalisée au format Mark
 
 `## Diapositive 4 : {concepts_cles} - Concept 1`
 - *(Explique le premier concept majeur de la leçon. Sois clair et concis.)*
-- **Ressources :**
-  - *(Propose 1 lien vers un site éducatif fiable et 1 lien vers une vidéo YouTube pertinente pour ce concept.)*
   - *(Le mot "Diapositive" doit être "Diapositive" si {langue_contenu} est le français, et "Slide " sinon.)*
 
 `## Diapositive 5 : {concepts_cles} - Concept 2`
 - *(Explique le deuxième concept majeur et continue ce modèle pour chaque concept clé.)*
-- **Ressources :**
-  - *(Propose 1 lien vers un site éducatif fiable et 1 lien vers une vidéo YouTube pertinente pour ce concept.)*
   - *(Le mot "Diapositive" doit être "Diapositive" si {langue_contenu} est le français, et "Slide " sinon.)*
 
 `## Diapositive 6 : {exercices_application}`
@@ -732,6 +774,7 @@ def generate_digital_lesson_logic(classe, matiere, module, lecon, langue_contenu
     final_prompt = PROMPT_DIGITAL_LESSON.format(
         classe=classe, matiere=matiere, module=module, lecon=lecon, langue_contenu=langue_contenu,
         # On passe les nouveaux titres traduits
+        titre_et_introduction=selected_titles.get("TITRE_ET_INTRODUCTION", "Introduction"),  # NOUVEAU, avec valeur de secours
         plan_lecon=selected_titles.get("PLAN_LECON"),
         prerequis=selected_titles.get("PREREQUIS"),
         application_vie_reelle=selected_titles.get("APPLICATION_VIE_REELLE"),
@@ -743,4 +786,21 @@ def generate_digital_lesson_logic(classe, matiere, module, lecon, langue_contenu
      # MODIFICATION : On utilise la nouvelle fonction avec fallback
     generated_text = call_llm_api(final_prompt)
     logging.info("Présentation digitalisée générée avec succès.")
+
+    # NOUVEAU : ajout d'une simulation interactive VÉRIFIÉE (pas générée par l'IA).
+    # On cherche dans notre base statique une simulation pertinente pour ce
+    # sujet, et on l'ajoute directement en Python après la génération —
+    # jamais via le prompt, pour garantir que le lien est toujours réel.
+    simulation = trouver_simulation(matiere, lecon, module)
+    if simulation:
+        titre_diapo = "Diapositive Supplémentaire" if titles_lang_code == 'fr' else "Additional Slide"
+        titre_section = "Simulation Interactive Recommandée" if titles_lang_code == 'fr' else "Recommended Interactive Simulation"
+        generated_text += (
+            f"\n\n## {titre_diapo} : {titre_section}\n"
+            f"- **[{simulation['nom']}]({simulation['url']})** : *{simulation['description']}*\n"
+        )
+        logging.info(f"Simulation ajoutée à la leçon digitalisée : {simulation['nom']}")
+    else:
+        logging.info("Aucune simulation pertinente trouvée dans la base pour cette leçon.")
+
     return generated_text, titles_lang_code

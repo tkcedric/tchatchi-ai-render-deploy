@@ -1,6 +1,8 @@
 # app.py - Version finale avec une machine à états robuste pour la fonctionnalité "Retour"
 
 import logging
+import logging
+from datetime import datetime  # NOUVEAU : nécessaire pour vérifier l'expiration de l'abonnement
 from flask import Flask, request, jsonify, send_file, Response, render_template,send_from_directory,after_this_request, url_for, redirect, session
 import requests
 from flask_cors import CORS
@@ -11,17 +13,32 @@ import re
 import shutil # Importé pour le nettoyage des dossiers
 import secrets
 from utils import create_pdf_with_pandoc
+from rag_service import rechercher_syllabus  # NOUVEAU : recherche RAG dans les programmes MINESEC
+from core_logic import GenerationError  # NOUVEAU : pour afficher des messages d'erreur IA clairs
 from functools import wraps
 from database import increment_stat, get_all_stats, init_db , supabase 
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from authlib.integrations.flask_client import OAuth
 from config import GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, APP_SECRET_KEY
+from campay_service import collect_payment, check_transaction_status
+from database import PLANS_CONFIG, record_transaction, activate_subscription, reinitialiser_quota_gratuit_si_necessaire
+
 
 # On importe les dictionnaires de menus de notre code original
 from bot_data import CLASSES, MATIERES, SUBSYSTEME_FR, SUBSYSTEME_EN, LANGUES_CONTENU_COMPLET, LANGUES_CONTENU_SIMPLIFIE,  REGENERATE_OPTION_FR, REGENERATE_OPTION_EN
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 app = Flask(__name__)
+
+# NOUVEAU : rend "current_year" disponible automatiquement dans TOUS les
+# templates (index.html, landing.html, about.html, donate.html...), sans
+# avoir à le passer manuellement à chaque render_template(). Calculé une
+# fois par requête, toujours à jour.
+@app.context_processor
+def inject_current_year():
+    return {'current_year': datetime.now().year}
+
+
 CORS(app)
 
 # initialisation de la bd
@@ -63,6 +80,30 @@ class User(UserMixin):
         self.generation_count = user_data.get('generation_count', 0)
         # On ajoute le rôle
         self.role = user_data.get('role', 'user')
+
+        # NOUVEAU : on charge aussi la limite de générations achetée (25/100/600)
+        # et la date d'expiration de l'abonnement premium, pour pouvoir
+        # vérifier si l'utilisateur a encore droit à des générations premium.
+        self.generations_limit = user_data.get('generations_limit', 0)
+        self.subscription_expires_at = user_data.get('subscription_expires_at')
+        self.last_reset_date = user_data.get('last_reset_date')  # NOUVEAU : pour le reset hebdo gratuit
+
+    def is_premium_active(self):
+        """
+        Retourne True si l'utilisateur a un abonnement premium ENCORE VALIDE
+        (plan_type différent de 'free' ET date d'expiration pas encore dépassée).
+        Retourne False si l'utilisateur est gratuit, ou si son abonnement a expiré.
+        """
+        if self.plan_type == 'free' or not self.subscription_expires_at:
+            return False
+        try:
+            # subscription_expires_at est stocké au format ISO (ex: "2026-08-30T12:00:00")
+            expires = datetime.fromisoformat(str(self.subscription_expires_at).replace('Z', '+00:00'))
+            now = datetime.now(expires.tzinfo) if expires.tzinfo else datetime.now()
+            return now < expires
+        except Exception:
+            # Si jamais la date est mal formée, on considère l'abonnement comme expiré par sécurité
+            return False
 
 
 
@@ -118,16 +159,22 @@ CONVERSATION_FLOW = {
     'lecon_ask_classe': {'question_fr': "Veuillez choisir une classe :", 'question_en': "Please choose a class:", 'get_options': lambda l,d: CLASSES[l].get(d.get('subsystem'),[]), 'get_next_step': lambda m: 'lecon_ask_matiere'},
     'lecon_ask_matiere': {'question_fr': "Choisissez une matière :", 'question_en': "Choose a subject:", 'get_options': lambda l,d: MATIERES[l].get(d.get('subsystem'),[]), 'get_next_step': lambda m: 'lecon_ask_module'},
     'lecon_ask_module': {'question_fr': "Quel est le titre du module ?", 'question_en': "What is the module title?", 'get_options': lambda l,d: [], 'get_next_step': lambda m: 'lecon_ask_lecon', 'is_text_input': True},
-    'lecon_ask_lecon': {'question_fr': "Quel est le titre de la leçon ?", 'question_en': "What is the title of the lesson?", 'get_options': lambda l,d: [], 'get_next_step': lambda m: 'lecon_ask_syllabus_method', 'is_text_input': True},
-    'lecon_ask_syllabus_method': {'question_fr': "Comment obtenir les informations du syllabus ?", 'question_en': "How to get syllabus info?", 'get_options': lambda l,d: ["🤖 Recherche Automatique (RAG)", "✍️ Fournir Manuellement"] if l=='fr' else ["🤖 Automatic Search (RAG)", "✍️ Provide Manually"], 'get_next_step': lambda m: 'lecon_get_manual_syllabus' if 'Manu' in m else 'lecon_ask_langue_contenu'},
-    'lecon_get_manual_syllabus': {'question_fr': "D'accord, veuillez coller l'extrait du syllabus.", 'question_en': "Okay, please paste the syllabus extract.", 'get_options': lambda l,d: [], 'get_next_step': lambda m: 'lecon_ask_langue_contenu', 'is_text_input': True},
+    'lecon_ask_lecon': {'question_fr': "Quel est le titre de la leçon ? (si vous avez le programme officiel sous la main, c'est généralement la colonne 'Catégories d'actions')", 'question_en': "What is the title of the lesson? (if you have the official curriculum handy, this is usually the 'Categories of Actions' column)", 'get_options': lambda l,d: [], 'get_next_step': lambda m: 'lecon_ask_syllabus_method', 'is_text_input': True},
+    'lecon_ask_syllabus_method': {'question_fr': "Comment obtenir les informations du syllabus ?", 'question_en': "How to get syllabus info?", 'get_options': lambda l,d: ["🤖 Recherche Automatique (RAG)", "✍️ Fournir Manuellement"] if l=='fr' else ["🤖 Automatic Search (RAG)", "✍️ Provide Manually"], 'get_next_step': lambda m: 'lecon_get_manual_syllabus' if 'Manu' in m else ('lecon_rag_search' if not ('Manu' in m) else 'lecon_ask_langue_contenu')},
+
+    # NOUVELLE étape : c'est ici que la recherche RAG est réellement effectuée,
+    # juste après le choix "Recherche Automatique". Elle ne pose aucune question
+    # à l'utilisateur : elle exécute la recherche silencieusement, remplit
+    # collected_data['syllabus'], puis enchaîne directement.
+    'lecon_rag_search': {'question_fr': None, 'question_en': None, 'get_options': lambda l,d: [], 'get_next_step': lambda m: 'lecon_ask_langue_contenu', 'is_rag_step': True},
+    'lecon_get_manual_syllabus': {'question_fr': "D'accord. Listez les différents objectifs de votre leçon, séparés par des virgules (si vous avez le programme officiel sous la main, c'est généralement la colonne 'Exemples d'actions').", 'question_en': "Alright. List the different objectives of your lesson, separated by commas (if you have the official curriculum handy, this is usually the 'Examples of Actions' column).", 'get_options': lambda l,d: [], 'get_next_step': lambda m: 'lecon_ask_langue_contenu', 'is_text_input': True},
     'lecon_ask_langue_contenu': {'question_fr': "En quelle langue le contenu doit-il être rédigé ?", 'question_en': "In which language should the content be written?", 'get_options': lambda l,d: LANGUES_CONTENU_SIMPLIFIE if l=='en' else LANGUES_CONTENU_COMPLET, 'get_next_step': lambda m: 'pending_generation'},
    # --- FLUX ACTIVITE D'INTEGRATION ---
     'int_ask_subsystem': {'question_fr': "Veuillez sélectionner le sous-système :", 'question_en': "Please select the subsystem:", 'get_options': lambda l,d: SUBSYSTEME_FR if l == 'fr' else SUBSYSTEME_EN, 'get_next_step': lambda m: 'int_ask_classe'},
     'int_ask_classe': {'question_fr': "Veuillez choisir une classe :", 'question_en': "Please choose a class:", 'get_options': lambda l,d: CLASSES[l].get(d.get('subsystem'), []), 'get_next_step': lambda m: 'int_ask_matiere'},
     'int_ask_matiere': {'question_fr': "Choisissez une matière :", 'question_en': "Choose a subject:", 'get_options': lambda l,d: MATIERES[l].get(d.get('subsystem'), []), 'get_next_step': lambda m: 'int_ask_lecons'},
-    'int_ask_lecons': {'question_fr': "Veuillez lister les leçons ou thèmes à intégrer.", 'question_en': "Please list the lessons or themes to integrate.", 'get_options': lambda l,d: [], 'get_next_step': lambda m: 'int_ask_objectifs', 'is_text_input': True},
-    'int_ask_objectifs': {'question_fr': "Quels sont les objectifs ou concepts clés à évaluer ?", 'question_en': "What are the key objectives or concepts to assess?", 'get_options': lambda l,d: [], 'get_next_step': lambda m: 'int_ask_langue_contenu', 'is_text_input': True},
+    'int_ask_lecons': {'question_fr': "Veuillez lister les leçons ou thèmes à intégrer (ex: Les fractions, La conjugaison des verbes).", 'question_en': "Please list the lessons or themes to integrate (e.g. Fractions, Verb conjugation).", 'get_options': lambda l,d: [], 'get_next_step': lambda m: 'int_ask_objectifs', 'is_text_input': True},    
+    'int_ask_objectifs': {'question_fr': "Quels sont les objectifs ou concepts clés à évaluer ? (ex: Résoudre une équation à une inconnue)", 'question_en': "What are the key objectives or concepts to assess? (e.g. Solve a one-variable equation)", 'get_options': lambda l,d: [], 'get_next_step': lambda m: 'int_ask_langue_contenu', 'is_text_input': True},
     'int_ask_langue_contenu': {'question_fr': "En quelle langue l'activité doit-elle être rédigée ?", 'question_en': "In which language should the activity be written?", 'get_options': lambda l,d: LANGUES_CONTENU_SIMPLIFIE if l == 'en' else LANGUES_CONTENU_COMPLET, 'get_next_step': lambda m: 'pending_generation'},
     # --- FLUX  EVALUATION ---
     'eval_ask_subsystem': {'question_fr': "Veuillez sélectionner le sous-système :", 'question_en': "Please select the subsystem:", 'get_options': lambda l,d: SUBSYSTEME_FR if l == 'fr' else SUBSYSTEME_EN, 'get_next_step': lambda m: 'eval_ask_classe'},
@@ -135,8 +182,11 @@ CONVERSATION_FLOW = {
     'eval_ask_matiere': {'question_fr': "Choisissez une matière :", 'question_en': "Choose a subject:", 'get_options': lambda l,d: MATIERES[l].get(d.get('subsystem'), []), 'get_next_step': lambda m: 'eval_ask_module'},
     'eval_ask_module': { 'question_fr': "Quel est le titre du module ?", 'question_en': "What is the module title?", 'get_options': lambda l,d: [], 'get_next_step': lambda m: 'eval_ask_lecons', 'is_text_input': True },
     'eval_ask_lecons': {'question_fr': "Sur quelles leçons portera l'évaluation ?", 'question_en': "Which lessons will the assessment cover?", 'get_options': lambda l,d: [], 'get_next_step': lambda m: 'eval_ask_syllabus_method', 'is_text_input': True},
-    'eval_ask_syllabus_method': {'question_fr': "Comment obtenir les informations du programme ?", 'question_en': "How to get curriculum info?", 'get_options': lambda l,d: ["🤖 Recherche Automatique (RAG)", "✍️ Fournir Manuellement"] if l == 'fr' else ["🤖 Automatic Search (RAG)", "✍️ Provide Manually"], 'get_next_step': lambda msg: 'eval_get_manual_syllabus' if 'Manu' in msg else 'eval_ask_duree_coeff'},
-    'eval_get_manual_syllabus': {'question_fr': "D'accord. Veuillez copier-coller l'extrait du syllabus.", 'question_en': "Alright. Please copy and paste the syllabus extract.", 'get_options': lambda l,d: [], 'get_next_step': lambda m: 'eval_ask_duree_coeff', 'is_text_input': True},
+    'eval_ask_syllabus_method': {'question_fr': "Comment obtenir les informations du programme ?", 'question_en': "How to get curriculum info?", 'get_options': lambda l,d: ["🤖 Recherche Automatique (RAG)", "✍️ Fournir Manuellement"] if l == 'fr' else ["🤖 Automatic Search (RAG)", "✍️ Provide Manually"], 'get_next_step': lambda msg: 'eval_get_manual_syllabus' if 'Manu' in msg else 'eval_rag_search'},
+
+    # NOUVELLE étape silencieuse, même principe que lecon_rag_search
+    'eval_rag_search': {'question_fr': None, 'question_en': None, 'get_options': lambda l,d: [], 'get_next_step': lambda m: 'eval_ask_duree_coeff', 'is_rag_step': True},    
+    'eval_get_manual_syllabus': {'question_fr': "D'accord. Listez les différents objectifs couverts par cette évaluation, séparés par des virgules.", 'question_en': "Alright. List the different objectives covered by this assessment, separated by commas.", 'get_options': lambda l,d: [], 'get_next_step': lambda m: 'eval_ask_duree_coeff', 'is_text_input': True},
     'eval_ask_duree_coeff': {'question_fr': "Quelle est la durée (ex: 1h30) et le coefficient (ex: 2) ?", 'question_en': "What is the duration (e.g., 1h 30min) and coefficient (e.g., 2)?", 'get_options': lambda l,d: [], 'get_next_step': lambda m: 'eval_ask_type', 'is_text_input': True},
     'eval_ask_type': {'question_fr': "Quel type d'épreuve souhaitez-vous ?", 'question_en': "Which type of test would you like?", 'get_options': lambda l,d: ["Ressources + Compétences", "QCM Uniquement"] if l == 'fr' else ["Resources + Competencies", "MCQ Only"], 'get_next_step': lambda m: 'eval_ask_langue_contenu'},
     'eval_ask_langue_contenu': {'question_fr': "En quelle langue l'épreuve doit-elle être rédigée ?", 'question_en': "In which language should the assessment be written?", 'get_options': lambda l,d: LANGUES_CONTENU_SIMPLIFIE if l == 'en' else LANGUES_CONTENU_COMPLET, 'get_next_step': lambda m: 'pending_generation'},
@@ -145,8 +195,8 @@ CONVERSATION_FLOW = {
     'digital_ask_classe': {'question_fr': "Veuillez choisir une classe :", 'question_en': "Please choose a class:", 'get_options': lambda l,d: CLASSES[l].get(d.get('subsystem'),[]), 'get_next_step': lambda m: 'digital_ask_matiere'},
     'digital_ask_matiere': {'question_fr': "Choisissez une matière :", 'question_en': "Choose a subject:", 'get_options': lambda l,d: MATIERES[l].get(d.get('subsystem'),[]), 'get_next_step': lambda m: 'digital_ask_module'},
     'digital_ask_module': {'question_fr': "Quel est le titre du module ?", 'question_en': "What is the module title?", 'get_options': lambda l,d: [], 'get_next_step': lambda m: 'digital_ask_lecon', 'is_text_input': True},
-    'digital_ask_lecon': {'question_fr': "Quel est le titre de la leçon à digitaliser ?", 'question_en': "What is the title of the lesson to digitalise?", 'get_options': lambda l,d: [], 'get_next_step': lambda m: 'pending_generation', 'is_text_input': True}
-}
+    'digital_ask_lecon': {'question_fr': "Quel est le titre de la leçon à digitaliser ? (si vous avez le programme officiel sous la main, c'est généralement la colonne 'Catégories d'actions')", 'question_en': "What is the title of the lesson to digitalise? (if you have the official curriculum handy, this is usually the 'Categories of Actions' column)", 'get_options': lambda l,d: [], 'get_next_step': lambda m: 'pending_generation', 'is_text_input': True}
+    }
 
     
 
@@ -201,7 +251,7 @@ def handle_chat():
     step_history = state.get('step_history', [])
 
     # --- PHASE 1 : GESTION DES ACTIONS SPÉCIALES (PRIORITAIRES) ---
-    if user_message in [REGENERATE_OPTION_FR, REGENERATE_OPTION_EN]:
+    if user_message in [REGENERATE_OPTION_FR, REGENERATE_OPTION_EN, "Réessayer", "Try again"]:
         current_step = 'generation_step'
     elif user_message == "internal_pdf_generation_failed":
         response_text = "Désolé, la conversion en PDF a échoué. Vous pouvez essayer de régénérer le contenu." if lang == 'fr' else "Sorry, the PDF conversion failed. You can try regenerating the content."
@@ -229,7 +279,10 @@ def handle_chat():
             lang = 'fr' if 'Français' in user_message else 'en'
             current_step = 'select_option'
             collected_data = {}
-            step_history = []
+            # NOUVEAU : on garde 'start' dans l'historique pour permettre de
+            # revenir au choix de langue via le bouton "Retour", au lieu de
+            # vider complètement l'historique ici.
+            step_history = ['start']
         else:
             step_definition = CONVERSATION_FLOW.get(current_step)
             if not step_definition:
@@ -265,20 +318,64 @@ def handle_chat():
                 step_history.append(current_step)
                 current_step = next_step
 
+       # --- PHASE 2.5 : ÉTAPES SILENCIEUSES DE RECHERCHE RAG ---
+    # Ces étapes n'affichent aucune question à l'utilisateur : elles exécutent
+    # la recherche dans les programmes MINESEC indexés, remplissent
+    # collected_data, puis avancent directement à l'étape suivante normale.
+    if current_step in ('lecon_rag_search', 'eval_rag_search'):
+        classe = collected_data.get('classe')
+        matiere = collected_data.get('matiere')
+        module = collected_data.get('module', '')
+        lecon = collected_data.get('lecon') or collected_data.get('liste_lecons', '')
+
+        contexte = rechercher_syllabus(classe, matiere, module, lecon)
+
+        if current_step == 'lecon_rag_search':
+            if contexte:
+                collected_data['syllabus'] = contexte
+            # Si rien de pertinent n'est trouvé, on ne met rien : generate_lesson_logic()
+            # utilisera son défaut "N/A" pour syllabus, comme avant.
+            current_step = 'lecon_ask_langue_contenu'
+        else:  # eval_rag_search
+            collected_data['contexte_syllabus'] = contexte if contexte else "Non fourni."
+            current_step = 'eval_ask_duree_coeff'
+
     # --- PHASE 3 : LE BLOC DE GÉNÉRATION (SI NÉCESSAIRE) ---
     if current_step == 'pending_generation':
         current_step = 'generation_step'
 
     if current_step == 'generation_step':
         is_admin = hasattr(current_user, 'role') and current_user.role == 'admin'
-        if current_user.plan_type == 'free':
-            GENERATION_LIMIT = 5 
-            if current_user.generation_count >= GENERATION_LIMIT:
-                return jsonify({
-                'response': "Vous avez atteint votre limite de générations gratuites.",
-                'options': ["Passer au plan Premium"],
-                'state': state
-            }), 403
+
+        # NOUVEAU : on distingue maintenant 3 cas au lieu de 2 :
+        # - admin : toujours illimité
+        # - premium actif (abonnement payé ET pas encore expiré) : limité par
+        #   generations_limit (25, 100 ou 600 selon le forfait acheté)
+        # - gratuit OU abonnement premium expiré : limité à 5 générations
+        if not is_admin:
+            # NOUVEAU : pour les utilisateurs gratuits, on vérifie si 7 jours se
+            # sont écoulés depuis la dernière réinitialisation. Si oui, le
+            # compteur repart à 0 — ça honore la promesse "5 générations
+            # gratuites chaque semaine" affichée sur la landing page, qui
+            # n'était pas encore réellement appliquée dans le code.
+            if not current_user.is_premium_active():
+                reinitialiser_quota_gratuit_si_necessaire(current_user)
+
+            if current_user.is_premium_active():
+                if current_user.generation_count >= current_user.generations_limit:
+                    return jsonify({
+                        'response': "Vous avez atteint la limite de générations de votre forfait actuel.",
+                        'options': ["Passer à un forfait supérieur"],
+                        'state': state
+                    }), 403
+            else:
+                GENERATION_LIMIT = 5
+                if current_user.generation_count >= GENERATION_LIMIT:
+                    return jsonify({
+                        'response': "Vous avez atteint votre limite de générations gratuites.",
+                        'options': ["Passer au plan Premium"],
+                        'state': state
+                    }), 403
 
         flow_type = collected_data.get('flow_type')
         try:
@@ -293,19 +390,19 @@ def handle_chat():
 
             if flow_type == 'lecon':
                 generated_text, _ = generate_lesson_logic(**lesson_args)
-                if not is_admin and current_user.plan_type == 'free':
+                if not is_admin :
                     new_count = current_user.generation_count + 1
                     supabase.table('users').update({'generation_count': new_count}).eq('id', current_user.id).execute()
                 increment_stat('lessons_generated')
             elif flow_type == 'digital':
                 generated_text, _ = generate_digital_lesson_logic(**digital_args)
-                if not is_admin and current_user.plan_type == 'free':
+                if not is_admin :
                     new_count = current_user.generation_count + 1
                     supabase.table('users').update({'generation_count': new_count}).eq('id', current_user.id).execute()
                 increment_stat('digital_lessons_generated')
             elif flow_type == 'integration':
                  generated_text, _ = generate_integration_logic(**integration_args)
-                 if not is_admin and current_user.plan_type == 'free':
+                 if not is_admin :
                     new_count = current_user.generation_count + 1
                     supabase.table('users').update({'generation_count': new_count}).eq('id', current_user.id).execute()
                  increment_stat('integrations_generated')
@@ -317,7 +414,7 @@ def handle_chat():
                 evaluation_args['contexte_syllabus'] = collected_data['contexte_syllabus']
                 args_to_send = {k: v for k, v in collected_data.items() if k in evaluation_args}
                 generated_text, _ = generate_evaluation_logic(**args_to_send)
-                if not is_admin and current_user.plan_type == 'free':
+                if not is_admin :
                     new_count = current_user.generation_count + 1
                     supabase.table('users').update({'generation_count': new_count}).eq('id', current_user.id).execute()
                 increment_stat('evaluations_generated')
@@ -347,13 +444,35 @@ def handle_chat():
                 'content': generated_text
             }).execute()
             
+        except GenerationError as e:
+            # NOUVEAU : erreur IA catégorisée (quota, clé invalide, timeout...), message déjà clair
+            logging.error(f"ERREUR DE GÉNÉRATION CATÉGORISÉE (flow: {flow_type}): {e}")
+            response_text = e.message_fr if lang == 'fr' else e.message_en
+            options = ["Réessayer", "Recommencer"] if lang == 'fr' else ["Try again", "Restart"]
+            # On ne vide pas collected_data ici : "Réessayer" doit pouvoir relancer la même génération
+            state.update({'currentStep': 'generation_step', 'collectedData': collected_data, 'step_history': step_history, 'lang': lang})
         except Exception as e:
-            logging.error(f"ERREUR LORS DE LA GÉNÉRATION (flow: {flow_type}): {e}")
-            response_text = "Désolé, une erreur est survenue." if lang == 'fr' else "Sorry, an error occurred."
+            logging.error(f"ERREUR INATTENDUE LORS DE LA GÉNÉRATION (flow: {flow_type}): {e}")
+            response_text = "Désolé, une erreur inattendue est survenue. Contactez le support si ça persiste." if lang == 'fr' else "Sorry, an unexpected error occurred. Contact support if this persists."
             options = ["Recommencer"] if lang == 'fr' else ["Restart"]
             state = {'lang': lang, 'currentStep': 'select_option', 'collectedData': {}, 'step_history': []}
         
         return jsonify({'response': response_text, 'options': options, 'state': state})
+
+    # NOUVEAU : cas particulier pour le retour au choix de langue, qui n'est
+    # pas une étape de CONVERSATION_FLOW (elle est gérée par le HTML statique
+    # au premier chargement, donc on la recrée ici manuellement).
+    if current_step == 'start':
+        # NOUVEAU : on envoie une LISTE de messages séparés (response_multi)
+        # plutôt qu'un seul texte, pour reproduire les 4 bulles distinctes
+        # de l'affichage statique d'origine, plutôt qu'un seul paragraphe.
+        messages_accueil = [
+            "Please choose your language.",
+            "Veuillez choisir votre langue."
+        ]
+        options = ['🇬🇧 English', '🇫🇷 Français']
+        state.update({'currentStep': 'start', 'collectedData': {}, 'step_history': [], 'lang': lang})
+        return jsonify({'response_multi': messages_accueil, 'options': options, 'state': state})
 
     # --- PHASE 4 : AFFICHAGE DE LA QUESTION POUR L'ÉTAPE EN COURS ---
     step_definition = CONVERSATION_FLOW.get(current_step)
@@ -613,6 +732,17 @@ def get_stats():
 
 @app.route('/login')
 def login():
+    # NOUVEAU : si l'utilisateur arrive ici avec un plan déjà choisi
+    # (ex: /login?plan=weekly), on le récupère dans l'URL.
+    plan = request.args.get('plan')
+
+    # On le stocke dans la session Flask (cookie côté serveur, propre à cet utilisateur)
+    # pour pouvoir le retrouver plus tard, une fois que Google nous aura renvoyé
+    # l'utilisateur sur /auth/callback. Sans ça, l'info serait perdue pendant
+    # tout l'aller-retour vers Google.
+    if plan:
+        session['pending_plan'] = plan
+
     redirect_uri = url_for('authorize', _external=True)
     return google.authorize_redirect(redirect_uri)
 
@@ -670,7 +800,23 @@ def authorize():
             
         user = User(user_data)
         login_user(user)
-        
+
+        # NOUVEAU : on regarde si un plan était en attente (mémorisé dans /login).
+        # session.pop() récupère la valeur ET la supprime en même temps de la
+        # session, pour ne pas la réutiliser par erreur lors d'une prochaine
+        # connexion.
+        pending_plan = session.pop('pending_plan', None)
+
+        if pending_plan:
+            # L'utilisateur avait choisi un forfait avant de se connecter :
+            # on le renvoie vers la landing page avec ce plan pré-sélectionné
+            # (?plan=...) et l'instruction d'ouvrir directement le modal de
+            # paiement (&open_payment=1). C'est le JS de landing.html qui lira
+            # ces paramètres au chargement de la page (voir plus bas).
+            return redirect(url_for('index', plan=pending_plan, open_payment=1))
+
+        # Cas normal (connexion classique, sans intention d'achat) :
+        # on garde le comportement d'origine, direction le chat.
         return redirect(url_for('chat_page'))
 
     except Exception as e:
@@ -690,6 +836,14 @@ def logout():
     logout_user()
     return redirect(url_for('index'))
 
+# =======================================================================
+# ROUTES CHECK AUTHOR
+# =======================================================================
+@app.route('/api/auth/check')
+def check_auth():
+    if 'user_id' in session:
+        return jsonify({'authenticated': True})
+    return jsonify({'authenticated': False})
 
 # =======================================================================
 # ROUTE POUR METTRE À JOUR UNE GÉNÉRATION
@@ -756,8 +910,86 @@ def about_page():
 
 @app.route('/donate')
 def donate_page():
-    """Rend la page 'Soutenir'."""
-    return render_template('donate.html', user=current_user)
+    """Ancienne page de don, remplacée par les forfaits. On redirige vers l'accueil."""
+    return redirect(url_for('index'))
+
+@app.route('/api/payment/initiate', methods=['POST'])
+def initiate_payment():
+    """Déclenche la demande de paiement MoMo / OM."""
+    # Correction : On vérifie avec Flask-Login (current_user)
+    if not current_user.is_authenticated:
+        return jsonify({"success": False, "message": "Veuillez vous connecter."}), 401
+    
+    data = request.get_json() or {}
+    plan_type = data.get("plan_type") # 'weekly', 'monthly', 'annual'
+    phone = data.get("phone") # ex: "694064655"
+
+    if plan_type not in PLANS_CONFIG:
+        return jsonify({"success": False, "message": "Plan d'abonnement invalide."}), 400
+    
+    if not phone or len(str(phone).strip()) < 9:
+        return jsonify({"success": False, "message": "Numéro de téléphone invalide."}), 400
+
+    # On récupère l'email directement depuis current_user
+    user_email = current_user.email
+    plan = PLANS_CONFIG[plan_type]
+
+    # Appel de CamPay vers le numéro Orange Money / MTN
+    result = collect_payment(
+        phone_number=phone,
+        amount=plan["price"],
+        description=f"Abonnement {plan['name']} - TCHATCHI AI",
+        external_reference=user_email
+    )
+
+    if result.get("success"):
+        ref = result.get("reference")
+        # Enregistrer la transaction en BD
+        record_transaction(user_email, ref, plan["price"], plan_type, phone)
+        return jsonify({
+            "success": True,
+            "reference": ref,
+            "message": "Veuillez valider le paiement sur votre téléphone (tapez votre code PIN)."
+        })
+    else:
+        # NOUVEAU : le message est déjà traduit en clair par traduire_erreur_campay()
+        # dans campay_service.py — on le transmet tel quel au frontend.
+        return jsonify({"success": False, "message": result.get("message", "Le paiement n'a pas pu être initié. Réessayez.")}), 400
+
+# Ajout des routes de paiement 
+@app.route('/api/payment/check-status/<reference>', methods=['GET'])
+def check_status(reference):
+    """Vérifie si le paiement a été validé par l'utilisateur."""
+    status = check_transaction_status(reference)
+    if status == "SUCCESSFUL":
+        # NOUVEAU : on vérifie maintenant le résultat réel de l'activation.
+        # Avant, on renvoyait toujours "succès" même si l'écriture en base
+        # échouait en interne (ex: colonne manquante) — ce qui a causé la
+        # confusion qu'on vient de déboguer.
+        activated = activate_subscription(reference)
+        if activated:
+            return jsonify({"status": "SUCCESSFUL", "message": "Paiement réussi ! Votre abonnement est activé."})
+        else:
+            # Le paiement est bien confirmé par CamPay, mais l'activation en
+            # base a échoué : on le signale clairement au lieu de mentir.
+            return jsonify({"status": "ERROR", "message": "Paiement confirmé mais erreur lors de l'activation. Contactez le support."}), 500
+    elif status == "FAILED":
+        return jsonify({"status": "FAILED", "message": "Le paiement a échoué ou a été annulé."})
+    return jsonify({"status": "PENDING", "message": "En attente de validation..."})
+
+
+@app.route('/api/payment/webhook', methods=['POST'])
+def campay_webhook():
+    """Webhook appelé instantanément par CamPay lors de la confirmation."""
+    data = request.get_json() or {}
+    reference = data.get("reference")
+    status = data.get("status")
+
+    if reference and status == "SUCCESSFUL":
+        activate_subscription(reference)
+        return jsonify({"status": "processed"}), 200
+
+    return jsonify({"status": "ignored"}), 200
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

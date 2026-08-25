@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-        <!-- Viewport optimisé pour mobile -->
+    <!-- Viewport optimisé pour mobile -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 
     <!-- Icônes pour iOS -->
@@ -12,159 +12,231 @@
     <!-- Theme color -->
     <meta name="theme-color" content="#0b57d0">
     <meta name="msapplication-TileColor" content="#0b57d0">
-    <!-- ... (toute la partie <head> et <style> reste inchangée) ... -->
+    
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>TCHATCHI AI Pedagogical Assistant</title>
     <link rel="icon" type="image/png" href="/static/img/favicon.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-PVE22CBKK7"></script>
 
     <!-- Ajoutez ces lignes après les autres CDN -->
     <script src="https://unpkg.com/easymde/dist/easymde.min.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/easymde/dist/easymde.min.css">
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
     <!-- MathJax pour les formules mathématiques -->
+     <!--
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-
+    -->
     <!-- ChemDoodle pour la chimie -->
+     <!--
     <script src="https://web.chemdoodle.com/install/chemdoodle.min.js"></script>
     <link rel="stylesheet" href="https://web.chemdoodle.com/install/chemdoodle.min.css">
-
+    -->
     <!-- Chart.js pour les graphiques -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <!-- Geogebra pour les mathématiques -->
     <script src="https://www.geogebra.org/apps/deployggb.js"></script>
 
-
-    <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-
-    gtag('config', 'G-PVE22CBKK7');
-    </script>
     <style>
         :root {
             --sidebar-bg: #f8f9fa; --chat-background: #ffffff; --main-bg: #f8f9fa; --input-bg: #f8f9fa;
             --user-bubble-bg: #e7f1ff; --user-bubble-text: #001d35; --ai-bubble-bg: #f1f3f4;
             --ai-bubble-text: #202124; --text-color-primary: #1f1f1f; --text-color-secondary: #444746;
-            --border-color: #dee2e6;
+            --border-color: #dee2e6; --primary-color: #0b57d0;
         }
+        
         html, body { 
             height: 100%; 
-            max-height: 100%; /* Empêche le body de dépasser la taille de l'écran */
-            overflow: hidden; /* Pas de scroll sur la page principale */
+            margin: 0;
+            padding: 0;
             font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; 
-            max-width: 100%;
-            overflow-x: hidden;
         }
 
         body { 
             display: flex; 
-            background-color: var(--main-bg); 
-        }
-        
-        #sidebar { width: 280px; background-color: var(--sidebar-bg); padding: 1rem; display: flex; flex-direction: column; border-right: 1px solid var(--border-color); }
-        #sidebar .btn-new-chat { background-color: #d3e3fd; color: #0b57d0; border: none; font-weight: 500;}
-        #sidebar h5 { color: var(--text-color-secondary); margin-top: 1.5rem; font-size: 0.9rem; text-transform: uppercase; font-weight: 600; }
-        #sidebar .history-list { flex-grow: 1; overflow-y: auto; }
-        #sidebar .history-item { color: var(--text-color-secondary); text-decoration: none; padding: 0.5rem; display: block; border-radius: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        #sidebar .history-item:hover { background-color: #e0e6ef; }
-        #sidebar .ia-disclaimer { font-size: 0.75rem; color: var(--text-color-secondary); margin-top: 1rem; border-top: 1px solid #ddd; padding-top: 1rem; }
-
-        #main-container { 
-            flex-grow: 1; 
-            display: flex; 
-            flex-direction: column; 
-            height: 100vh; /* Utilise la hauteur complète de la fenêtre */
-            max-height: 100vh; /* Empêche le conteneur de grandir au-delà */
-            max-width: 100vw; 
+            background-color: var(--main-bg);
             overflow: hidden;
         }
-        /* --- 1. L'en-tête principal --- */
-                #main-header {
+
+        /* ======================================================================= */
+        /* STRUCTURE PRINCIPALE RESPONSIVE */
+        /* ======================================================================= */
+        
+        .main-wrapper {
             display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1rem;
-            border-bottom: 1px solid var(--border-color);
-            background-color: var(--main-bg);
-            position: sticky;
+            flex: 1;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar améliorée pour mobile */
+        #sidebar {
+            width: 280px;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            position: fixed;
+            left: 0;
             top: 0;
-            z-index: 100;
-            flex-wrap: nowrap;
-            /* NOUVELLE TRANSITION, PLUS PERFORMANTE */
+            z-index: 1000;
+            transform: translateX(-100%);
             transition: transform 0.3s ease-in-out;
         }
 
-                #main-header.header-hidden {
-            /* Au lieu de changer la hauteur, on déplace la barre vers le haut */
-            transform: translateY(-100%);
-            /* En passant la position à 'absolute', on retire l'en-tête du flux
-               de la page. La zone de chat en dessous va alors automatiquement
-               monter et occuper l'espace libéré, créant l'effet plein écran. */
-            position: absolute;
+        #sidebar.show {
+            transform: translateX(0);
         }
 
-       /* --- 2. Le conteneur du logo et du titre --- */
+        .sidebar-content {
+            padding: 1rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            display: none;
+        }
+
+        .sidebar-overlay.show {
+            display: block;
+        }
+
+        /* Header principal amélioré */
+        #main-header {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            background-color: var(--main-bg);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            min-height: 60px;
+        }
+
         .app-title-container {
             display: flex;
             align-items: center;
             gap: 0.75rem;
-            flex: 1; /* Permet au conteneur de grandir/rétrécir */
-            min-width: 0; /* Astuce cruciale pour permettre au texte de se réduire */
+            flex: 1;
         }
 
-        /* --- 3. Le titre de l'application (pour éviter qu'il ne déborde) --- */
+        .app-icon {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+        }
+
         .app-title {
             font-size: 1.1rem;
             font-weight: 500;
             color: var(--text-color-primary);
-            /* Empêche le titre de déborder et de pousser le menu */
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            line-height: 1.2;
         }
 
-        #main-header .app-icon { font-size: 1.5rem; color: #0b57d0; }
-        #main-header .app-title { font-size: 1.1rem; font-weight: 500; color: var(--text-color-primary); }
-/* NOUVELLE VERSION CORRIGÉE */
-#chat-container {
-    flex-grow: 1; /* Prend l'espace vertical disponible */
-    display: flex;
-    flex-direction: column;
-    background-color: var(--chat-background);
-    /* TRÈS IMPORTANT : On retire la hauteur fixe et on laisse flexbox gérer */
-    overflow-y: hidden; /* Le conteneur ne scroll pas, c'est son enfant qui le fera */
-    position: relative; /* Nécessaire pour que le scroll interne fonctionne bien */
-}
+        /* Menu burger amélioré */
+        #menu-toggle {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            margin-right: 0.5rem;
+        }
 
-#chat-messages {
-    flex-grow: 1; /* Prend l'espace disponible à l'intérieur de #chat-container */
-    padding: 1rem;
-    overflow-y: auto; /* C'est LUI qui scroll, et personne d'autre */
-    -webkit-overflow-scrolling: touch; /* Améliore le scroll sur iOS */
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
+        #menu-toggle i {
+            font-size: 1.25rem;
+            color: var(--text-color-primary);
+        }
+
+        /* Zone de chat principale */
+        #main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            margin-left: 0;
+            transition: margin-left 0.3s ease-in-out;
+        }
+
+            /* NOUVELLE VERSION CORRIGÉE */
+        #chat-container {
+            flex-grow: 1; /* Prend l'espace vertical disponible */
+            display: flex;
+            flex-direction: column;
+            background-color: var(--chat-background);
+            /* TRÈS IMPORTANT : On retire la hauteur fixe et on laisse flexbox gérer */
+            overflow-y: hidden; /* Le conteneur ne scroll pas, c'est son enfant qui le fera */
+            position: relative; /* Nécessaire pour que le scroll interne fonctionne bien */
+        }
+
+        #chat-messages {
+            flex-grow: 1; /* Prend l'espace disponible à l'intérieur de #chat-container */
+            padding: 1rem;
+            overflow-y: auto; /* C'est LUI qui scroll, et personne d'autre */
+            -webkit-overflow-scrolling: touch; /* Améliore le scroll sur iOS */
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        /* Messages */
         .message { display: flex; margin-bottom: 0.5rem; }
-        .message .content { padding: 0.5rem 1rem; border-radius: 8px; max-width: 80%; width: fit-content; line-height: 1.5; position: relative; box-shadow: 0 1px 1px rgba(0,0,0,0.05); }
+        .message .content { 
+            padding: 0.75rem 1rem; 
+            border-radius: 12px; 
+            max-width: 85%; 
+            line-height: 1.5; 
+            position: relative;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            word-wrap: break-word;
+        }
         .message.ai { justify-content: flex-start; }
-        .message.ai .content { background-color: var(--ai-bubble-bg); color: var(--ai-bubble-text); border-radius: 0 8px 8px 8px; }
-        .message.ai .content::before { content: ''; position: absolute; top: 0; left: -10px; width: 0; height: 0; border-style: solid; border-width: 0 10px 10px 0; border-color: transparent var(--ai-bubble-bg) transparent transparent; }
+        .message.ai .content { 
+            background-color: var(--ai-bubble-bg); 
+            color: var(--ai-bubble-text);
+            border-radius: 0 12px 12px 12px;
+        }
         .message.user { justify-content: flex-end; }
-        .message.user .content { background-color: var(--user-bubble-bg); color: var(--user-bubble-text); border-radius: 8px 0 8px 8px; }
-        .message.user .content::after { content: ''; position: absolute; top: 0; right: -10px; width: 0; height: 0; border-style: solid; border-width: 0 0 10px 10px; border-color: transparent transparent transparent var(--user-bubble-bg); }
-        #chat-input-area { padding: 1rem 1.5rem; background-color: var(--main-bg); border-top: 1px solid var(--border-color); position: sticky; bottom: 0; /* Add safe area for mobile notches */padding-bottom: calc(1rem + env(safe-area-inset-bottom)); z-index: 20;}
-        #chat-input-area-content { max-width: 800px; margin: 0 auto; width: 100%; }
-        /* NOUVEAU BLOC CORRIGÉ */
+        .message.user .content { 
+            background-color: var(--user-bubble-bg); 
+            color: var(--user-bubble-text);
+            border-radius: 12px 0 12px 12px;
+        }
+
+        /* Zone d'input */
+        #chat-input-area {
+            padding: 1rem;
+            background-color: var(--main-bg);
+            border-top: 1px solid var(--border-color);
+            position: sticky;
+            bottom: 0;
+            padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+        }
+
+        #chat-input-area-content {
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+        }
 
         #options-container {
             padding: 0 0 1rem 0;
@@ -172,497 +244,499 @@
             gap: 0.5rem;
             flex-wrap: wrap;
             justify-content: center;
-            /* --- AJOUTS IMPORTANTS --- */
-            max-height: 250px; /* On limite la hauteur à 250px (environ 4-5 lignes de boutons) */
-            overflow-y: auto;  /* Affiche une barre de défilement verticale si le contenu dépasse */
-            padding-right: 8px; /* Ajoute un petit espace pour que la barre de défilement ne colle pas aux boutons */
-        }
-        .option-button { border: 1px solid #c9c9c9; background-color: #fff; color: #3c4043; font-weight: 500; }
-        .option-button:hover { background-color: #f1f1f1; }
-        #chat-form .input-group { background-color: #ffffff; border-radius: 25px; padding: 0.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        #chat-input { background-color: transparent; border: none; box-shadow: none; }
-        #chat-submit-btn { background-color: transparent; border: none; color: #5f6368; font-size: 1.5rem; }
-        #main-footer { text-align: center; font-size: 0.8rem; color: #999; padding: 0.5rem; background-color: var(--main-bg); border-top: 1px solid var(--border-color);  position: relative; z-index: 10;}
-        
-
-        /*
-        
-        ==================================================
-        STYLE POUR LE SPINNER DE CHARGEMENT
-        ==================================================
-        */
-        .spinner {
-            border: 3px solid rgba(0, 0, 0, 0.1); /* Bordure grise légère */
-            border-top-color: #0d6efd; /* Couleur bleue pour la partie qui tourne */
-            border-radius: 50%;
-            width: 18px;
-            height: 18px;
-            animation: spin 1s linear infinite; /* Fait tourner l'animation */
+            max-height: 150px;
+            overflow-y: auto;
         }
 
-        /* L'animation de rotation */
-        @keyframes spin {
+        .option-button {
+            border: 1px solid #c9c9c9;
+            background-color: #fff;
+            color: #3c4043;
+            font-weight: 500;
+            padding: 0.75rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            min-height: 44px;
+        }
+
+        #chat-form .input-group {
+            background-color: #ffffff;
+            border-radius: 25px;
+            padding: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid var(--border-color);
+        }
+
+        #chat-input {
+            background-color: transparent;
+            border: none;
+            box-shadow: none;
+            font-size: 16px; /* Empêche le zoom sur iOS */
+        }
+
+        #chat-submit-btn {
+            background-color: transparent;
+            border: none;
+            color: #5f6368;
+            font-size: 1.25rem;
+            min-width: 44px;
+            min-height: 44px;
+        }
+
+        /* Footer */
+        #main-footer {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #999;
+            padding: 0.75rem;
+            background-color: var(--main-bg);
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* ======================================================================= */
+        /* MENU MOBILE AMÉLIORÉ - UNIFIÉ AVEC LES AUTRES PAGES */
+        /* ======================================================================= */
+
+        .mobile-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            z-index: 1039;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .mobile-menu-overlay.show {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Menu Mobile Compact Centré - UNIFIÉ */
+        .nav-menu-compact {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            width: 90%;
+            max-width: 300px;
+            background: white;
+            border-radius: 20px;
+            padding: 2rem 1.5rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            z-index: 1040;
+            display: none;
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .nav-menu-compact.show {
+            display: block;
+            animation: popIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        @keyframes popIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
             to {
-                transform: rotate(360deg);
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
             }
         }
 
-        /* Conteneur pour aligner le spinner et le texte */
+        .nav-compact-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .nav-compact-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 0 0 0.5rem 0;
+        }
+
+        .nav-compact-subtitle {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .nav-compact-links {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .nav-compact-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            padding: 1rem 1.5rem;
+            background: #f8f9fa;
+            color: var(--text-color-primary);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-compact-link:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .nav-compact-link i {
+            font-size: 1.1rem;
+        }
+
+        .nav-compact-login {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1976d2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: block;
+        }
+
+        .nav-compact-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(11, 87, 208, 0.4);
+            color: white;
+        }
+
+        .nav-compact-lang {
+            display: flex;
+            background: #f8f9fa;
+            border-radius: 50px;
+            padding: 0.25rem;
+            border: 1px solid #e9ecef;
+        }
+
+        .nav-compact-lang-btn {
+            flex: 1;
+            padding: 0.5rem;
+            text-decoration: none;
+            color: #6c757d;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .nav-compact-lang-btn.active {
+            background: white;
+            color: var(--primary-color);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        /* Navigation desktop */
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* ======================================================================= */
+        /* STYLES RESPONSIVES */
+        /* ======================================================================= */
+
+        @media (min-width: 992px) {
+            #sidebar {
+                position: relative;
+                transform: translateX(0);
+            }
+            
+            #main-container {
+                margin-left: 0;
+            }
+            
+            .sidebar-overlay {
+                display: none !important;
+            }
+        }
+
+        @media (max-width: 991px) {
+            #menu-toggle {
+                display: flex;
+            }
+            
+            #sidebar {
+                width: 85%;
+                max-width: 300px;
+            }
+            
+            .main-wrapper {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 768px) {
+            #main-header {
+                padding: 0.5rem;
+            }
+            
+            .app-title {
+                font-size: 1rem;
+            }
+            
+            .app-icon {
+                width: 35px;
+                height: 35px;
+            }
+            
+            #chat-messages {
+                padding: 0.75rem;
+            }
+            
+            .message .content {
+                max-width: 90%;
+                padding: 0.6rem 0.9rem;
+                font-size: 0.95rem;
+            }
+            
+            #chat-input-area {
+                padding: 0.75rem;
+                padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
+            }
+            
+            #options-container {
+                max-height: 120px;
+                padding-bottom: 0.75rem;
+            }
+            
+            .option-button {
+                padding: 0.6rem 0.9rem;
+                font-size: 0.85rem;
+                min-height: 40px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .app-title {
+                font-size: 0.9rem;
+            }
+            
+            #chat-messages {
+                padding: 0.5rem;
+            }
+            
+            .message .content {
+                max-width: 95%;
+                padding: 0.5rem 0.75rem;
+            }
+            
+            #options-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .option-button {
+                width: 100%;
+                max-width: 280px;
+                text-align: center;
+            }
+            
+            #chat-form .input-group {
+                padding: 0.25rem;
+            }
+            
+            #chat-input {
+                padding: 0.75rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .nav-menu-compact {
+                width: 95%;
+                padding: 1.5rem 1rem;
+            }
+            
+            .nav-compact-title {
+                font-size: 1.2rem;
+            }
+            
+            .nav-compact-link {
+                padding: 0.875rem 1rem;
+                font-size: 0.9rem;
+            }
+            
+            .nav-compact-login {
+                padding: 0.875rem 1rem;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .nav-menu-compact {
+                width: 98%;
+                padding: 1rem 0.75rem;
+            }
+            
+            .nav-compact-links {
+                gap: 0.5rem;
+            }
+            
+            .nav-compact-link {
+                padding: 0.75rem;
+                font-size: 0.85rem;
+            }
+        }
+
+        /* Styles pour le spinner et indicateur de frappe */
+        .spinner {
+            border: 3px solid rgba(0, 0, 0, 0.1);
+            border-top-color: #0d6efd;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
         .loading-content {
             display: flex;
             align-items: center;
-            gap: 10px; /* Espace entre le spinner et le texte */
-        }
-        /* style pour la langue de la home page*/
-
-        .lang-selector {
-            font-size: 0.9rem;
-            font-weight: 500;
-            padding: 0.375rem 0.75rem;
-            background-color: #e9ecef;
-            border-radius: 25px;
-            display: flex; /* Pour aligner les boutons de langue */
-            align-items: center;
-        }
-        
-        .lang-selector .lang-btn {
-            text-decoration: none;
-            color: #6c757d;
-            padding: 0.2rem 0.4rem;
-            border-radius: 20px;
+            gap: 10px;
         }
 
-        .lang-selector .lang-btn.active {
-            color: var(--primary-color);
-            background-color: white;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-
-        .nav-menu {
+        .typing-indicator {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            flex-wrap: wrap; /* Allow buttons to wrap */
-            justify-content: flex-end; /* Align to right */
+            padding: 10px 15px !important;
         }
 
-
-    /* ==================================================
-       STYLE POUR L'INDICATEUR DE FRAPPE (PROGRESSION)
-    ================================================== */
-    .typing-indicator {
-        display: flex;
-        align-items: center;
-        padding: 10px 15px !important; /* S'assure que le padding est correct */
-    }
-
-    /* Style pour chaque point de l'animation */
-    .typing-indicator span {
-        height: 8px;
-        width: 8px;
-        background-color: #999; /* Couleur grise pour les points */
-        border-radius: 50%;
-        display: inline-block;
-        margin: 0 2px;
-        /* On lie chaque point à l'animation */
-        animation: bounce 1.4s infinite ease-in-out both;
-    }
-
-    /* On ajoute un léger décalage à chaque point pour un effet fluide */
-    .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
-    .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
-    .typing-indicator span:nth-child(3) { animation-delay: 0s; }
-
-    /* L'animation elle-même qui fait "rebondir" les points */
-    @keyframes bounce {
-        0%, 80%, 100% {
-            transform: scale(0);
+        .typing-indicator span {
+            height: 8px;
+            width: 8px;
+            background-color: #999;
+            border-radius: 50%;
+            display: inline-block;
+            margin: 0 2px;
+            animation: bounce 1.4s infinite ease-in-out both;
         }
-        40% {
-            transform: scale(1.0);
+
+        .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1.0); }
         }
-    }  
-    
-/* ==================================================
-   STYLE POUR LA FENÊTRE MODALE D'INFORMATION
-================================================== */
-#welcomeModal .modal-header {
-    background-color: var(--primary-color);
-    color: white;
-}
-#welcomeModal .modal-header .btn-close {
-    filter: invert(1) grayscale(100%) brightness(200%);
-}
-#welcomeModal .modal-title {
-    font-weight: 600;
-}
-#welcomeModal h4, #welcomeModal h6 {
-    color: var(--primary-color);
-    font-weight: bold;
-}
-#welcomeModal code {
-    background-color: #e9ecef;
-    padding: 0.3rem 0.6rem;
-    border-radius: 4px;
-    color: #d63384;
-    font-weight: bold;
-    display: inline-block;
-    margin: 5px 0;
-}
-#welcomeModal .donation-methods {
-    padding-left: 1rem;
-    border-left: 3px solid #dee2e6;
-}
 
-
-    
-/* NOUVEAU BLOC UNIFIÉ À AJOUTER */
-
-    @media (max-width: 768px) {
-        /* --- Structure générale sur mobile --- */
-        body {
-            flex-direction: column;
-            overflow: auto;
-            height: auto;
+        /* Styles pour l'historique dans la sidebar */
+        .history-list {
+            flex: 1;
+            overflow-y: auto;
+            margin: 1rem 0;
         }
-        
-        #sidebar {
-            width: 100%;
-            height: auto;
-            border-right: none;
-            border-bottom: 1px solid var(--border-color);
+
+        .history-item {
+            display: block;
             padding: 0.75rem;
-        }
-        
-        #main-container {
-            height: auto;
-            min-height: 100vh;
-        }
-        
-        #main-header {
-            padding: 0.5rem;
-        }
-        
-        .message .content {
-            max-width: 85%;
-        }
-        
-        #chat-input-area {
-            padding: 0.75rem;
-        }
-        
-        #options-container {
-            padding-bottom: 0.75rem;
-        }
-        
-        .option-button {
-            padding: 0.4rem 0.8rem;
-            font-size: 0.9rem;
-        }
-
-        /* --- Bouton Burger (Menu Hamburger) --- */
-        #menu-toggle {
-            display: flex; /* S'assure qu'il est visible sur mobile */
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            border-radius: 6px;
-            flex-shrink: 0;
-            margin-left: auto; /* Le pousse tout à droite */
-        }
-
-        /* --- Styles pour le menu latéral (mobile) --- */
-        .nav-menu {
-            position: fixed;
-            top: 60px;
-            right: -100%; /* Caché par défaut en dehors de l'écran */
-            width: 220px;
-            background: white;
-            padding: 1rem;
+            color: var(--text-color-secondary);
+            text-decoration: none;
             border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            flex-direction: column; /* Aligne les boutons verticalement */
-            align-items: stretch;
-            gap: 0.5rem;
-            z-index: 1000;
-            transition: right 0.3s ease-in-out;
-            border: 1px solid var(--border-color);
-        }
-        
-        .nav-menu.show {
-            right: 1rem; /* Fait apparaître le menu */
+            margin-bottom: 0.25rem;
+            transition: all 0.2s ease;
+            word-break: break-word;
         }
 
-        .nav-menu .btn {
-            width: 100%;
+        .history-item:hover {
+            background-color: #e0e6ef;
+            color: var(--text-color-primary);
+        }
+
+        .btn-new-chat {
+            background-color: #d3e3fd;
+            color: #0b57d0;
+            border: none;
+            font-weight: 500;
+            padding: 0.75rem;
+            border-radius: 8px;
             text-align: left;
         }
 
-        .lang-selector {
-        order: -1; /* Place le sélecteur de langue en haut du menu mobile */
-        margin-bottom: 0.5rem; /* Ajoute un peu d'espace en dessous */
+        .ia-disclaimer {
+            font-size: 0.75rem;
+            color: var(--text-color-secondary);
+            margin-top: 1rem;
+            border-top: 1px solid #ddd;
+            padding-top: 1rem;
         }
-    }
 
-    @media (max-width: 576px) {
-        #sidebar {
-            position: fixed;
-            z-index: 1000;
-            height: 100%;
-            transform: translateX(-100%);
-            transition: transform 0.3s ease;
-            padding: 0.5rem;
-        }
-        
-        #sidebar.show {
-            transform: translateX(0);
-        }
-        
-        #main-container {
-            margin-left: 0;
-        }
-        
-        #menu-toggle {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: var(--main-bg);
-            border: 1px solid var(--border-color);
-            margin-right: 0.5rem;
-        }
-        
-        #chat-messages {
-            padding: 1rem 0.75rem;
-        }
-        
-        .message .content {
-            max-width: 90%;
-            padding: 0.6rem 0.9rem;
-            font-size: 0.95rem;
-        }
-        
-        #chat-input-area {
-            padding: 0.75rem 0.75rem calc(0.75rem + env(safe-area-inset-bottom));
-        }
-        
-        #chat-form .input-group {
-            padding: 0.25rem;
-            border-radius: 20px;
-        }
-        
-        #chat-input {
-            font-size: 0.95rem;
-            padding: 0.5rem 0.75rem;
-        }
-        
-        #chat-submit-btn {
-            font-size: 1.25rem;
-            padding: 0 0.75rem;
-        }
-        
-        .option-button {
-            font-size: 0.85rem;
-            padding: 0.35rem 0.7rem;
-            margin: 0.15rem;
-        }
-    }
-    
-    @media (max-width: 480px) {
-        #main-header {
-            flex-direction: column;
-            align-items: flex-start;
-            padding: 0.5rem 1rem;
-        }
-        #main-header .app-title {
-            font-size: 0.9rem;
-        }
-        #chat-input-area {
-            padding: 0.5rem 1rem;
-        }
-        #chat-input-area-content {
-            max-width: 100%;
-        }
-        #options-container {
-            flex-direction: column;
-            gap: 0.25rem;
-        }
-        .option-button {
-            width: 100%;
-            text-align: center;
-        }
-    }
-    .app-icon {
-        width: 60px;  /* Correspond à la taille de police de 1.5rem */
-        height: 60px; /* Maintient le ratio carré */
-        object-fit: contain; /* S'assure que l'image s'adapte sans être déformée */
-    }
- 
-/* ======================================================================= */
-/* CORRECTIONS RESPONSIVES POUR LA PAGE DE CHAT */
-/* ======================================================================= */
-
-@media (max-width: 768px) {
-    /* Structure principale */
-    body {
-        flex-direction: column;
-        height: 100vh;
-        overflow: hidden;
-    }
-    
-    #sidebar {
-        position: fixed;
-        top: 0;
-        left: -100%;
-        width: 85%;
-        max-width: 280px;
-        height: 100%;
-        z-index: 1050;
-        transition: left 0.3s ease-in-out;
-        box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-    }
-    
-    #sidebar.show {
-        left: 0;
-    }
-    
-    /* Overlay pour la sidebar mobile */
-    .sidebar-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.5);
-        z-index: 1049;
-        display: none;
-    }
-    
-    .sidebar-overlay.show {
-        display: block;
-    }
-    
-    /* Header du chat */
-    #main-header {
-        padding: 0.5rem 1rem;
-        position: sticky;
-        top: 0;
-        z-index: 100;
-    }
-    
-    .app-title {
-        font-size: 0.9rem;
-    }
-    
-    /* Zone de chat */
-    #chat-messages {
-        padding: 1rem 0.75rem;
-        margin-bottom: env(safe-area-inset-bottom, 0);
-    }
-    
-    .message .content {
-        max-width: 90%;
-        padding: 0.75rem 1rem;
-        font-size: 0.95rem;
-    }
-    
-    /* Zone d'input */
-    #chat-input-area {
-        padding: 0.75rem;
-        padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
-    }
-    
-    #chat-input {
-        font-size: 16px; /* Empêche le zoom sur iOS */
-    }
-    
-    /* Options */
-    #options-container {
-        max-height: 200px;
-        padding-bottom: 0.75rem;
-    }
-    
-    .option-button {
-        padding: 0.75rem 1rem;
-        margin: 0.25rem;
-        font-size: 0.9rem;
-        min-height: 44px;
-    }
-    
-    /* Boutons d'action */
-    #menu-toggle, #chat-submit-btn {
-        min-width: 44px;
-        min-height: 44px;
-    }
+        /* Styles pour l'aperçu Markdown */
+#markdown-preview, #live-preview {
+    font-family: system-ui, -apple-system, sans-serif;
+    line-height: 1.6;
+    color: #333;
 }
 
-@media (max-width: 576px) {
-    /* Très petits écrans */
-    #chat-messages {
-        padding: 0.5rem;
-    }
-    
-    .message .content {
-        max-width: 95%;
-        padding: 0.6rem 0.9rem;
-    }
-    
-    #options-container {
-        flex-direction: column;
-    }
-    
-    .option-button {
-        width: 100%;
-        text-align: center;
-    }
-    
-    /* Input group compact */
-    #chat-form .input-group {
-        padding: 0.25rem;
-    }
-    
-    #chat-input {
-        padding: 0.75rem;
-    }
-}
-
-
-/* Styles pour l'éditeur amélioré */
-.editor-container {
+#markdown-preview h1, #live-preview h1 {
+    font-size: 2rem;
+    border-bottom: 2px solid #0b57d0;
+    padding-bottom: 0.5rem;
     margin-bottom: 1rem;
 }
 
-#markdown-preview {
-    font-family: system-ui, -apple-system, sans-serif;
-    line-height: 1.6;
+#markdown-preview h2, #live-preview h2 {
+    font-size: 1.5rem;
+    color: #0b57d0;
+    margin-top: 1.5rem;
 }
 
-#markdown-preview img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+#markdown-preview h3, #live-preview h3 {
+    font-size: 1.25rem;
+    color: #1976d2;
 }
 
-#markdown-preview pre {
-    background: #f8f9fa;
+#markdown-preview p, #live-preview p {
+    margin-bottom: 1rem;
+}
+
+#markdown-preview code, #live-preview code {
+    background-color: #f8f9fa;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: #d63384;
+}
+
+#markdown-preview pre, #live-preview pre {
+    background-color: #f8f9fa;
     border: 1px solid #e9ecef;
     border-radius: 6px;
     padding: 1rem;
     overflow-x: auto;
+    margin: 1rem 0;
 }
 
-#markdown-preview code {
-    background: #f8f9fa;
-    padding: 0.2rem 0.4rem;
-    border-radius: 4px;
-    font-size: 0.9em;
+#markdown-preview pre code, #live-preview pre code {
+    background: none;
+    padding: 0;
+    color: inherit;
 }
 
-#markdown-preview blockquote {
+#markdown-preview blockquote, #live-preview blockquote {
     border-left: 4px solid #0d6efd;
     padding-left: 1rem;
     margin-left: 0;
@@ -670,10 +744,39 @@
     font-style: italic;
 }
 
+#markdown-preview table, #live-preview table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+}
+
+#markdown-preview th, #live-preview th,
+#markdown-preview td, #live-preview td {
+    border: 1px solid #dee2e6;
+    padding: 0.75rem;
+    text-align: left;
+}
+
+#markdown-preview th, #live-preview th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+
+#markdown-preview img, #live-preview img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
 /* Styles pour les diagrammes Mermaid */
 .mermaid {
     text-align: center;
-    margin: 1rem 0;
+    margin: 1.5rem 0;
+    padding: 1rem;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
 }
 
 .mermaid svg {
@@ -681,391 +784,208 @@
     height: auto;
 }
 
-/* Styles pour l'éditeur multidisciplinaire */
-.modal-xxl {
-    max-width: 95%;
-}
-
-#tools-sidebar {
-    min-height: 60vh;
-    max-height: 60vh;
-    overflow-y: auto;
-}
-
-.tool-card {
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    padding: 1rem;
-    margin-bottom: 1rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.tool-card:hover {
-    border-color: #0d6efd;
-    background-color: #f8f9fa;
-}
-
-.tool-card.active {
-    border-color: #0d6efd;
-    background-color: #e7f1ff;
-}
-
-.tool-icon {
-    font-size: 1.5rem;
-    margin-bottom: 0.5rem;
-}
-
 /* Styles pour les formules mathématiques */
-.math-preview {
-    font-size: 1.2em;
-    min-height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* Styles pour la chimie */
-#chemdoodle-canvas {
-    background-color: white;
-}
-
-.chem-element-btn {
-    margin: 2px;
-}
-
-/* Styles pour les graphiques */
-.chart-container {
-    position: relative;
-    height: 300px;
-}
-
-/* Styles pour l'aperçu enrichi */
-#markdown-preview .math-formula {
-    display: inline-block;
-    margin: 0 0.2em;
-    padding: 0.2em 0.4em;
-    background: #f8f9fa;
-    border-radius: 4px;
-}
-
-#markdown-preview .chemical-equation {
-    font-family: 'Times New Roman', serif;
+.katex {
     font-size: 1.1em;
-    padding: 0.5em;
-    background: #fff3cd;
-    border-radius: 4px;
-    display: inline-block;
 }
 
-#markdown-preview .molecule-diagram {
-    text-align: center;
-    margin: 1em 0;
-    padding: 1em;
-    background: #f8f9fa;
-    border-radius: 8px;
+.katex-display {
+    margin: 1rem 0;
+    overflow-x: auto;
+    overflow-y: hidden;
 }
 
-/* Responsive */
+/* Styles pour les onglets de l'éditeur */
+#editorTabs .nav-link {
+    font-weight: 500;
+}
+
+#editorTabs .nav-link.active {
+    background-color: #fff;
+    border-bottom-color: #fff;
+}
+
+/* Responsive pour l'éditeur */
 @media (max-width: 768px) {
-    .modal-xxl {
-        max-width: 100%;
-        margin: 0.5rem;
+    #markdown-preview, #live-preview {
+        font-size: 0.9rem;
+        padding: 0.5rem;
     }
     
-    #tools-sidebar {
-        min-height: auto;
-        max-height: 200px;
+    .mermaid {
+        padding: 0.5rem;
     }
 }
 
-
-/* ======================================================================= */
-/* MENU MOBILE AMÉLIORÉ - COMPACT ET CENTRÉ */
-/* ======================================================================= */
-
-/* Overlay pour le menu mobile */
-.mobile-menu-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-    backdrop-filter: blur(4px);
-    z-index: 1039;
-    display: none;
-    animation: fadeIn 0.3s ease;
+/* Styles pour la modale de bienvenue bilingue */
+.welcome-content {
+    animation: fadeIn 0.3s ease-in;
 }
 
-.mobile-menu-overlay.show {
-    display: block;
+.donation-methods {
+    padding-left: 1rem;
+    border-left: 3px solid #dee2e6;
+    margin: 1rem 0;
+}
+
+.donation-methods p {
+    margin-bottom: 1rem;
+}
+
+.donation-methods code {
+    background-color: #e9ecef;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    color: #d63384;
+    font-weight: bold;
+    display: inline-block;
+    margin: 5px 0;
+    font-family: 'Courier New', monospace;
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-/* Menu Mobile Compact Centré */
-.nav-menu-compact {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(0.9);
-    width: 90%;
-    max-width: 300px;
-    background: white;
-    border-radius: 20px;
-    padding: 2rem 1.5rem;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-    z-index: 1040;
-    display: none;
-    text-align: center;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.nav-menu-compact.show {
-    display: block;
-    animation: popIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-@keyframes popIn {
-    from {
-        opacity: 0;
-        transform: translate(-50%, -50%) scale(0.8);
-    }
-    to {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(1);
-    }
-}
-
-.nav-compact-header {
-    margin-bottom: 1.5rem;
-}
-
-.nav-compact-title {
-    font-size: 1.3rem;
-    font-weight: 700;
-    color: var(--primary-color);
-    margin: 0 0 0.5rem 0;
-}
-
-.nav-compact-subtitle {
-    color: #6c757d;
-    font-size: 0.9rem;
-    margin: 0;
-}
-
-.nav-compact-links {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    margin-bottom: 1.5rem;
-}
-
-.nav-compact-link {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.75rem;
-    padding: 1rem 1.5rem;
-    background: #f8f9fa;
-    color: var(--text-dark);
-    text-decoration: none;
-    border-radius: 12px;
-    transition: all 0.3s ease;
-    font-weight: 500;
-}
-
-.nav-compact-link:hover {
-    background: var(--primary-color);
-    color: white;
-    transform: translateY(-2px);
-}
-
-.nav-compact-link i {
-    font-size: 1.1rem;
-}
-
-.nav-compact-login {
-    width: 100%;
-    padding: 1rem 1.5rem;
-    background: linear-gradient(135deg, var(--primary-color) 0%, #1976d2 100%);
-    color: white;
-    border: none;
-    border-radius: 12px;
-    font-weight: 600;
-    margin-bottom: 1.5rem;
-    transition: all 0.3s ease;
-    text-decoration: none;
-    display: block;
-}
-
-.nav-compact-login:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(11, 87, 208, 0.4);
-    color: white;
-}
-
-.nav-compact-lang {
-    display: flex;
-    background: #f8f9fa;
-    border-radius: 50px;
-    padding: 0.25rem;
-    border: 1px solid #e9ecef;
-}
-
-.nav-compact-lang-btn {
-    flex: 1;
-    padding: 0.5rem;
-    text-decoration: none;
-    color: #6c757d;
-    border-radius: 50px;
-    font-size: 0.8rem;
-    font-weight: 500;
-    transition: all 0.3s ease;
-}
-
-.nav-compact-lang-btn.active {
-    background: white;
-    color: var(--primary-color);
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-}
-
-/* Media Queries pour le menu compact */
-@media (max-width: 480px) {
-    .nav-menu-compact {
-        width: 95%;
-        padding: 1.5rem 1rem;
+/* Responsive pour la modale */
+@media (max-width: 768px) {
+    .donation-methods {
+        padding-left: 0.5rem;
+        border-left-width: 2px;
     }
     
-    .nav-compact-title {
-        font-size: 1.2rem;
-    }
-    
-    .nav-compact-link {
-        padding: 0.875rem 1rem;
-        font-size: 0.9rem;
-    }
-    
-    .nav-compact-login {
-        padding: 0.875rem 1rem;
-    }
-}
-
-@media (max-width: 360px) {
-    .nav-menu-compact {
-        width: 98%;
-        padding: 1rem 0.75rem;
-    }
-    
-    .nav-compact-links {
-        gap: 0.5rem;
-    }
-    
-    .nav-compact-link {
-        padding: 0.75rem;
+    .donation-methods code {
         font-size: 0.85rem;
+        padding: 0.2rem 0.4rem;
     }
 }
     </style>
-      
 </head>
 <body>
+    <!-- Overlay pour sidebar mobile -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
-    <!-- ... (tout le HTML de la sidebar et du main-container reste inchangé) ... -->
-   <div id="sidebar">
-    <!-- On utilise onclick pour appeler la fonction JS globale -->
-    <button class="btn btn-new-chat w-100 text-start mb-3" onclick="startNewChat()">
-        <i class="bi bi-plus-lg me-2"></i>
-        <!-- On ajoute un <span> pour la traduction -->
-        <span data-lang-en="New Chat" data-lang-fr="Nouveau Chat">New Chat</span>
-    </button>
-    
-    <div class="history-list">
-        <!-- Le titre est maintenant traduisible -->
-        <h5 data-lang-en="History" data-lang-fr="Historique">History</h5>
-        
-        <!-- Ce conteneur sera rempli dynamiquement par la fonction loadHistory() -->
-        <ul class="list-unstyled" id="history-items-container">
-            <!-- La liste est vide au début -->
-        </ul>
-    </div>
-    
-    <div class="ia-disclaimer" data-lang-en="AI models can make mistakes. Please check important information." data-lang-fr="Les modèles d'IA peuvent faire des erreurs. Veuillez vérifier les informations importantes.">
-        AI models can make mistakes. Please check important information.
-    </div>
-</div>
+        <!-- Sidebar -->
+        <div id="sidebar">
+            <div class="sidebar-content">
+                <button class="btn btn-new-chat w-100 text-start mb-3" onclick="startNewChat()">
+                    <i class="bi bi-plus-lg me-2"></i>
+                    <span data-lang-en="New Chat" data-lang-fr="Nouveau Chat">New Chat</span>
+                </button>
+                
+                <div class="history-list">
+                    <h5 data-lang-en="History" data-lang-fr="Historique">History</h5>
+                    <ul class="list-unstyled" id="history-items-container">
+                        <!-- La liste sera remplie dynamiquement -->
+                    </ul>
+                </div>
+                
+                                <!-- NOUVEAU : affichage du forfait actuel, juste au-dessus de l'avertissement IA -->
+                <div class="sidebar-plan-info mb-2 p-2 rounded" style="background-color: var(--main-bg); border: 1px solid var(--border-color);">
+                    {% if user.is_premium_active() %}
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-warning text-dark">Premium</span>
+                            <small class="text-muted">{{ user.generation_count }} / {{ user.generations_limit }} générations</small>
+                        </div>
+                        {% if user.subscription_expires_at %}
+                            <div class="small text-muted mt-1">Expire le {{ user.subscription_expires_at.split('T')[0] }}</div>
+                        {% endif %}
+                    {% else %}
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-secondary">Gratuit</span>
+                            <small class="text-muted">{{ user.generation_count }} / 5 générations</small>
+                        </div>
+                        <a href="/donate" class="small d-block mt-1">Passer au Premium →</a>
+                    {% endif %}
+                </div>
 
-    <div id="main-container">
-
-    <!-- ======================================================================= -->
-    <!-- NOUVEL EN-TÊTE DYNAMIQUE -->
-    <!-- ======================================================================= -->
-    <div id="main-header">
-        <button id="menu-toggle" class="d-lg-none btn btn-sm btn-light">
-            <i class="bi bi-list"></i>
-        </button>
-        <div class="app-title-container">
-            <img src="/static/img/favicon.png" alt="TCHATCHI AI Logo" class="app-icon"> 
-            <span id="app-title" class="app-title">TCHATCHI AI <br>Pedagogical Assistant</span>
+                <div class="ia-disclaimer" data-lang-en="AI models can make mistakes. Please check important information." data-lang-fr="Les modèles d'IA peuvent faire des erreurs. Veuillez vérifier les informations importantes.">
+                    AI models can make mistakes. Please check important information.
+                </div>
+            </div>
         </div>
+
+        <!-- Contenu principal -->
         
-        <!-- Ce menu s'affichera pour l'utilisateur connecté -->
-        <div class="nav-menu">
-              
+               <div id="main-container">
+            <!-- ======================================================================= -->
+<!-- NOUVEL EN-TÊTE UNIFIÉ (À COPIER DANS about.html et donate.html) -->
+<!-- ======================================================================= -->
+<header id="main-header">
+    <div class="container-fluid d-flex justify-content-between align-items-center">
+        <!-- Partie Gauche : Logo et Titre -->
+        <a href="/" class="app-title-container text-dark text-decoration-none">
+            <img src="/static/img/favicon.png" alt="Logo" class="app-icon"> 
+            <span class="app-title">TCHATCHI AI <br class="d-none d-sm-block">Pedagogical Assistant</span>
+        </a>
+        
+        <!-- Logique Conditionnelle pour afficher le bon menu -->
+                {% if user.is_authenticated %}
+            <!-- NOUVEAU : bouton menu burger pour mobile. Il était absent ici avant —
+                 il n'existait que pour les visiteurs non connectés. Comme /app est
+                 toujours réservé aux utilisateurs connectés, personne ne pouvait
+                 ouvrir la sidebar (historique, nouveau chat...) sur mobile.
+                 Le CSS #menu-toggle le cache automatiquement sur desktop. -->
+            <button class="btn" id="menu-toggle" type="button">
+                <i class="bi bi-list fs-3"></i>
+            </button>
+
+            <!-- Menu pour utilisateur connecté -->
             <div class="dropdown">
                 <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="bi bi-person-circle me-2"></i>
-                    <!-- On affiche le nom de l'utilisateur ici -->
                     {{ user.full_name }}
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end">
-                    <li></li><a href="/about" class="dropdown-item"  data-lang-en="About" data-lang-fr="À Propos">About</a></li>
-                    <li></li><a href="/donate" class="dropdown-item" ><i class="bi bi-heart"></i> <span data-lang-en="Donate" data-lang-fr="Soutenir projet">Donate</span></a></li>
+                    <li><a class="dropdown-item" href="/app">Chat Tchatci AI</a></li>
+                    <li><a class="dropdown-item" href="/about">À Propos</a></li>
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="/logout">
-                        <i class="bi bi-box-arrow-right me-2"></i> Se Déconnecter
-                    </a></li>
+                    <li><a class="dropdown-item" href="/logout"><i class="bi bi-box-arrow-right me-2"></i>Se Déconnecter</a></li>
                 </ul>
             </div>
-        </div>
+        {% else %}
+            <!-- Menu pour visiteur (Desktop) -->
+            <nav class="d-none d-md-flex gap-2 align-items-center">
+                <a href="/about" class="btn btn-light" data-lang-en="About" data-lang-fr="À Propos">À Propos</a>
+                <a href="/donate" class="btn btn-success"><i class="bi bi-heart me-1"></i> <span data-lang-en="Support" data-lang-fr="Soutenir">Soutenir</span></a>
+                <a href="/login" class="btn btn-primary ms-2" data-lang-en="Login" data-lang-fr="Connexion">Connexion</a>
+            </nav>
+            <!-- Bouton Burger pour visiteur (Mobile) -->
+            <button class="btn d-md-none" id="menu-toggle" type="button">
+                <i class="bi bi-list fs-3"></i>
+            </button>
+        {% endif %}
     </div>
-    <!-- ======================================================================= -->
-    <!-- FIN DU NOUVEL EN-TÊTE -->
-    <!-- ======================================================================= -->
+</header>
 
-    <!-- ======================================================================= -->
-    <!-- DEBUT EN-TÊTE  MOBILE-->
-    <!-- ======================================================================= -->
-
-    <!-- Overlay pour le menu mobile -->
+<!-- Le Menu Mobile coulissant (uniquement pour les visiteurs) -->
+{% if not user.is_authenticated %}
+<!-- Overlay pour le menu mobile -->
 <div class="mobile-menu-overlay" id="mobile-menu-overlay"></div>
 
 <!-- Menu Mobile Compact Centré -->
 <div class="nav-menu-compact" id="mobile-menu">
     <div class="nav-compact-header">
-        <h3 class="nav-compact-title">Menu</h3>
-        <p class="nav-compact-subtitle">Navigation</p>
+        <h3 class="nav-compact-title" data-lang-en="Menu" data-lang-fr="Menu">Menu</h3>
+        <p class="nav-compact-subtitle" data-lang-en="Navigation" data-lang-fr="Navigation">Navigation</p>
     </div>
     
     <div class="nav-compact-links">
         <a href="/about" class="nav-compact-link" data-lang-en="About" data-lang-fr="À Propos">
             <i class="bi bi-info-circle"></i>
-            <span>À Propos</span>
+            <span data-lang-en="About" data-lang-fr="À Propos">À Propos</span>
         </a>
         
         <a href="/donate" class="nav-compact-link" data-lang-en="Support" data-lang-fr="Soutenir">
             <i class="bi bi-heart"></i>
-            <span>Soutenir</span>
+            <span data-lang-en="Support" data-lang-fr="Soutenir">Soutenir</span>
         </a>
     </div>
     
     <a href="/login" class="nav-compact-login" data-lang-en="Login / Sign Up" data-lang-fr="Connexion / Inscription">
         <i class="bi bi-google me-2"></i>
-        <span>Connexion / Inscription</span>
+        <span data-lang-en="Login / Sign Up" data-lang-fr="Connexion / Inscription">Connexion / Inscription</span>
     </a>
     
     <div class="nav-compact-lang">
@@ -1073,121 +993,151 @@
         <a href="#" class="nav-compact-lang-btn active" data-lang="fr">🇫🇷 FR</a>
     </div>
 </div>
+{% endif %}
+<!-- ======================================================================= -->
+<!-- FIN DE L'EN-TÊTE UNIFIÉ -->
+<!-- ======================================================================= -->
+                
+             
 
-
-        <div id="chat-container">
-            <div id="chat-messages">
-                <div class="message ai">
-                    <div class="content">Hello! I am the TCHATCHI AI pedagogical assistant. </div>
-
-                </div>
-                <div class="message ai">
-                    <div class="content">Please choose your language.</div>
-
-                </div>
-                 <div class="message ai">
-                    <div class="content">Bonjour ! Je suis l'assistant pédagogique TCHATCHI AI.</div>
-                </div>
-                <div class="message ai">
-                    <div class="content">Veuillez choisir votre langue.</div>
-                </div>
-            </div>
-        </div>
-        <div id="chat-input-area">
-            <div id="chat-input-area-content">
-                <div id="options-container">
-                    <button class="btn option-button">🇬🇧 English</button>
-                    <button class="btn option-button">🇫🇷 Français</button>
-                </div>
-                <form id="chat-form">
-                    <div class="input-group">
-                        <input type="text" id="chat-input" class="form-control" placeholder="Make a choice or send a message..." autocomplete="off">
-                        <button id="chat-submit-btn" type="submit" class="btn"><i class="bi bi-arrow-up-circle-fill"></i></button>
+            <!-- Zone de chat -->
+            <div id="chat-container">
+                <div id="chat-messages">
+                    <div class="message ai">
+                        <div class="content">Hello! I am the TCHATCHI AI pedagogical assistant.</div>
                     </div>
-                </form>
+                    <div class="message ai">
+                        <div class="content">Please choose your language.</div>
+                    </div>
+                    <div class="message ai">
+                        <div class="content">Bonjour ! Je suis l'assistant pédagogique TCHATCHI AI.</div>
+                    </div>
+                    <div class="message ai">
+                        <div class="content">Veuillez choisir votre langue.</div>
+                    </div>
+                </div>
             </div>
+
+            <!-- Zone d'input -->
+            <div id="chat-input-area">
+                <div id="chat-input-area-content">
+                    <div id="options-container">
+                        <button class="btn option-button">🇬🇧 English</button>
+                        <button class="btn option-button">🇫🇷 Français</button>
+                    </div>
+                    <form id="chat-form">
+                        <div class="input-group">
+                            <input type="text" id="chat-input" class="form-control" placeholder="Make a choice or send a message..." autocomplete="off">
+                            <button id="chat-submit-btn" type="submit" class="btn"><i class="bi bi-arrow-up-circle-fill"></i></button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <footer id="main-footer">
+            <p data-lang-en="© {{ current_year }} TCHATCHI AI Project - All rights reserved." data-lang-fr="© {{ current_year }} Projet TCHATCHI AI - Tous droits réservés.">© {{ current_year }} TCHATCHI AI Project - All rights reserved.</p>
+        <p>Powered by TKC@Co</p>
+            </footer>
         </div>
-        <footer id="main-footer">
-           <p> © 2025 TCHATCHI AI Project - All rights reserved.</p><br>
-           <p>Powered by TKC@Co</p>
-        </footer>
-    </div>
+
+
+   
+
+
 
 
 <!-- ======================================================================= -->
-<!-- DÉBUT DE LA FENÊTRE MODALE D'INFORMATION -->
+<!--  DÉBUT FENÊTRE MODALE D'INFORMATION BILINGUE CORRIGÉE -->
 <!-- ======================================================================= -->
 <div class="modal fade" id="welcomeModal" tabindex="-1" aria-labelledby="welcomeModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
+            <!-- EN-TÊTE DE LA MODALE -->
             <div class="modal-header">
-                <h5 class="modal-title" id="welcomeModalLabel">Bienvenue sur TCHATCHI AI !</h5>
+                <h5 class="modal-title" id="welcomeModalLabel" data-lang-en="Welcome to TCHATCHI AI!" data-lang-fr="Bienvenue sur TCHATCHI AI !">
+                    Bienvenue sur TCHATCHI AI !
+                </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
+
+            <!-- CORPS DE LA MODALE -->
             <div class="modal-body">
-                <!-- Version Française -->
-                <div class="mb-4">
-                    <h4>🇫🇷 Bienvenu sur TCHATCHI AI! L’IA au service des enseignants camerounais</h4>
-                    <p>
-                        <strong>TCHATCHI AI</strong> est une plateforme conçue pour accompagner les enseignants du Cameroun dans la préparation de leurs contenus pédagogiques.
-                    </p>
-                    <p>
-                        <strong>Fonctionnalités :</strong> Génération rapide de fiches de leçon, d’activités d’intégration et d’évaluations conformes aux programmes francophone et anglophone.
-                    </p>
-                    <p>
-                        <strong>Notre mission :</strong> Redonner du temps aux enseignants, améliorer la qualité de l’enseignement, et promouvoir une éducation équitable.
-                    </p>
-                    <hr>
-                    <h6>💡 Projet personnel, sans financement externe</h6>
-                    <p>
-                        Chaque ressource générée coûte en moyenne <strong>15 FCFA</strong> en frais de calcul. Plus de <strong>19 000 ressources</strong> ont déjà été générées, soit un coût cumulé d'environ <strong>285 000 FCFA</strong>, entièrement à notre charge.
-                    </p>
-                    <p>Vu le taux de participations de la part des utilisateur qui était presque nul par rapport aux dépenses, nous avons du restructurer la plateforme pour une utilisation plus modérée et avantageuse pour ceux qui participent</p>
-                    <h6>💰 Comment contribuer / faire un don</h6>
-                    <p>Chaque don, petit ou grand, aide à couvrir les frais et à assurer l'accessibilité de la plateforme.</p>
-                    <div class="donation-methods">
-                        <p><strong>✅ MTN Mobile Money (MOMO)</strong><br>
-                           <code>*126*14*680018753*MONTANT#</code><br>
-                           <small>Nom du compte : SODIACAM SARL_POS 1208</small>
+                <!-- Version Française (affichée par défaut pour fr) -->
+                <div id="welcome-fr" class="welcome-content" data-lang="fr">
+                    <div class="mb-4">
+                        <h4>🇫🇷 TCHATCHI AI! L'IA au service des enseignants camerounais</h4>
+                        <p>
+                            <strong>TCHATCHI AI</strong> est une plateforme conçue pour accompagner les enseignants du Cameroun dans la préparation de leurs contenus pédagogiques.
                         </p>
-                        <p><strong>✅ Orange Money (OM)</strong><br>
-                           <code>#150*47*895595*MONTANT#</code><br>
-                           <small>Nom du compte : Tala Kuate Cedric</small>
+                        <p>
+                            <strong>Fonctionnalités :</strong> Génération rapide de fiches de leçon normales et digitalisées, d'activités d'intégration et d'évaluations conformes aux programmes francophone et anglophone.
                         </p>
+                        <p>
+                            <strong>Notre mission :</strong> Redonner du temps aux enseignants, améliorer la qualité de l'enseignement, et promouvoir une éducation équitable.
+                        </p>
+                        <hr>
+                        <h6>💡 Projet personnel, sans financement externe</h6>
+                        <p>
+                            Chaque ressource générée coûte en moyenne <strong>80 FCFA</strong> en frais de calcul avec le nouveau model IA que nous utilisons. Raison pour laquelle nous avons limité le nombre de fiche gratuites. Ceci suite au faible taux de participation des utilisateurs qui nous a deja valu des dépenses de Plus de <strong>285 000 FCFA</strong> entièrement à notre charge, avec plus de  <strong>20 000 ressources</strong> déjà générées.
+                        </p>
+                        <p>Vu le taux de participations de la part des utilisateur qui était presque nul par rapport aux dépenses, nous avons du restructurer la plateforme pour une utilisation plus modérée et avantageuse pour ceux qui participent</p>
+                        <h6>💰 Comment contribuer / faire un don</h6>
+                        <p>Chaque don, petit ou grand, aide à couvrir les frais et à assurer l'accessibilité de la plateforme.</p>
+                        <div class="donation-methods">
+                            <p><strong>✅ MTN Mobile Money (MOMO)</strong><br>
+                               <code>*126*14*680018753*MONTANT#</code><br>
+                               <small>Nom du compte : SODIACAM SARL_POS 1208</small>
+                            </p>
+                            <p><strong>✅ Orange Money (OM)</strong><br>
+                               <code>#150*47*895595*MONTANT#</code><br>
+                               <small>Nom du compte : Tala Kuate Cedric</small>
+                            </p>
+                        </div>
+                        <p><em>Remplacez "MONTANT" par la somme de votre don.</em></p>
                     </div>
-                    <p><em>Remplacez "MONTANT" par la somme de votre don.</em></p>
-                    <hr>
-                
-                    
                 </div>
 
-                <!-- English Version -->
-                <div class="pt-4 border-top">
-                    <h4>🇬🇧 Welcome to TCHATCHI AI! Empowering Cameroonian Teachers with AI</h4>
-                    <p>
-                        <strong>TCHATCHI AI</strong> is a personal project with no external funding, built to help Cameroonian teachers create lesson plans and assessments aligned with local curricula.
-                    </p>
-                    <p>
-                        Each resource generated costs about <strong>15 FCFA</strong> in AI processing fees. Over <strong>19,000 resources</strong> have been generate, meaning over <strong>285,000 FCFA</strong> have been invested so far, free for educators.
-                    </p>
-                    <p>Given the participation rate on the part of users which was almost zero compared to expenses, we had to restructure the platform for more moderate and advantageous use for those who participate</p>
-                    <h6>💰 Donate via:</h6>
-                     <div class="donation-methods">
-                        <p><strong>✅ MTN MOMO</strong><br>
-                           <code>*126*14*680018753*AMOUNT#</code><br>
-                           <small>Account Name: SODIACAM SARL_POS 1208</small>
+                <!-- English Version (affichée pour en) -->
+                <div id="welcome-en" class="welcome-content" data-lang="en" style="display: none;">
+                    <div class="mb-4">
+                        <h4>🇬🇧 TCHATCHI AI! Empowering Cameroonian Teachers with AI</h4>
+                        <p>
+                            <strong>TCHATCHI AI</strong> is a platform designed to support Cameroonian teachers in preparing their educational content.
                         </p>
-                        <p><strong>✅ Orange Money</strong><br>
-                           <code>#150*47*895595*AMOUNT#</code><br>
-                           <small>Account Name: Tala Kuate Cedric</small>
+                        <p>
+                            <strong>Features:</strong> Quick generation of normal and digitalised lesson plans, integration activities, and assessments compliant with Francophone and Anglophone curricula.
                         </p>
+                        <p>
+                            <strong>Our mission:</strong> Give teachers back their time, improve teaching quality, and promote equitable education.
+                        </p>
+                        <hr>
+                        <h6>💡 Personal project, no external funding</h6>
+                        <p>
+                        Each generated resource costs an average of 80 FCFA in computing fees with the new AI model we’re using. This is why we’ve limited the number of free files. This decision follows the low user participation rate, which has already resulted in expenses of over 285,000 FCFA fully covered by us, with more than 20,000 resources already generated.</p>
+                        <p>Given the almost zero participation rate from users compared to expenses, we had to restructure the platform for more moderate and advantageous use for those who participate.</p>
+                        <h6>💰 How to contribute / make a donation</h6>
+                        <p>Every donation, big or small, helps cover costs and ensure platform accessibility.</p>
+                        <div class="donation-methods">
+                            <p><strong>✅ MTN Mobile Money (MOMO)</strong><br>
+                               <code>*126*14*680018753*AMOUNT#</code><br>
+                               <small>Account Name: SODIACAM SARL_POS 1208</small>
+                            </p>
+                            <p><strong>✅ Orange Money (OM)</strong><br>
+                               <code>#150*47*895595*AMOUNT#</code><br>
+                               <small>Account Name: Tala Kuate Cedric</small>
+                            </p>
+                        </div>
+                        <p><em>Replace "AMOUNT" with your donation amount.</em></p>
                     </div>
-                    <p><em>Replace "AMOUNT" with your donation amount.</em></p>
-                    <hr>
-                    </div>
+                </div>
             </div>
+
+            <!-- PIED DE PAGE DE LA MODALE -->
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Compris / Understood</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" data-lang-en="Understood" data-lang-fr="Compris">
+                    Compris
+                </button>
             </div>
         </div>
     </div>
@@ -1861,1533 +1811,393 @@ Chimie,12</textarea>
 <!-- ======================================================================= -->
 
 <!-- ======================================================================= -->
-<!-- DÉBUT DU BLOC DE SCRIPTS UNIQUE ET RESTRUCTURÉ -->
+<!-- DÉBUT DU SCRIPT PRINCIPAL UNIFIÉ -->
 <!-- ======================================================================= -->
 
-<!-- 1. Import des librairies externes -->
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<!-- 1. LIBRAIRIES EXTERNES -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
-
-<!-- 2. Notre script principal d'application -->
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-
-    // =======================================================================
-    // SECTION A : GESTION DE LA MODALE DE BIENVENUE
-    // =======================================================================
-    if (!sessionStorage.getItem('welcomeModalShown')) {
-        const modalElement = document.getElementById('welcomeModal');
-        if (modalElement) {
-            const welcomeModal = new bootstrap.Modal(modalElement);
-            welcomeModal.show();
-            sessionStorage.setItem('welcomeModalShown', 'true');
-        }
-    }
-
-    // =======================================================================
-    // SECTION B : LOGIQUE DU CHAT
-    // =======================================================================
-
-    // --- 1. Sélection des éléments HTML ---
-    const chatMessages = document.getElementById('chat-messages');
-    const optionsContainer = document.getElementById('options-container');
-    const chatForm = document.getElementById('chat-form');
-    const chatInput = document.getElementById('chat-input');
-    const mainHeader = document.getElementById('main-header');
-
-    // --- 2. Gestion de l'état de la conversation ---
-    let conversationState = {
-        lang: null,
-        currentStep: 'start',
-        collectedData: {},
-        generated_text: "" // Ajout pour la cohérence
-    };
-
-    // --- 3. Fonctions de manipulation de l'interface ---
-    function scrollToBottom() {
-        setTimeout(() => {
-            if (chatMessages) {
-                chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: 'smooth' });
-            }
-        }, 100);
-    }
-
-    function addMessage(content, sender) {
-        const messageElement = document.createElement('div');
-        messageElement.classList.add('message', sender);
-        const contentElement = document.createElement('div');
-        contentElement.classList.add('content');
-        
-        const isSpinner = typeof content === 'string' && content.trim().startsWith('<div class="loading-content">');
-
-        if (isSpinner) {
-            contentElement.innerHTML = content;
-        } else {
-            contentElement.innerHTML = marked.parse(content);
-            try {
-                if (typeof renderMathInElement === 'function') {
-                    renderMathInElement(contentElement, {
-                        delimiters: [
-                            {left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false},
-                            {left: '\\(', right: '\\)', display: false}, {left: '\\[', right: '\\]', display: true}
-                        ],
-                        throwOnError: false
-                    });
-                }
-            } catch (e) { console.warn("Erreur KaTeX:", e); }
-        }
-        messageElement.appendChild(contentElement);
-        chatMessages.appendChild(messageElement);
-        scrollToBottom();
-    }
-
-    function showOptions(options, is_text_input = false) {
-        // 1. On vide le conteneur des options précédentes.
-        optionsContainer.innerHTML = '';
-        
-        // 2. On gère l'état du champ de saisie de texte.
-        // S'il faut une saisie texte, on l'active.
-        // Sinon, on le désactive s'il y a des boutons d'option, pour guider l'utilisateur.
-        if (is_text_input) {
-            chatInput.disabled = false;
-            chatInput.focus(); // Met le curseur directement dans le champ de saisie.
-        } else {
-            chatInput.disabled = options && options.length > 0;
-        }
-
-        // 3. On crée et affiche les boutons d'option fournis par le backend.
-        if (options && options.length > 0) {
-            options.forEach(optionText => {
-                const button = document.createElement('button');
-                button.classList.add('btn', 'option-button');
-                button.textContent = optionText;
-                // On attache le gestionnaire de clic à chaque bouton.
-                button.addEventListener('click', handleOptionClick);
-                optionsContainer.appendChild(button);
-            });
-        }
-        
-        // 4. NOUVEL AJOUT : Logique pour afficher le bouton "Éditer".
-        // On vérifie si un document a été généré (conversationState.generated_text existe).
-        if (conversationState.generated_text) {
-            // On s'assure qu'on est bien sur le menu final (celui qui propose le PDF)
-            // pour ne pas afficher "Éditer" au mauvais moment.
-            const isFinalMenu = options.some(opt => opt.includes('PDF'));
-            
-            if (isFinalMenu) {
-                const editButton = document.createElement('button');
-                editButton.classList.add('btn', 'btn-outline-secondary'); // Un style un peu différent pour le distinguer.
-                editButton.innerHTML = '<i class="bi bi-pencil-square"></i> Éditer';
-                
-                // On définit ce qui se passe quand on clique sur "Éditer".
-                editButton.addEventListener('click', () => {
-                    // On récupère la zone de texte de notre fenêtre modale.
-                    const editorTextarea = document.getElementById('editor-textarea');
-                    // On y place le contenu du document généré.
-                    editorTextarea.value = conversationState.generated_text;
-                    
-                    // On récupère le bouton "Sauvegarder" de la modale pour lui passer des informations.
-                    const saveBtn = document.getElementById('save-and-download-btn');
-                    // On lui attache le 'flow_type' (lecon, digital...) pour savoir quel format PDF générer.
-                    saveBtn.dataset.flowType = conversationState.collectedData.flow_type;
-                    
-                    // On crée une instance de la modale Bootstrap et on l'affiche.
-                    const editModal = new bootstrap.Modal(document.getElementById('editModal'));
-                    editModal.show();
-                });
-                
-                // On ajoute le bouton "Éditer" à la liste des options.
-                optionsContainer.appendChild(editButton);
-            }
-        }
-
-        // 5. On s'assure que la vue du chat est scrollée vers le bas pour voir les nouvelles options.
-        scrollToBottom();
-    }
-
-    // --- 4. Logique de communication et téléchargement ---
-    async function sendMessageToBackend(userMessage) {
-    let indicatorElement = null;
-    if (!userMessage.startsWith('internal_')) {
-        const indicatorHtml = `<div class="message ai" id="typing-indicator-bubble"><div class="content typing-indicator"><span></span><span></span><span></span></div></div>`;
-        chatMessages.insertAdjacentHTML('beforeend', indicatorHtml);
-        indicatorElement = document.getElementById('typing-indicator-bubble');
-        scrollToBottom();
-    }
-
-    try {
-        const response = await fetch('/api/chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: userMessage, state: conversationState })
-        });
-
-        // CORRECTION : Toujours supprimer l'indicateur, même en cas d'erreur
-        if (indicatorElement) {
-            indicatorElement.remove();
-            indicatorElement = null;
-        }
-
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            console.error(`Erreur HTTP: ${response.status}`, errorData.error || "Pas de détails");
-            throw new Error(`Erreur HTTP: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        conversationState = data.state;
-        addMessage(data.response, 'ai');
-        showOptions(data.options, data.is_text_input);
-
-    } catch (error) {
-        // CORRECTION : S'assurer que l'indicateur est supprimé en cas d'erreur
-        if (indicatorElement) {
-            indicatorElement.remove();
-            indicatorElement = null;
-        }
-        const errorText = conversationState.lang === 'fr' 
-            ? "Désolé, une erreur de communication est survenue. Veuillez réessayer."
-            : "Sorry, a communication error occurred. Please try again.";
-        addMessage(errorText, 'ai');
-        const restartOption = conversationState.lang === 'fr' ? "Recommencer" : "Restart";
-        showOptions([restartOption]);
-        console.error("Erreur API:", error);
-    }
-}
-
-    async function downloadPdf() {
-        const markdown_text_to_send = conversationState.generated_text;
-        if (!markdown_text_to_send) {
-            addMessage("Erreur : Aucun contenu à télécharger.", 'ai');
-            return;
-        }
-
-        const loadingHtml = `<div class="loading-content"><div class="spinner"></div><span>Préparation du PDF...</span></div>`;
-        addMessage(loadingHtml, 'ai');
-        const loadingMessageContent = chatMessages.lastElementChild.querySelector('.content');
-
-        try {
-            const response = await fetch('/api/generate-pdf', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ markdown_text: markdown_text_to_send, state: conversationState })
-            });
-            const data = await response.json();
-
-            if (!response.ok || !data.success) {
-                sendMessageToBackend("internal_pdf_generation_failed");
-                return;
-            }
-            
-            window.location.href = `/api/download/${data.temp_filename}/${data.download_filename}`;
-            const successText = conversationState.lang === 'fr' ? "Votre téléchargement a commencé." : "Your download has started.";
-            loadingMessageContent.innerHTML = `<span>${successText}</span>`;
-            setTimeout(() => sendMessageToBackend("internal_pdf_download_complete"), 1500);
-
-        } catch (error) {
-            sendMessageToBackend("internal_pdf_generation_failed");
-            console.error("Erreur de téléchargement PDF:", error);
-        }
-    }
-
-     // --- NOUVELLE FONCTION POUR GÉRER L'ÉDITION ET LE TÉLÉCHARGEMENT ---
-        document.getElementById('save-and-download-btn').addEventListener('click', async () => {
-        const editorTextarea = document.getElementById('editor-textarea');
-        const editedContent = editorTextarea.value; // On récupère le texte modifié
-        
-        const saveBtn = document.getElementById('save-and-download-btn');
-        const flowType = saveBtn.dataset.flowType; // On récupère le type de document
-
-        // On met à jour l'état de la conversation avec le nouveau contenu.
-        // C'est crucial pour que la fonction de téléchargement ait la bonne info.
-        conversationState.generated_text = editedContent;
-        if (conversationState.collectedData) {
-            conversationState.collectedData.flow_type = flowType;
-        } else {
-             conversationState.collectedData = { flow_type: flowType };
-        }
-        
-        // On ferme la modale.
-        const editModal = bootstrap.Modal.getInstance(document.getElementById('editModal'));
-        editModal.hide();
-
-        // On appelle la fonction de téléchargement existante.
-        // Elle utilisera automatiquement le 'generated_text' que nous venons de mettre à jour.
-        await downloadPdf();
-    });
-
-    // --- 5. Gestion des événements utilisateur ---
-    function handleOptionClick(event) {
-        const userChoice = event.target.textContent;
-        addMessage(userChoice, 'user');
-        optionsContainer.innerHTML = '';
-        if (userChoice.includes('PDF')) {
-            downloadPdf();
-        } else {
-            sendMessageToBackend(userChoice);
-        }
-    }
-
-    chatForm.addEventListener('submit', (event) => {
-        event.preventDefault();
-        const userMessage = chatInput.value.trim();
-        if (!userMessage) return;
-        addMessage(userMessage, 'user');
-        chatInput.value = '';
-        sendMessageToBackend(userMessage);
-    });
-
-    // --- 6. Initialisation du chat ---
-    document.querySelectorAll('.option-button').forEach(button => {
-        button.addEventListener('click', handleOptionClick);
-    });
-    chatInput.disabled = true;
-
-    // =======================================================================
-    // SECTION C : LOGIQUE DE L'HISTORIQUE ET AUTRES
-    // =======================================================================
-    async function loadHistory() {
-    const container = document.getElementById('history-items-container');
-    if (!container) return;
-    
-    try {
-        const response = await fetch('/api/history');
-        if (!response.ok) throw new Error(`Erreur HTTP: ${response.status}`);
-        
-        const historyItems = await response.json();
-        container.innerHTML = '';
-        
-        if (historyItems.length === 0) {
-            const noHistoryText = conversationState.lang === 'fr' 
-                ? "Aucun historique" 
-                : "No history";
-            container.innerHTML = `<li><span class="history-item text-muted">${noHistoryText}</span></li>`;
-            return;
-        }
-        
-        historyItems.forEach(item => {
-            const li = document.createElement('li');
-            li.innerHTML = `<a href="#" class="history-item" data-id="${item.id}">
-                <i class="bi bi-chat-left-text me-2"></i>${item.title || 'Sans titre'}
-            </a>`;
-            li.firstChild.onclick = handleHistoryClick;
-            container.appendChild(li);
-        });
-        
-    } catch (error) {
-        console.error("Erreur de chargement de l'historique:", error);
-        
-        const errorText = conversationState.lang === 'fr' 
-            ? "Erreur de chargement de l'historique" 
-            : "Error loading history";
-        
-        container.innerHTML = `<li><span class="history-item text-danger">${errorText}</span></li>`;
-    }
-}
-
-
-    
-/* ================================================================
-    FONCTION AFFICHE L'HISTORIQUE DANS LA FENETRE MODALE
-================================================================*/
-
-async function handleHistoryClick(event) {
-    event.preventDefault();
-    const generationId = event.currentTarget.dataset.id;
-    console.log("Tentative de chargement de l'historique ID:", generationId);
-      // Afficher un indicateur de chargement
-    const loadingHtml = `<div class="loading-content"><div class="spinner"></div><span>Chargement...</span></div>`;
-    addMessage(loadingHtml, 'ai');
-
-    try {
-        const response = await fetch(`/api/history/${generationId}`);
-        console.log("Réponse API:", response.status, response.statusText);
-
-        if (!response.ok) throw new Error('Failed to fetch generation');
-        
-        const data = await response.json();
-        console.log("Données reçues:", data);
-        
-        // Mettre à jour l'état global
-        conversationState.generated_text = data.content;
-        if (!conversationState.collectedData) {
-            conversationState.collectedData = {};
-        }
-        conversationState.collectedData.flow_type = data.flow_type;
-        conversationState.lang = conversationState.lang || 'fr';
-
-        // CORRECTION : Initialiser l'éditeur AVANT d'ouvrir la modale
-        if (typeof multidisciplinaryEditor !== 'undefined') {
-            multidisciplinaryEditor.init();
-            multidisciplinaryEditor.setContent(data.content);
-            multidisciplinaryEditor.setFlowType(data.flow_type);
-            
-             // CORRECTION : Passer l'ID aux deux boutons de sauvegarde
-        const saveBtn = document.getElementById('save-content-btn');
-        const saveDownloadBtn = document.getElementById('save-and-download-btn');
-        
-        if (saveBtn) saveBtn.dataset.generationId = generationId;
-        if (saveDownloadBtn) saveDownloadBtn.dataset.generationId = generationId;
-            
-            // Forcer la mise à jour de l'aperçu
-            setTimeout(() => {
-                multidisciplinaryEditor.updatePreview();
-            }, 100);
-        }
-
-        // Ouvrir la modale
-        const editModal = new bootstrap.Modal(document.getElementById('editModal'));
-        
-        // S'assurer que l'onglet éditeur est actif
-        const editTab = document.getElementById('edit-tab');
-        if (editTab) {
-            editTab.click();
-        }
-        
-        editModal.show();
-
-               // Supprimer l'indicateur de chargement en cas de succès
-        if (chatMessages.lastElementChild && chatMessages.lastElementChild.querySelector('.loading-content')) {
-            chatMessages.lastElementChild.remove();
-        }
-
-    } catch (error) {
-        console.error("Erreur complète:", error);
-        // Supprimer l'indicateur de chargement en cas d'erreur
-        if (chatMessages.lastElementChild && chatMessages.lastElementChild.querySelector('.loading-content')) {
-            chatMessages.lastElementChild.remove();
-        }
-        console.error("Erreur de chargement de la génération:", error);
-        const errorMessage = conversationState.lang === 'fr' 
-            ? "Impossible de charger cette conversation. L'historique peut être temporairement indisponible."
-            : "Unable to load this conversation. History may be temporarily unavailable.";
-        addMessage(errorMessage, 'ai');
-    }
-}
-
-
-
-    // On expose la fonction pour qu'elle soit appelable depuis le HTML (onclick)
-
-    window.startNewChat = function() {
-        window.location.href = '/app';
-    }
-
-    // Chargement initial
-    loadHistory();
-    scrollToBottom();
-});
-// Gestion améliorée du menu mobile
-function initMobileMenu() {
-    const menuToggle = document.getElementById('menu-toggle');
-    const closeMenuBtn = document.getElementById('close-menu-btn');
-    const mobileMenu = document.getElementById('mobile-menu');
-    const mobileOverlay = document.getElementById('mobile-menu-overlay');
-    
-    if (menuToggle && mobileMenu) {
-        // Créer l'overlay s'il n'existe pas
-        if (!mobileOverlay) {
-            const overlay = document.createElement('div');
-            overlay.id = 'mobile-menu-overlay';
-            overlay.className = 'mobile-menu-overlay';
-            document.body.appendChild(overlay);
-            
-            overlay.addEventListener('click', () => {
-                mobileMenu.classList.remove('show');
-                overlay.classList.remove('show');
-            });
-        }
-        
-        menuToggle.addEventListener('click', () => {
-            mobileMenu.classList.add('show');
-            document.getElementById('mobile-menu-overlay').classList.add('show');
-            document.body.style.overflow = 'hidden'; // Empêche le scroll du body
-        });
-        
-        if (closeMenuBtn) {
-            closeMenuBtn.addEventListener('click', () => {
-                mobileMenu.classList.remove('show');
-                document.getElementById('mobile-menu-overlay').classList.remove('show');
-                document.body.style.overflow = ''; // Rétablit le scroll
-            });
-        }
-    }
-}
-
-// Gestion du clavier virtuel
-function handleVirtualKeyboard() {
-    const chatInput = document.getElementById('chat-input');
-    const chatInputArea = document.getElementById('chat-input-area');
-    
-    if (chatInput && chatInputArea) {
-        chatInput.addEventListener('focus', () => {
-            // Ajuste la position quand le clavier s'ouvre
-            setTimeout(() => {
-                chatInputArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            }, 300);
-        });
-    }
-}
-
-// Initialisation au chargement
-document.addEventListener('DOMContentLoaded', () => {
-    initMobileMenu();
-    handleVirtualKeyboard();
-    
-    // Détection des appareils tactiles
-    if ('ontouchstart' in window) {
-        document.body.classList.add('touch-device');
-    }
-});
-
-// =======================================================================
-// ÉDITEUR MULTIDISCIPLINAIRE COMPLET
-// =======================================================================
-
-function initMultidisciplinaryEditor() {
-    let easyMDE = null;
-    let currentFlowType = '';
-    let currentChart = null;
-    let chemCanvas = null;
-
-    // Outils par discipline
-    const toolsByDiscipline = {
-        mathematics: [
-            {
-                id: 'math-formula',
-                name: 'Formules LaTeX',
-                icon: 'bi-square',
-                description: 'Éditeur de formules mathématiques',
-                category: 'Mathématiques'
-            },
-            {
-                id: 'math-graph',
-                name: 'Traceur de fonctions',
-                icon: 'bi-graph-up',
-                description: 'Tracer des fonctions mathématiques',
-                category: 'Mathématiques'
-            },
-            {
-                id: 'math-geometry',
-                name: 'Géométrie interactive',
-                icon: 'bi-triangle',
-                description: 'Figures géométriques',
-                category: 'Mathématiques'
-            }
-        ],
-        chemistry: [
-            {
-                id: 'chem-molecule',
-                name: 'Éditeur de molécules',
-                icon: 'bi-circle',
-                description: 'Structures chimiques',
-                category: 'Chimie'
-            },
-            {
-                id: 'chem-reaction',
-                name: 'Équations chimiques',
-                icon: 'bi-arrow-right',
-                description: 'Éditeur d\'équations',
-                category: 'Chimie'
-            },
-            {
-                id: 'chem-periodic',
-                name: 'Tableau périodique',
-                icon: 'bi-grid-3x3',
-                description: 'Éléments chimiques',
-                category: 'Chimie'
-            }
-        ],
-        science: [
-            {
-                id: 'science-diagram',
-                name: 'Diagrammes Mermaid',
-                icon: 'bi-diagram-3',
-                description: 'Diagrammes scientifiques',
-                category: 'Sciences'
-            },
-            {
-                id: 'science-chart',
-                name: 'Graphiques',
-                icon: 'bi-bar-chart',
-                description: 'Graphiques de données',
-                category: 'Sciences'
-            },
-            {
-                id: 'science-circuit',
-                name: 'Circuits électriques',
-                icon: 'bi-lightning',
-                description: 'Schémas électriques',
-                category: 'Sciences'
-            }
-        ],
-        media: [
-            {
-                id: 'media-image',
-                name: 'Insérer image',
-                icon: 'bi-image',
-                description: 'Images et photos',
-                category: 'Multimédia'
-            },
-            {
-                id: 'media-table',
-                name: 'Tableaux',
-                icon: 'bi-table',
-                description: 'Tableaux de données',
-                category: 'Multimédia'
-            },
-            {
-                id: 'media-code',
-                name: 'Code',
-                icon: 'bi-code-slash',
-                description: 'Blocs de code',
-                category: 'Multimédia'
-            }
-        ]
-    };
-
-    // Initialiser l'éditeur
-    function initEditor() {
-        if (easyMDE) {
-            easyMDE.toTextArea();
-            easyMDE = null;
-        }
-        
-        easyMDE = new EasyMDE({
-            element: document.getElementById('editor-textarea'),
-            spellChecker: false,
-            autosave: { enabled: false },
-            toolbar: false, // On utilise notre propre toolbar
-            status: false,
-            minHeight: '50vh'
-        });
-
-        // Charger les outils mathématiques par défaut
-        loadTools('mathematics');
-    }
-
-    // Charger les outils d'une discipline
-    function loadTools(discipline) {
-        const toolsList = document.getElementById('tools-list');
-        const tools = toolsByDiscipline[discipline] || [];
-        
-        toolsList.innerHTML = tools.map(tool => `
-            <div class="tool-card" data-tool="${tool.id}">
-                <div class="tool-icon text-primary">
-                    <i class="${tool.icon}"></i>
-                </div>
-                <h6 class="mb-1">${tool.name}</h6>
-                <p class="small text-muted mb-0">${tool.description}</p>
-            </div>
-        `).join('');
-
-        // Ajouter les événements
-        document.querySelectorAll('.tool-card').forEach(card => {
-            card.addEventListener('click', function() {
-                const toolId = this.dataset.tool;
-                openToolModal(toolId);
-            });
-        });
-    }
-
-    // Ouvrir la modale d'un outil spécifique
-    function openToolModal(toolId) {
-        switch(toolId) {
-            case 'math-formula':
-                $('#mathFormulaModal').modal('show');
-                updateLatexPreview();
-                break;
-            case 'math-graph':
-                $('#mathGraphModal').modal('show');
-                initFunctionPlotter();
-                break;
-            case 'chem-molecule':
-                $('#chemMoleculeModal').modal('show');
-                initChemDoodle();
-                break;
-            case 'chem-reaction':
-                $('#chemReactionModal').modal('show');
-                updateReactionPreview();
-                break;
-            case 'science-chart':
-                $('#scienceChartModal').modal('show');
-                initScienceChart();
-                break;
-            case 'media-image':
-                $('#imageModal').modal('show');
-                break;
-            case 'science-diagram':
-                $('#diagramModal').modal('show');
-                break;
-        }
-    }
-
-    // =======================================================================
-    // OUTILS MATHÉMATIQUES
-    // =======================================================================
-
-    // Formules LaTeX
-    function updateLatexPreview() {
-        const latexCode = document.getElementById('latex-editor').value;
-        const previewElement = document.getElementById('latex-preview');
-        
-        try {
-            previewElement.innerHTML = `\\(${latexCode}\\)`;
-            MathJax.typeset([previewElement]);
-        } catch (error) {
-            previewElement.innerHTML = '<span class="text-danger">Erreur dans la formule</span>';
-        }
-    }
-
-    // Traceur de fonctions
-    function initFunctionPlotter() {
-        const canvas = document.getElementById('function-canvas');
-        const ctx = canvas.getContext('2d');
-        
-        window.plotFunction = function() {
-            const funcStr = document.getElementById('function-input').value;
-            const xMin = parseFloat(document.getElementById('x-min').value);
-            const xMax = parseFloat(document.getElementById('x-max').value);
-            const color = document.getElementById('graph-color').value;
-            
-            // Effacer le canvas
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Dessiner les axes
-            ctx.strokeStyle = '#000';
-            ctx.lineWidth = 1;
-            
-            // Axe X
-            ctx.beginPath();
-            ctx.moveTo(0, canvas.height/2);
-            ctx.lineTo(canvas.width, canvas.height/2);
-            ctx.stroke();
-            
-            // Axe Y
-            ctx.beginPath();
-            ctx.moveTo(canvas.width/2, 0);
-            ctx.lineTo(canvas.width/2, canvas.height);
-            ctx.stroke();
-            
-            // Tracer la fonction
-            ctx.strokeStyle = color;
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            
-            const scaleX = canvas.width / (xMax - xMin);
-            const scaleY = canvas.height / 20; // Échelle Y arbitraire
-            
-            for (let x = xMin; x <= xMax; x += 0.1) {
-                try {
-                    // Évaluation simple de la fonction
-                    const y = eval(funcStr.replace(/x/g, `(${x})`));
-                    const canvasX = (x - xMin) * scaleX;
-                    const canvasY = canvas.height/2 - y * scaleY;
-                    
-                    if (x === xMin) {
-                        ctx.moveTo(canvasX, canvasY);
-                    } else {
-                        ctx.lineTo(canvasX, canvasY);
-                    }
-                } catch (e) {
-                    console.error('Erreur fonction:', e);
-                }
-            }
-            
-            ctx.stroke();
-        };
-        
-        // Événements
-        document.getElementById('plot-function').addEventListener('click', plotFunction);
-        document.getElementById('function-input').addEventListener('keyup', function(e) {
-            if (e.key === 'Enter') plotFunction();
-        });
-        
-        // Tracer par défaut
-        plotFunction();
-    }
-
-    // =======================================================================
-    // OUTILS CHIMIE
-    // =======================================================================
-
-    function initChemDoodle() {
-        if (typeof ChemDoodle !== 'undefined') {
-            chemCanvas = new ChemDoodle.ViewerCanvas('chemdoodle-canvas', 400, 400);
-            chemCanvas.styles.atoms_displayTerminalCarbonLabels_2D = true;
-            
-            // Événements des boutons
-            document.getElementById('chem-carbon').addEventListener('click', () => addAtom('C'));
-            document.getElementById('chem-oxygen').addEventListener('click', () => addAtom('O'));
-            document.getElementById('chem-hydrogen').addEventListener('click', () => addAtom('H'));
-            document.getElementById('chem-nitrogen').addEventListener('click', () => addAtom('N'));
-            document.getElementById('chem-clear').addEventListener('click', clearCanvas);
-            
-            // Modèles prédéfinis
-            document.getElementById('chem-templates').addEventListener('change', function(e) {
-                loadTemplate(e.target.value);
-            });
-        }
-    }
-
-    function addAtom(element) {
-        if (chemCanvas) {
-            const molecule = chemCanvas.getMolecule();
-            const atom = new ChemDoodle.structures.Atom(element, 200, 200);
-            molecule.addAtom(atom);
-            chemCanvas.repaint();
-        }
-    }
-
-    function clearCanvas() {
-        if (chemCanvas) {
-            chemCanvas.clear();
-            chemCanvas.repaint();
-        }
-    }
-
-    function loadTemplate(template) {
-        if (!chemCanvas) return;
-        
-        clearCanvas();
-        const molecule = chemCanvas.getMolecule();
-        
-        switch(template) {
-            case 'water':
-                // H-O-H
-                const o = new ChemDoodle.structures.Atom('O', 200, 200);
-                const h1 = new ChemDoodle.structures.Atom('H', 150, 200);
-                const h2 = new ChemDoodle.structures.Atom('H', 250, 200);
-                molecule.addAtom(o);
-                molecule.addAtom(h1);
-                molecule.addAtom(h2);
-                break;
-            case 'methane':
-                // CH4 tétraédrique
-                const c = new ChemDoodle.structures.Atom('C', 200, 200);
-                molecule.addAtom(c);
-                // Simplifié - positions approximatives
-                for (let i = 0; i < 4; i++) {
-                    const angle = (i * 90) * Math.PI / 180;
-                    const h = new ChemDoodle.structures.Atom('H', 
-                        200 + 50 * Math.cos(angle), 
-                        200 + 50 * Math.sin(angle)
-                    );
-                    molecule.addAtom(h);
-                }
-                break;
-        }
-        
-        chemCanvas.repaint();
-    }
-
-    // Équations chimiques
-    function updateReactionPreview() {
-        const reactants = document.getElementById('reactants-input').value;
-        const products = document.getElementById('products-input').value;
-        const conditions = document.getElementById('conditions-input').value;
-        
-        document.getElementById('reactants-preview').textContent = formatChemical(reactants);
-        document.getElementById('products-preview').textContent = formatChemical(products);
-        document.getElementById('conditions-preview').textContent = conditions;
-    }
-
-    function formatChemical(formula) {
-        return formula.replace(/_(\d)/g, '<sub>$1</sub>');
-    }
-
-    // =======================================================================
-    // OUTILS SCIENCES
-    // =======================================================================
-
-    function initScienceChart() {
-        updateScienceChart();
-        
-        document.getElementById('update-chart').addEventListener('click', updateScienceChart);
-        document.getElementById('chart-type').addEventListener('change', updateScienceChart);
-    }
-
-    function updateScienceChart() {
-        const chartType = document.getElementById('chart-type').value;
-        const dataText = document.getElementById('chart-data').value;
-        
-        const ctx = document.getElementById('science-chart').getContext('2d');
-        
-        if (currentChart) {
-            currentChart.destroy();
-        }
-        
-        // Parser les données CSV simples
-        const lines = dataText.trim().split('\n');
-        const headers = lines[0].split(',');
-        const labels = [];
-        const data = [];
-        
-        for (let i = 1; i < lines.length; i++) {
-            const values = lines[i].split(',');
-            labels.push(values[0]);
-            data.push(parseFloat(values[1]));
-        }
-        
-        const chartData = {
-            labels: labels,
-            datasets: [{
-                label: headers[1],
-                data: data,
-                backgroundColor: [
-                    '#ff6384', '#36a2eb', '#ffce56', '#4bc0c0',
-                    '#9966ff', '#ff9f40', '#ff6384', '#c9cbcf'
-                ],
-                borderWidth: 1
-            }]
-        };
-        
-        const config = {
-            type: chartType,
-            data: chartData,
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    }
-                }
-            }
-        };
-        
-        currentChart = new Chart(ctx, config);
-    }
-
-    // =======================================================================
-    // GESTION DU CONTENU
-    // =======================================================================
-
-    function insertContent(content) {
-        if (easyMDE) {
-            easyMDE.codemirror.replaceSelection(content + '\n\n');
-        } else {
-            const textarea = document.getElementById('editor-textarea');
-            const start = textarea.selectionStart;
-            const end = textarea.selectionEnd;
-            textarea.value = textarea.value.substring(0, start) + content + '\n\n' + textarea.value.substring(end);
-            textarea.selectionStart = textarea.selectionEnd = start + content.length + 2;
-            textarea.focus();
-        }
-    }
-
-    function updatePreview() {
-        const markdownContent = easyMDE ? easyMDE.value() : document.getElementById('editor-textarea').value;
-        const previewElement = document.getElementById('markdown-preview');
-        
-        if (previewElement) {
-            let htmlContent = marked.parse(markdownContent);
-            
-            // Traiter les diagrammes Mermaid
-            htmlContent = htmlContent.replace(/<pre><code class="language-mermaid">([\s\S]*?)<\/code><\/pre>/g, 
-                (match, diagramCode) => `<div class="mermaid">${diagramCode}</div>`
-            );
-            
-            previewElement.innerHTML = htmlContent;
-            
-            // MathJax
-            if (typeof MathJax !== 'undefined') {
-                MathJax.typeset([previewElement]);
-            }
-            
-            // Mermaid
-            if (typeof mermaid !== 'undefined') {
-                mermaid.initialize({ startOnLoad: true, theme: 'default' });
-                mermaid.init(undefined, previewElement.querySelectorAll('.mermaid'));
-            }
-        }
-    }
-
-    // =======================================================================
-    // ÉVÉNEMENTS ET INITIALISATION
-    // =======================================================================
-
-    function initEvents() {
-        // Navigation par discipline
-        document.querySelectorAll('.dropdown-menu a[data-tool]').forEach(item => {
-            item.addEventListener('click', function(e) {
-                e.preventDefault();
-                const tool = this.dataset.tool;
-                openToolModal(tool);
-            });
-        });
-
-        // Boutons de discipline
-        document.querySelectorAll('.dropdown-toggle').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const discipline = this.textContent.trim().toLowerCase();
-                if (discipline.includes('math')) loadTools('mathematics');
-                else if (discipline.includes('chim')) loadTools('chemistry');
-                else if (discipline.includes('science')) loadTools('science');
-                else if (discipline.includes('média')) loadTools('media');
-            });
-        });
-
-        // Formules LaTeX
-        document.getElementById('latex-editor').addEventListener('input', updateLatexPreview);
-        document.querySelectorAll('[data-example]').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.getElementById('latex-editor').value = this.dataset.example;
-                updateLatexPreview();
-            });
-        });
-        document.getElementById('insert-latex').addEventListener('click', function() {
-            const latexCode = document.getElementById('latex-editor').value;
-            const displayMode = document.getElementById('latex-display').value;
-            const wrapper = displayMode === 'block' ? '\\[' + latexCode + '\\]' : '\\(' + latexCode + '\\)';
-            insertContent(wrapper);
-            $('#mathFormulaModal').modal('hide');
-        });
-
-        // Graphiques de fonctions
-        document.getElementById('insert-graph').addEventListener('click', function() {
-            const funcStr = document.getElementById('function-input').value;
-            insertContent(`**Graphique de la fonction:** \\(f(x) = ${funcStr}\\)\n\n*[Graphique généré]*`);
-            $('#mathGraphModal').modal('hide');
-        });
-
-        // Équations chimiques
-        document.getElementById('reactants-input').addEventListener('input', updateReactionPreview);
-        document.getElementById('products-input').addEventListener('input', updateReactionPreview);
-        document.getElementById('conditions-input').addEventListener('input', updateReactionPreview);
-        document.getElementById('insert-reaction').addEventListener('click', function() {
-            const reactants = document.getElementById('reactants-input').value;
-            const products = document.getElementById('products-input').value;
-            const conditions = document.getElementById('conditions-input').value;
-            const equation = `${formatChemical(reactants)} → ${formatChemical(products)}`;
-            let content = `**Équation chimique:** ${equation}`;
-            if (conditions) content += `\n\n*Conditions: ${conditions}*`;
-            insertContent(content);
-            $('#chemReactionModal').modal('hide');
-        });
-
-        // Graphiques scientifiques
-        document.getElementById('insert-chart').addEventListener('click', function() {
-            insertContent('*[Graphique inséré - les données seront incluses dans le PDF]*');
-            $('#scienceChartModal').modal('hide');
-        });
-
-        // Aperçu
-        document.getElementById('preview-toggle').addEventListener('click', function() {
-            const previewTab = document.getElementById('preview-tab');
-            if (previewTab.classList.contains('active')) {
-                document.getElementById('edit-tab').click();
-            } else {
-                updatePreview();
-                previewTab.click();
-            }
-        });
-
-        // Onglet aperçu
-        document.getElementById('preview-tab').addEventListener('click', function() {
-            setTimeout(updatePreview, 100);
-        });
-    }
-
-    // Initialiser l'éditeur de tableaux
-    initTableEditor();
-    // Initialisation
-    initEvents();
-
-    return {
-        init: initEditor,
-        getContent: function() {
-            return easyMDE ? easyMDE.value() : document.getElementById('editor-textarea').value;
-        },
-        setContent: function(content) {
-            if (easyMDE) {
-                easyMDE.value(content);
-            } else {
-                document.getElementById('editor-textarea').value = content;
-            }
-        },
-        setFlowType: function(flowType) {
-            currentFlowType = flowType;
-        },
-        getFlowType: function() {
-            return currentFlowType;
-        }
-    };
-}
-
-// =======================================================================
-// INTÉGRATION AVEC L'APPLICATION EXISTANTE
-// =======================================================================
-
-// Initialiser l'éditeur multidisciplinaire
-const multidisciplinaryEditor = initMultidisciplinaryEditor();
-
-// Remplacer l'ancien gestionnaire d'édition
-document.addEventListener('DOMContentLoaded', () => {
-    // ... votre code existant ...
-    
-    // MODIFIER cette partie pour utiliser le nouvel éditeur
-    document.querySelectorAll('.option-button').forEach(button => {
-        if (button.innerHTML.includes('Éditer') || button.textContent.includes('Éditer')) {
-            button.addEventListener('click', () => {
-                // Initialiser l'éditeur multidisciplinaire
-                multidisciplinaryEditor.init();
-                multidisciplinaryEditor.setContent(conversationState.generated_text);
-                multidisciplinaryEditor.setFlowType(conversationState.collectedData.flow_type);
-                
-                const editModal = new bootstrap.Modal(document.getElementById('editModal'));
-                editModal.show();
-            });
-        }
-    });
-    
-    // MODIFIER le gestionnaire de sauvegarde
-    document.getElementById('save-and-download-btn').addEventListener('click', async () => {
-        const editedContent = multidisciplinaryEditor.getContent();
-        const flowType = multidisciplinaryEditor.getFlowType();
-        
-        conversationState.generated_text = editedContent;
-        if (conversationState.collectedData) {
-            conversationState.collectedData.flow_type = flowType;
-        } else {
-            conversationState.collectedData = { flow_type: flowType };
-        }
-        
-        const editModal = bootstrap.Modal.getInstance(document.getElementById('editModal'));
-        editModal.hide();
-        
-        await downloadPdf();
-    });
-    
-    // Nouveau bouton de sauvegarde seule
-    document.getElementById('save-content-btn').addEventListener('click', function() {
-        const editedContent = multidisciplinaryEditor.getContent();
-        conversationState.generated_text = editedContent;
-        
-        // Afficher un message de confirmation
-        const toast = new bootstrap.Toast(document.createElement('div'));
-        // ... code pour toast ...
-        
-        console.log('Contenu sauvegardé (mais pas téléchargé)');
-    });
-});
-
-/*==============================================================
-// Nouvelle fonction pour sauvegarder les modifications
-================================================================*/
-// Nouvelle fonction pour sauvegarder les modifications
-async function saveEditedContent(content, flowType, generationId) {
-    try {
-        const response = await fetch('/api/history/update', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                generation_id: generationId,
-                content: content,
-                flow_type: flowType
-            })
-        });
-        
-        if (!response.ok) {
-            throw new Error('Erreur lors de la sauvegarde');
-        }
-        
-        return await response.json();
-    } catch (error) {
-        console.error("Erreur de sauvegarde:", error);
-        throw error;
-    }
-}
-
-// Modifiez le gestionnaire de sauvegarde existant
-document.getElementById('save-content-btn').addEventListener('click', async function() {
-    const editedContent = multidisciplinaryEditor.getContent();
-    const flowType = multidisciplinaryEditor.getFlowType();
-    
-    // Mettre à jour l'état local
-    conversationState.generated_text = editedContent;
-    
-    try {
-        // CORRECTION : Sauvegarder aussi dans la base de données
-        const generationId = this.dataset.generationId; // Vous devrez passer l'ID
-        if (generationId) {
-            await saveEditedContent(editedContent, flowType, generationId);
-        }
-        
-        // Afficher un message de confirmation
-        const toast = document.createElement('div');
-        toast.className = 'alert alert-success alert-dismissible fade show';
-        toast.innerHTML = `
-            <strong>Succès!</strong> Modifications sauvegardées.
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
-        document.querySelector('.modal-footer').prepend(toast);
-        
-        setTimeout(() => {
-            toast.remove();
-        }, 3000);
-        
-    } catch (error) {
-        const toast = document.createElement('div');
-        toast.className = 'alert alert-danger alert-dismissible fade show';
-        toast.innerHTML = `
-            <strong>Erreur!</strong> Impossible de sauvegarder les modifications.
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
-        document.querySelector('.modal-footer').prepend(toast);
-    }
-});
-
-
-// =======================================================================
-// FONCTIONS POUR LA GESTION DES TABLEAUX
-// =======================================================================
-
-function initTableEditor() {
-    // Ouvrir la modale tableau
-    document.querySelectorAll('[data-tool="media-table"]').forEach(item => {
-        item.addEventListener('click', function(e) {
-            e.preventDefault();
-            $('#tableModal').modal('show');
-            generateTablePreview();
-        });
-    });
-
-    // Événements pour la modale tableau
-    document.getElementById('table-rows').addEventListener('input', generateTablePreview);
-    document.getElementById('table-cols').addEventListener('input', generateTablePreview);
-    document.getElementById('table-header').addEventListener('change', generateTablePreview);
-    document.getElementById('table-align').addEventListener('change', generateTablePreview);
-    document.getElementById('table-templates').addEventListener('change', applyTableTemplate);
-    document.getElementById('update-table-preview').addEventListener('click', generateTablePreview);
-    document.getElementById('insert-table').addEventListener('click', insertTableIntoEditor);
-}
-
-function generateTablePreview() {
-    const rows = parseInt(document.getElementById('table-rows').value);
-    const cols = parseInt(document.getElementById('table-cols').value);
-    const hasHeader = document.getElementById('table-header').checked;
-    const isCentered = document.getElementById('table-align').checked;
-    
-    const previewElement = document.getElementById('table-preview');
-    const contentEditor = document.getElementById('table-content-editor');
-    const cellsContainer = document.getElementById('table-cells-container');
-    
-    // Générer le markup Markdown du tableau
-    let tableMarkdown = '';
-    
-    // En-tête du tableau
-    if (hasHeader) {
-        tableMarkdown += '|';
-        for (let c = 0; c < cols; c++) {
-            tableMarkdown += ` En-tête ${c+1} |`;
-        }
-        tableMarkdown += '\n|';
-        
-        // Ligne de séparation
-        for (let c = 0; c < cols; c++) {
-            tableMarkdown += isCentered ? ' :---: |' : ' --- |';
-        }
-        tableMarkdown += '\n';
-    } else {
-        // Ligne de séparation sans en-tête
-        tableMarkdown += '|';
-        for (let c = 0; c < cols; c++) {
-            tableMarkdown += isCentered ? ' :---: |' : ' --- |';
-        }
-        tableMarkdown += '\n';
-    }
-    
-    // Corps du tableau
-    const startRow = hasHeader ? 0 : 1;
-    for (let r = startRow; r < rows + startRow; r++) {
-        tableMarkdown += '|';
-        for (let c = 0; c < cols; c++) {
-            tableMarkdown += ` Cellule ${r+1}-${c+1} |`;
-        }
-        tableMarkdown += '\n';
-    }
-    
-    // Afficher l'aperçu
-    previewElement.innerHTML = marked.parse(tableMarkdown);
-    
-    // Générer les champs de saisie pour le contenu
-    generateTableInputs(rows, cols, hasHeader);
-    contentEditor.style.display = 'block';
-}
-
-function generateTableInputs(rows, cols, hasHeader) {
-    const cellsContainer = document.getElementById('table-cells-container');
-    cellsContainer.innerHTML = '';
-    
-    const totalRows = hasHeader ? rows + 1 : rows;
-    
-    for (let r = 0; r < totalRows; r++) {
-        const rowDiv = document.createElement('div');
-        rowDiv.className = 'row g-2 mb-2';
-        
-        for (let c = 0; c < cols; c++) {
-            const colDiv = document.createElement('div');
-            colDiv.className = 'col';
-            
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.className = 'form-control form-control-sm';
-            input.placeholder = `L${r+1}C${c+1}`;
-            input.dataset.row = r;
-            input.dataset.col = c;
-            
-            // Pré-remplir avec des valeurs par défaut
-            if (hasHeader && r === 0) {
-                input.value = `En-tête ${c+1}`;
-            } else {
-                const actualRow = hasHeader ? r : r + 1;
-                input.value = `Cellule ${actualRow}-${c+1}`;
-            }
-            
-            colDiv.appendChild(input);
-            rowDiv.appendChild(colDiv);
-        }
-        
-        cellsContainer.appendChild(rowDiv);
-    }
-}
-
-function applyTableTemplate() {
-    const template = document.getElementById('table-templates').value;
-    
-    switch(template) {
-        case 'comparison':
-            document.getElementById('table-rows').value = 4;
-            document.getElementById('table-cols').value = 3;
-            document.getElementById('table-header').checked = true;
-            break;
-            
-        case 'data':
-            document.getElementById('table-rows').value = 5;
-            document.getElementById('table-cols').value = 4;
-            document.getElementById('table-header').checked = true;
-            break;
-            
-        case 'schedule':
-            document.getElementById('table-rows').value = 6;
-            document.getElementById('table-cols').value = 6;
-            document.getElementById('table-header').checked = true;
-            break;
-            
-        case 'grades':
-            document.getElementById('table-rows').value = 8;
-            document.getElementById('table-cols').value = 5;
-            document.getElementById('table-header').checked = true;
-            break;
-    }
-    
-    generateTablePreview();
-}
-
-function insertTableIntoEditor() {
-    const rows = parseInt(document.getElementById('table-rows').value);
-    const cols = parseInt(document.getElementById('table-cols').value);
-    const hasHeader = document.getElementById('table-header').checked;
-    const isCentered = document.getElementById('table-align').checked;
-    
-    // Récupérer les valeurs des cellules
-    const inputs = document.querySelectorAll('#table-cells-container input');
-    const cellValues = Array.from(inputs).map(input => input.value.trim() || input.placeholder);
-    
-    // Générer le tableau Markdown final
-    let tableMarkdown = '\n\n'; // Espace avant le tableau
-    
-    let cellIndex = 0;
-    
-    // En-tête
-    if (hasHeader) {
-        tableMarkdown += '|';
-        for (let c = 0; c < cols; c++) {
-            tableMarkdown += ` ${cellValues[cellIndex++]} |`;
-        }
-        tableMarkdown += '\n|';
-        
-        // Ligne de séparation
-        for (let c = 0; c < cols; c++) {
-            tableMarkdown += isCentered ? ' :---: |' : ' --- |';
-        }
-        tableMarkdown += '\n';
-    } else {
-        // Ligne de séparation sans en-tête
-        tableMarkdown += '|';
-        for (let c = 0; c < cols; c++) {
-            tableMarkdown += isCentered ? ' :---: |' : ' --- |';
-        }
-        tableMarkdown += '\n';
-    }
-    
-    // Corps du tableau
-    const startRow = hasHeader ? 1 : 0;
-    const totalRows = hasHeader ? rows + 1 : rows;
-    
-    for (let r = startRow; r < totalRows; r++) {
-        tableMarkdown += '|';
-        for (let c = 0; c < cols; c++) {
-            if (cellIndex < cellValues.length) {
-                tableMarkdown += ` ${cellValues[cellIndex++]} |`;
-            }
-        }
-        tableMarkdown += '\n';
-    }
-    
-    tableMarkdown += '\n'; // Espace après le tableau
-    
-    // Insérer dans l'éditeur
-    if (typeof multidisciplinaryEditor !== 'undefined' && multidisciplinaryEditor.getContent) {
-        const currentContent = multidisciplinaryEditor.getContent();
-        multidisciplinaryEditor.setContent(currentContent + tableMarkdown);
-    } else {
-        const editorTextarea = document.getElementById('editor-textarea');
-        if (editorTextarea) {
-            editorTextarea.value += tableMarkdown;
-        }
-    }
-    
-    // Fermer la modale
-    $('#tableModal').modal('hide');
-    
-    // Mettre à jour l'aperçu si disponible
-    if (typeof multidisciplinaryEditor !== 'undefined' && multidisciplinaryEditor.updatePreview) {
-        multidisciplinaryEditor.updatePreview();
-    }
-}
-
-// Fonction utilitaire pour insérer un tableau simple rapidement
-function insertQuickTable(rows = 3, cols = 3, hasHeader = true) {
-    let tableMarkdown = '\n\n';
-    
-    // En-tête
-    if (hasHeader) {
-        tableMarkdown += '|';
-        for (let c = 0; c < cols; c++) {
-            tableMarkdown += ` Colonne ${c+1} |`;
-        }
-        tableMarkdown += '\n|';
-        
-        for (let c = 0; c < cols; c++) {
-            tableMarkdown += ' --- |';
-        }
-        tableMarkdown += '\n';
-    }
-    
-    // Données
-    for (let r = 0; r < rows; r++) {
-        tableMarkdown += '|';
-        for (let c = 0; c < cols; c++) {
-            tableMarkdown += ` Ligne ${r+1} Col ${c+1} |`;
-        }
-        tableMarkdown += '\n';
-    }
-    
-    tableMarkdown += '\n';
-    
-    // Insérer dans l'éditeur
-    if (typeof multidisciplinaryEditor !== 'undefined' && multidisciplinaryEditor.getContent) {
-        const currentContent = multidisciplinaryEditor.getContent();
-        multidisciplinaryEditor.setContent(currentContent + tableMarkdown);
-    } else {
-        const editorTextarea = document.getElementById('editor-textarea');
-        if (editorTextarea) {
-            editorTextarea.value += tableMarkdown;
-        }
-    }
-}
-
-</script>
-
-<!-- SCRIPT MENU MOBIE-->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script src="https://unpkg.com/easymde/dist/easymde.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+
+<!-- 2. SCRIPT PRINCIPAL STRUCTURÉ -->
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        // --- GESTION DU MENU MOBILE COMPACT ---
-        const menuToggle = document.getElementById('menu-toggle');
-        const mobileMenu = document.getElementById('mobile-menu');
-        const mobileOverlay = document.getElementById('mobile-menu-overlay');
-        
-        function openMobileMenu() {
-            if (mobileMenu && mobileOverlay) {
-                mobileMenu.classList.add('show');
-                mobileOverlay.classList.add('show');
-                document.body.style.overflow = 'hidden';
-            }
-        }
-        
-        function closeMobileMenu() {
-            if (mobileMenu && mobileOverlay) {
-                mobileMenu.classList.remove('show');
-                mobileOverlay.classList.remove('show');
-                document.body.style.overflow = '';
-            }
-        }
-        
-        if (menuToggle && mobileMenu) {
-            // Créer l'overlay s'il n'existe pas
-            if (!mobileOverlay) {
-                const overlay = document.createElement('div');
-                overlay.id = 'mobile-menu-overlay';
-                overlay.className = 'mobile-menu-overlay';
-                document.body.appendChild(overlay);
-                
-                overlay.addEventListener('click', closeMobileMenu);
-            }
-            
-            menuToggle.addEventListener('click', openMobileMenu);
-            
-            // Fermer avec la touche Échap
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') closeMobileMenu();
-            });
-            
-            // Fermer en cliquant sur les liens
-            const menuLinks = mobileMenu.querySelectorAll('a');
-            menuLinks.forEach(link => {
-                link.addEventListener('click', () => {
-                    setTimeout(closeMobileMenu, 300);
-                });
-            });
-        }
 
-        // --- GESTION DE LA TRADUCTION ---
-        const langButtons = document.querySelectorAll('.lang-btn, .nav-compact-lang-btn');
-        const translatableElements = document.querySelectorAll('[data-lang-en]');
-
-        const switchLanguage = (lang) => {
-            translatableElements.forEach(el => {
-                const text = el.getAttribute(lang === 'fr' ? 'data-lang-fr' : 'data-lang-en');
-                if (text) {
-                    const span = el.querySelector('span');
-                    if (span) {
-                        span.textContent = text;
-                    } else {
-                        el.textContent = text;
-                    }
-                }
-            });
-            langButtons.forEach(btn => {
-                btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
-            });
-            document.documentElement.lang = lang;
-            localStorage.setItem('selectedLanguage', lang);
+//ligne pour que Live-Server (port 5500) sache où trouver Flask (port 5000)
+    const BACKEND_URL = (window.location.port === '5500' || window.location.port === '8080') ? 'http://127.0.0.1:5000' : '';
+        
+        // =======================================================================
+        // ÉTAT GLOBAL DE L'APPLICATION
+        // =======================================================================
+        let conversationState = {
+            lang: 'fr',
+            currentStep: 'start',
+            collectedData: {},
+            generated_text: "",
+            step_history: []
         };
 
-        langButtons.forEach(button => {
-            button.addEventListener('click', (e) => {
-                e.preventDefault();
-                switchLanguage(button.getAttribute('data-lang'));
-            });
-        });
+        // =======================================================================
+        // SÉLECTEURS D'ÉLÉMENTS DU DOM
+        // =======================================================================
+        const dom = {
+            chatMessages: document.getElementById('chat-messages'),
+            optionsContainer: document.getElementById('options-container'),
+            chatForm: document.getElementById('chat-form'),
+            chatInput: document.getElementById('chat-input'),
+            historyContainer: document.getElementById('history-items-container'),
+            sidebar: document.getElementById('sidebar'),
+            sidebarOverlay: document.getElementById('sidebar-overlay'),
+            menuToggle: document.getElementById('menu-toggle'),
+            editModal: document.getElementById('editModal'),
+            editorTextarea: document.getElementById('editor-textarea'),
+        };
+
+        // =======================================================================
+        // MODULE UI : Gère l'affichage
+        // =======================================================================
+        const ui = {
+            addMessage(content, sender) {
+                const messageElement = document.createElement('div');
+                messageElement.className = `message ${sender}`;
+                const contentElement = document.createElement('div');
+                contentElement.className = 'content';
+                
+                if (content && content.includes('loading-content')) {
+                    contentElement.innerHTML = content;
+                } else {
+                    // Sécurité : gère marked qu'il soit une fonction ou un objet .parse
+                    try {
+                        if (typeof marked === 'function') {
+                            contentElement.innerHTML = marked(content || "");
+                        } else if (typeof marked === 'object' && marked.parse) {
+                            contentElement.innerHTML = marked.parse(content || "");
+                        } else {
+                            contentElement.textContent = content || "";
+                        }
+                    } catch (e) {
+                        contentElement.textContent = content || "";
+                    }
+
+                    if (typeof renderMathInElement === 'function') {
+                        try {
+                            renderMathInElement(contentElement, {
+                                delimiters: [
+                                    {left: '$$', right: '$$', display: true},
+                                    {left: '$', right: '$', display: false}
+                                ],
+                                throwOnError: false
+                            });
+                        } catch (e) {}
+                    }
+                }
+                messageElement.appendChild(contentElement);
+                dom.chatMessages.appendChild(messageElement);
+                this.scrollToBottom();
+            },
+            
+            showOptions(options, isTextInput = false) {
+                dom.optionsContainer.innerHTML = '';
+                dom.chatInput.disabled = !isTextInput;
+
+                // NOUVEAU : indication claire dans la barre de saisie selon le mode
+                // (texte libre ou choix par bouton), pour que l'utilisateur sache
+                // toujours quoi faire sans avoir à deviner.
+                if (isTextInput) {
+                    dom.chatInput.focus();
+                    dom.chatInput.placeholder = conversationState.lang === 'en'
+                        ? 'Type your answer, then tap the ⬆️ button to send'
+                        : 'Tapez votre réponse, puis appuyez sur le bouton ⬆️ pour valider';
+                } else {
+                    dom.chatInput.placeholder = conversationState.lang === 'en'
+                        ? 'Choose one of the options above'
+                        : 'Choisissez une des options ci-dessus';
+                }
+
+                if (options && options.length > 0) {
+                    options.forEach(optionText => {
+                        const button = document.createElement('button');
+                        button.className = 'btn option-button';
+                        button.textContent = optionText;
+                        dom.optionsContainer.appendChild(button);
+                    });
+                }
+                
+                if (conversationState.generated_text && options && options.some(opt => opt.includes('PDF'))) {
+                    const editButton = document.createElement('button');
+                    editButton.className = 'btn btn-outline-secondary';
+                    editButton.innerHTML = '<i class="bi bi-pencil-square"></i> Éditer';
+                    editButton.id = 'edit-generated-btn';
+                    dom.optionsContainer.appendChild(editButton);
+                }
+                this.scrollToBottom();
+            },
+
+            scrollToBottom() {
+                setTimeout(() => dom.chatMessages.scrollTo({ top: dom.chatMessages.scrollHeight, behavior: 'smooth' }), 100);
+            },
+            
+            toggleSidebar(forceState) {
+                const show = forceState !== undefined ? forceState : !dom.sidebar.classList.contains('show');
+                dom.sidebar.classList.toggle('show', show);
+                dom.sidebarOverlay.classList.toggle('show', show);
+            },
+
+            renderHistory(items) {
+                dom.historyContainer.innerHTML = '';
+                if (!items || items.length === 0) {
+                    dom.historyContainer.innerHTML = `<li><span class="history-item text-muted">Aucun historique</span></li>`;
+                    return;
+                }
+                items.forEach(item => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<a href="#" class="history-item" data-id="${item.id}"><i class="bi bi-chat-left-text me-2"></i>${item.title || 'Sans titre'}</a>`;
+                    dom.historyContainer.appendChild(li);
+                });
+            }
+        };
+
+        // =======================================================================
+        // MODULE API : Gère la communication avec le backend
+        // =======================================================================
+        const api = {
+            async sendMessage(userMessage) {
+                ui.addMessage('<div class="loading-content"><div class="spinner"></div><span>Veuillez patienter...</span></div>', 'ai');
+                const loadingElement = dom.chatMessages.lastElementChild;
+
+                try {
+                    const response = await fetch(`${BACKEND_URL}/api/chat`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({ message: userMessage, state: conversationState })
+                    });
+                    
+                    if (loadingElement) loadingElement.remove();
+
+                    if (response.status === 401) {
+                        ui.addMessage("⚠️ Session expirée ou non connectée. Veuillez vous connecter via /login.", 'ai');
+                        ui.showOptions(['Recommencer']);
+                        return;
+                    }
+
+                    if (!response.ok) {
+                        const errData = await response.json().catch(() => ({}));
+                        throw new Error(errData.error || `Erreur HTTP ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    conversationState = data.state;
+
+                    // NOUVEAU : si le serveur renvoie plusieurs messages séparés
+                    // (response_multi), on les affiche chacun dans sa propre bulle.
+                    // Sinon, comportement normal inchangé avec un seul message.
+                    if (data.response_multi) {
+                        data.response_multi.forEach(msg => ui.addMessage(msg, 'ai'));
+                    } else {
+                        ui.addMessage(data.response, 'ai');
+                    }
+                    ui.showOptions(data.options, data.is_text_input);
+
+                } catch (error) {
+                    console.error("Erreur API:", error);
+                    if (loadingElement) loadingElement.remove();
+                    ui.addMessage(`❌ ${error.message}`, 'ai');
+                    ui.showOptions(['Recommencer']);
+                }
+            },
+            
+            async loadHistory() {
+                try {
+                    const response = await fetch('/api/history');
+                    if (!response.ok) throw new Error('Échec du chargement de l\'historique');
+                    const items = await response.json();
+                    ui.renderHistory(items);
+                } catch (error) {
+                    console.error(error);
+                    ui.renderHistory(null);
+                }
+            },
+            
+            async loadGeneration(id) {
+                ui.addMessage('<div class="loading-content"><div class="spinner"></div></div>', 'ai');
+                try {
+                    const response = await fetch(`/api/history/${id}`);
+                    if (!response.ok) throw new Error('Échec du chargement de la génération');
+                    const data = await response.json();
+                    dom.chatMessages.lastElementChild.remove();
+                    
+                    conversationState.generated_text = data.content;
+                    conversationState.collectedData = conversationState.collectedData || {};
+                    conversationState.collectedData.flow_type = data.flow_type;
+                    
+                    app.openEditorWithContent(data.content);
+
+                } catch (error) {
+                    console.error(error);
+                    dom.chatMessages.lastElementChild.innerHTML = `<div class="content">Impossible de charger cette conversation.</div>`;
+                }
+            },
+
+            async downloadPdf() {
+                ui.addMessage('<div class="loading-content"><div class="spinner"></div> <span>Préparation du PDF...</span></div>', 'ai');
+                const loadingMessageContent = dom.chatMessages.lastElementChild.querySelector('.content');
+                try {
+                    const response = await fetch('/api/generate-pdf', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ markdown_text: conversationState.generated_text, state: conversationState })
+                    });
+                    const data = await response.json();
+                    if (!response.ok || !data.success) throw new Error('Échec de la génération du PDF');
+                    loadingMessageContent.innerHTML = '<span>Votre téléchargement a commencé.</span>';
+                    window.location.href = `/api/download/${data.temp_filename}/${data.download_filename}`;
+                    setTimeout(() => api.sendMessage("internal_pdf_download_complete"), 1500);
+                } catch (error) {
+                    console.error(error);
+                    loadingMessageContent.innerHTML = '<span>La conversion PDF a échoué.</span>';
+                    api.sendMessage("internal_pdf_generation_failed");
+                }
+            }
+        };
         
-        const savedLang = localStorage.getItem('selectedLanguage') || 'fr';
-        switchLanguage(savedLang);
-        
-        
+
+
+
+
+        // =======================================================================
+        // NOUVEAU CHAT
+        // =======================================================================
+        window.startNewChat = function() {
+            // Réinitialise l'état de la conversation à sa valeur de départ
+            conversationState = {
+                lang: 'fr',
+                currentStep: 'start',
+                collectedData: {},
+                generated_text: "",
+                step_history: []
+            };
+
+            // Vide la zone de chat et restaure le message d'accueil initial
+            dom.chatMessages.innerHTML = `
+                <div class="message ai">
+                    <div class="content">Hello! I am the TCHATCHI AI pedagogical assistant.</div>
+                </div>
+                <div class="message ai">
+                    <div class="content">Please choose your language.</div>
+                </div>
+                <div class="message ai">
+                    <div class="content">Bonjour ! Je suis l'assistant pédagogique TCHATCHI AI.</div>
+                </div>
+                <div class="message ai">
+                    <div class="content">Veuillez choisir votre langue.</div>
+                </div>
+            `;
+
+            // Réaffiche les boutons de choix de langue
+            ui.showOptions(['🇬🇧 English', '🇫🇷 Français']);
+
+            // Ferme la sidebar automatiquement sur mobile après le clic
+            if (window.innerWidth < 992) ui.toggleSidebar(false);
+        }
+
+
+        // =======================================================================
+        // FONCTION DE GESTION DES CLICS (MAINTENANT INDÉPENDANTE)
+        // =======================================================================
+                function handleOptionClick(event) {
+                    const userChoice = event.target.textContent;
+                    ui.addMessage(userChoice, 'user');
+                    ui.showOptions([]);
+                    
+                    if (userChoice.includes('PDF')) {
+                        api.downloadPdf();
+                    } else {
+                        api.sendMessage(userChoice);
+                    }
+                }
+        // =======================================================================
+        // MODULE APP : Le coordinateur qui lie tout ensemble
+        // =======================================================================
+        const app = {
+            init() {
+                this.bindEvents();
+                api.loadHistory();
+                // NOUVEAU : la modale de bienvenue automatique a été désactivée.
+            },
+            bindEvents() {
+                // Écouteur pour le formulaire de chat
+                dom.chatForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const userMessage = dom.chatInput.value.trim();
+                    if (userMessage) {
+                        ui.addMessage(userMessage, 'user');
+                        dom.chatInput.value = '';
+                        api.sendMessage(userMessage);
+                    }
+                });
+
+                // Écouteur global pour les clics (délégation d'événements)
+                document.body.addEventListener('click', (e) => {
+                    const target = e.target;
+
+                     const optionBtn = target.closest('.option-button');
+                    if (optionBtn) {
+                        e.preventDefault();
+                        const userChoice = optionBtn.textContent.trim();
+                        ui.addMessage(userChoice, 'user');
+                        ui.showOptions([]);
+                        
+                        if (userChoice.includes('PDF') || userChoice.includes('Présentation')) {
+                            api.downloadPdf();
+                        } else {
+                            api.sendMessage(userChoice);
+                        }
+                        return;
+                    }
+                    else if (target.closest('.history-item')) {
+                        e.preventDefault();
+                        api.loadGeneration(target.closest('.history-item').dataset.id);
+                        if (window.innerWidth < 992) ui.toggleSidebar(false);
+                    }
+                    else if (target.matches('#edit-generated-btn')) {
+                        this.openEditorWithContent(conversationState.generated_text);
+                    }
+                    else if (target.matches('#save-and-download-btn')) {
+                        conversationState.generated_text = dom.editorTextarea.value;
+                        api.downloadPdf();
+                        bootstrap.Modal.getInstance(dom.editModal).hide();
+                    }
+                    else if (target.closest('#new-chat-btn')) {
+                        window.location.href = '/app';
+                    }
+                    else if (target.closest('#menu-toggle')) {
+                        ui.toggleSidebar();
+                    }
+                    else if (target.matches('#sidebar-overlay')) {
+                        ui.toggleSidebar(false);
+                    }
+                });
+
+                
+            },
+            
+            openEditorWithContent(content) {
+                const modal = bootstrap.Modal.getOrCreateInstance(dom.editModal);
+                dom.editorTextarea.value = content;
+                modal.show();
+            }
+        };
+
+        // DÉMARRAGE DE L'APPLICATION
+        app.init();
     });
-</script>
+    </script>
+<!-- ======================================================================= -->
+<!-- FIN DU SCRIPT PRINCIPAL UNIFIÉ -->
+<!-- ======================================================================= -->
 </body>
 </html>
