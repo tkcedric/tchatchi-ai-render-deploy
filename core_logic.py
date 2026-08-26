@@ -182,7 +182,13 @@ Exemple : "Connaître les quatre opérations de base (addition, soustraction...)
 
 **{situation_probleme}**
 *(Rédige ici un scénario détaillé et contextualisé au Cameroun avec Contexte, Tâche, et Consignes. Le scénario doit tenir compte des objectifs de la leçon.
+*IMPORTANT : ancre ce scénario dans l'un des 5 domaines de vie officiels du programme MINESEC (choisis celui qui correspond le mieux au sujet de la leçon) : (1) Vie familiale et sociale, (2) Vie économique, (3) Environnement, bien-être et santé, (4) Citoyenneté, (5) Médias et communication. Le scénario doit être une situation de vie réelle et crédible pour un élève camerounais dans ce domaine précis, pas une situation générique ou abstraite.
 *cette section doit commencer sur une nouvelle ligne après le titre.
+
+*RÈGLE SPÉCIALE POUR LES LANGUES VIVANTES : si la matière ({matiere}) est une langue (français, anglais, allemand, espagnol, arabe, chinois, latin, grec, ou toute mention de "langue seconde/étrangère"), la situation-problème doit OBLIGATOIREMENT s'appuyer sur un texte support ("corpus") que tu rédiges toi-même avant toute autre chose :
+1. Rédige d'abord un texte court et adapté au niveau de la classe (dialogue, récit, lettre, article, poème simple selon ce qui convient le mieux au sujet) — entre 80 mots (premier cycle) et 200 mots (second cycle), sous le titre en gras "**Texte support :**".
+2. Rédige ensuite Contexte/Tâche/Consignes comme d'habitude, mais TOUJOURS en lien direct avec ce texte : la tâche consiste à lire, comprendre ou manipuler ce texte précis, pas un exercice abstrait détaché.
+3. Cette même règle s'applique à toutes les sections suivantes de la leçon (activités, trace écrite, exercices) : elles doivent citer, analyser ou réutiliser des passages exacts de ce texte, jamais des phrases inventées séparément.)*
 Pour une leçon ayant pour titre: "spécification du système" avec comme objectifs: 
  -Identifier les besoins en information d'une organisation.
  -Transformer un système existant en un système informatisé.
@@ -211,14 +217,25 @@ system will address, propose an implementation strategy of the new system.
 *Rédige une ou plusieurs questions de rappel des pré-requis necessaires à la bonne comprehension de la nouvelle lecon.*
 *cette section doit commencer sur une nouvelle ligne après le titre.
 **{activite_1}:**
-*- Propose une activité de découverte qui permet aux élèves d'explorer le problème posé dans la situation-problème.*
+*- Rédige intégralement l'énoncé de l'activité de découverte : un mini-scénario avec un personnage nommé, des données chiffrées ou concrètes précises, et une ou plusieurs questions numérotées écrites mot pour mot. Ce n'est PAS une description de ce que l'activité "pourrait" contenir — c'est le texte exact que l'enseignant va lire ou distribuer aux élèves. L'activité doit se terminer par une question qui pousse explicitement l'élève à proposer sa propre réponse, formule ou conjecture (même incomplète), sur le modèle : "Propose alors à [Nom], une formule qui lui permet de..." ou "D'après tes observations, que peux-tu en conclure ?"*
 <!--
 INSTRUCTIONS POUR CETTE SECTION:
-tu dois concevoir une activite qui va permettre aux eleves de decouvrir tous les concepts cles lies aux ojectifs de la lecon.
+Rédige une activité de découverte ENTIÈREMENT ÉCRITE (pas un résumé de ce qu'elle devrait contenir), avec des données concrètes et des questions numérotées, sur le modèle de cet exemple tiré d'un vrai guide MINESEC :
+"Nanga dispose de deux réservoirs d'eau. L'un a la forme d'un pavé droit de longueur 1,5m, de largeur 1,2m et de hauteur 2m. L'autre a la forme d'un cylindre de rayon de base 1,2m et de hauteur 2m. Elle aimerait déterminer la quantité d'eau contenue dans ces réservoirs lorsqu'ils sont pleins.
+1. a) Calcule la surface de base du réservoir en forme de pavé droit. b) Calcule alors son volume.
+2. a) Raisonne de la même façon pour calculer le volume du réservoir cylindrique. b) Propose une formule qui permettrait de calculer le volume de n'importe quel solide de cette forme."
+- Pour une matière scientifique (Physique, Chimie, SVT, Sciences) : structure l'activité comme une mini-démarche expérimentale avec des données/mesures précises à observer ou calculer, pas une explication théorique.
+- Pour l'Informatique ou une matière technique : décris une manipulation concrète (sur machine ou sur un cas réel), avec des étapes numérotées précises.
+- Pour les autres matières : ancre l'activité dans un cas concret, avec des noms et détails précis, familier de la vie de l'élève camerounais.
 -->
 **{activite_2}:**
-- **{trace_ecrite}:**
-- **{trace_ecrite}:** *(Rédige ici le cours complet et détaillé (minimum 1000 mots pour les classes du premier cycle, maximun "3000 mots pour les classes du second cycle) dans le style d'un cours MINESEC.)*
+
+*(Avant de rédiger la trace écrite, rédige un court passage (3-4 phrases) qui simule la vraie démarche APC/ESV à cette étape, en 2 temps bien distincts :
+1. CONFRONTATION : les élèves comparent leurs conjectures/réponses trouvées lors de l'activité de découverte, en petits groupes ou avec leur voisin. Une éventuelle erreur commune ou hésitation est mentionnée brièvement — elle sert de point de départ à la discussion, pas d'échec à cacher.
+2. INSTITUTIONNALISATION : guidé par les questions de l'enseignant, la classe arrive collectivement à la bonne règle/formule/concept. L'enseignant valide et formalise alors ce que les élèves ont eux-mêmes construit — il ne leur donne pas la règle toute faite, il la fait émerger de leurs propositions.
+Ce passage doit donner l'impression que la classe a co-construit la règle, pas que l'enseignant a fait un cours magistral.)*
+
+- **{trace_ecrite}:** *(Rédige ici le cours complet et détaillé (minimum 1000 mots pour les classes du premier cycle, maximum 3000 mots pour les classes du second cycle) dans le style d'un cours MINESEC. Cette trace écrite est la formalisation officielle ("institutionnalisation") de ce que les élèves viennent de construire ci-dessus — elle doit reprendre exactement la même règle/formule/concept, pas un contenu détaché ou plus large.)*
 <!-- INSTRUCTIONS POUR LA TRACE ÉCRITE :
 * Tu dois proposer un cours qui explique le plus simplement et detaille possibles les differents concepts de la lecon donnes dans les objectifs.
 * Tu devras utiliser des formules proprietes, tableaux de comparaison, des exemples ou description d'illustrations pour une comprehension accrue de la lecon.
@@ -234,9 +251,8 @@ tu dois concevoir une activite qui va permettre aux eleves de decouvrir tous les
 *- Rédige un exercice d'application complet à faire en classe, suivi de son corrigé détaillé.*
 <!--
 INSTRUCTIONS POUR CETTE SECTION:
-tu dois concevoir un exercice qui traite des principaux ojectifs de la lecon et son corrige detaillé.
+Conçois un exercice qui traite des principaux objectifs de la leçon, avec son corrigé détaillé. Cet exercice a un rôle FORMATIF : il doit permettre à l'enseignant de vérifier si les élèves ont dépassé la simple connaissance déclarative (réciter la règle) pour atteindre une connaissance procédurale (savoir l'appliquer). Privilégie au moins une question qui oblige l'élève à appliquer la règle dans un cas légèrement différent de l'exemple vu en cours, pas juste une répétition à l'identique.
 -->
-
 **{devoirs}**
 *(Rédige 2 exercices complets pour la maison. Ces exercices doivent permettre a l'apprenant de verifier ses connaissances sur tous les objectifs de la lecon.)*
 
@@ -526,7 +542,22 @@ INSTRUCTIONS_EVALUATION = {
 
     "second_cycle_fr": """
     **TYPE D'ÉVALUATION DEMANDÉ :** Second Cycle Francophone (Type APC Structuré) sur 20 points.
-    **STRUCTURE :** L'épreuve est constituée d'une ou deux **{EVAL_SITUATION_PROBLEME} complexes**...
+
+    **PHILOSOPHIE :**
+    Au second cycle, l'épreuve évalue prioritairement l'agir compétent en situation complexe, plus que la restitution isolée de savoirs. Chaque situation-problème doit obliger l'élève à mobiliser ET combiner plusieurs ressources (savoirs, savoir-faire) issues de différentes leçons, pas une seule ressource à la fois.
+
+    **STRUCTURE OBLIGATOIRE :**
+    **{EVAL_PARTIE_1} : ÉVALUATION DES RESSOURCES (6 points)**
+    *(2-3 questions courtes et précises qui vérifient la maîtrise des savoirs/savoir-faire indispensables pour aborder les situations-problèmes de la Partie II. Ces questions ne doivent pas être un pré-requis contournable : sans elles, l'élève ne peut pas réussir la Partie II.)*
+
+    **{EVAL_PARTIE_2} : ÉVALUATION DE LA COMPÉTENCE (12 points)**
+    *(Rédige 1 ou 2 **{EVAL_SITUATION_PROBLEME}** complexes et contextualisées au Cameroun, adaptées au niveau second cycle. Chaque situation doit :
+    - présenter un contexte réaliste et une tâche claire avec consignes numérotées,
+    - nécessiter la combinaison d'au moins 2-3 ressources différentes pour être résolue,
+    - permettre de distinguer plusieurs niveaux de réussite (un élève qui ne mobilise qu'une partie des ressources doit pouvoir obtenir une note partielle cohérente, pas 0).)*
+
+    **{EVAL_PRESENTATION} (2 points)**
+    *(Grille de présentation : orthographe, clarté du raisonnement, soin de la copie.)*
     """,
     "second_cycle_en": """
     **TYPE D'ÉVALUATION DEMANDÉ :** Second Cycle Anglophone (GCE Style) sur 50 points au total.
