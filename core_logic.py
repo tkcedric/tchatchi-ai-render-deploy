@@ -186,9 +186,10 @@ Exemple : "Connaître les quatre opérations de base (addition, soustraction...)
 *cette section doit commencer sur une nouvelle ligne après le titre.
 
 *RÈGLE SPÉCIALE POUR LES LANGUES VIVANTES : si la matière ({matiere}) est une langue (français, anglais, allemand, espagnol, arabe, chinois, latin, grec, ou toute mention de "langue seconde/étrangère"), la situation-problème doit OBLIGATOIREMENT s'appuyer sur un texte support ("corpus") que tu rédiges toi-même avant toute autre chose :
-1. Rédige d'abord un texte court et adapté au niveau de la classe (dialogue, récit, lettre, article, poème simple selon ce qui convient le mieux au sujet) — entre 80 mots (premier cycle) et 200 mots (second cycle), sous le titre en gras "**Texte support :**".
+1. Rédige d'abord un texte court et adapté au niveau de la classe (dialogue, récit, lettre, article, poème simple selon ce qui convient le mieux au sujet) — entre 80 mots (premier cycle) et 200 mots (second cycle).
 2. Rédige ensuite Contexte/Tâche/Consignes comme d'habitude, mais TOUJOURS en lien direct avec ce texte : la tâche consiste à lire, comprendre ou manipuler ce texte précis, pas un exercice abstrait détaché.
-3. Cette même règle s'applique à toutes les sections suivantes de la leçon (activités, trace écrite, exercices) : elles doivent citer, analyser ou réutiliser des passages exacts de ce texte, jamais des phrases inventées séparément.)*
+3. Cette même règle s'applique à toutes les sections suivantes de la leçon (activités, trace écrite, exercices) : elles doivent citer, analyser ou réutiliser des passages exacts de ce texte, jamais des phrases inventées séparément.
+4. **IMPORTANT — TRADUCTION DES INTITULÉS :** tous les intitulés que tu utilises dans cette section ("Texte support", "Contexte", "Tâche", "Consignes") doivent être ÉCRITS DANS LA LANGUE {langue_contenu} de la leçon, jamais en français si la leçon est dans une autre langue. Exemples : en anglais → "Supporting Text", "Context", "Task", "Instructions" ; en espagnol → "Texto de apoyo", "Contexto", "Tarea", "Consignas" ; en allemand → "Begleittext", "Kontext", "Aufgabe", "Anweisungen".)*
 Pour une leçon ayant pour titre: "spécification du système" avec comme objectifs: 
  -Identifier les besoins en information d'une organisation.
  -Transformer un système existant en un système informatisé.
