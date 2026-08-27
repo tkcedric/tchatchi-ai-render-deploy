@@ -317,13 +317,32 @@
             border-color: var(--primary-color);
         }
 
-        /* NOUVEAU : état "sélectionné" juste après le clic/tap, avant que
-           la liste ne se ferme — donne un vrai retour visuel de confirmation */
+        /* NOUVEAU : état "sélectionné" juste après le clic/tap — une
+           animation CSS auto-terminée (pas du JS) : flashe en bleu puis
+           revient à la normale toute seule, sans dépendre du timing réseau. */
         .option-button.selected {
-            background-color: var(--primary-color);
-            color: white;
-            border-color: var(--primary-color);
+            animation: selectFlash 0.4s ease forwards;
         }
+
+        @keyframes selectFlash {
+            0% {
+                background-color: var(--primary-color);
+                color: white;
+                border-color: var(--primary-color);
+            }
+            100% {
+                background-color: #e8f0fe;
+                color: #3c4043;
+                border-color: var(--primary-color);
+            }
+        }
+
+        /* Options non sélectionnées, désactivées après un clic : bien
+           grisées pour que la différence avec l'option choisie soit claire */
+        .option-button:disabled {
+            opacity: 0.5;
+        }
+
 
         #chat-form .input-group {
             background-color: #ffffff;
@@ -920,7 +939,8 @@
     </style>
 </head>
 <body>
-    <!-- Overlay pour sidebar mobile -->
+
+     <!-- Overlay pour sidebar mobile -->
     <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
         <!-- Sidebar -->
@@ -953,7 +973,7 @@
                             <span class="badge bg-secondary">Gratuit</span>
                             <small class="text-muted">{{ user.generation_count }} / 5 générations</small>
                         </div>
-                        <a href="/donate" class="small d-block mt-1">Passer au Premium →</a>
+                        <a href="/#tarifs" class="small d-block mt-1">Passer au Premium →</a>
                     {% endif %}
                 </div>
 
@@ -997,6 +1017,7 @@
                 <ul class="dropdown-menu dropdown-menu-end">
                     <li><a class="dropdown-item" href="/app">Chat Tchatci AI</a></li>
                     <li><a class="dropdown-item" href="/about">À Propos</a></li>
+                    <li><a class="dropdown-item" href="/#tarifs"><i class="bi bi-star-fill me-2"></i>Passer au Premium</a></li>
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item" href="/logout"><i class="bi bi-box-arrow-right me-2"></i>Se Déconnecter</a></li>
                 </ul>
@@ -1005,7 +1026,7 @@
             <!-- Menu pour visiteur (Desktop) -->
             <nav class="d-none d-md-flex gap-2 align-items-center">
                 <a href="/about" class="btn btn-light" data-lang-en="About" data-lang-fr="À Propos">À Propos</a>
-                <a href="/donate" class="btn btn-success"><i class="bi bi-heart me-1"></i> <span data-lang-en="Support" data-lang-fr="Soutenir">Soutenir</span></a>
+                <a href="/#tarifs" class="btn btn-success"><i class="bi bi-star-fill me-1"></i> <span data-lang-en="Go Premium" data-lang-fr="Passer au Premium">Passer au Premium</span></a>
                 <a href="/login" class="btn btn-primary ms-2" data-lang-en="Login" data-lang-fr="Connexion">Connexion</a>
             </nav>
             <!-- Bouton Burger pour visiteur (Mobile) -->
@@ -1034,9 +1055,9 @@
             <span data-lang-en="About" data-lang-fr="À Propos">À Propos</span>
         </a>
         
-        <a href="/donate" class="nav-compact-link" data-lang-en="Support" data-lang-fr="Soutenir">
-            <i class="bi bi-heart"></i>
-            <span data-lang-en="Support" data-lang-fr="Soutenir">Soutenir</span>
+        <a href="/#tarifs" class="nav-compact-link" data-lang-en="Go Premium" data-lang-fr="Passer au Premium">
+        <i class="bi bi-star-fill"></i>
+            <span data-lang-en="Go Premium" data-lang-fr="Passer au Premium">Passer au Premium</span>
         </a>
     </div>
     
@@ -1073,7 +1094,10 @@
                         <div class="content">Veuillez choisir votre langue.</div>
                     </div>
                 </div>
-            </div>
+            </div>               
+             
+
+   
 
             <!-- Zone d'input -->
             <div id="chat-input-area">
