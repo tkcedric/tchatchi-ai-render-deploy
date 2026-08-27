@@ -75,6 +75,12 @@
             font-weight: 500;
             color: #1f1f1f;
             line-height: 1.2;
+            white-space: nowrap;
+        }
+
+        #main-header .app-title-container {
+            min-width: 0;
+            flex-shrink: 1;
         }
 
         .hero-section {
@@ -168,8 +174,10 @@
             background-color: #e9ecef;
             border-radius: 25px;
             padding: 2px;
+            white-space: nowrap;
+            flex-shrink: 0;
         }
-        
+
         .lang-selector .lang-btn {
             text-decoration: none;
             color: #6c757d;
@@ -476,7 +484,7 @@
                 <!-- Partie Gauche : Logo et Titre (INCHANGÉ) -->
                 <a href="/" class="app-title-container text-dark text-decoration-none">
                     <img src="/static/img/favicon.png" alt="Logo" class="app-icon"> 
-                    <span class="app-title">TCHATCHI AI <br class="d-none d-sm-block">Pedagogical Assistant</span>
+                    <span class="app-title">TCHATCHI AI <span class="d-none d-md-inline">Pedagogical Assistant</span></span>
                 </a>
                 <div class="lang-selector">
                     <a href="#" class="lang-btn" data-lang="en">🇬🇧 EN</a>
@@ -488,10 +496,10 @@
 
                 <!-- Si l'utilisateur est connecté (authentifié) -->
                 {% if user.is_authenticated %}
-                    <div class="dropdown">
+                    <div class="dropdown flex-shrink-0">
                         <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-person-circle me-2"></i>
-                            {{ user.full_name }}
+                            <i class="bi bi-person-circle d-md-me-2"></i>
+                            <span class="d-none d-md-inline">{{ user.full_name }}</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item" href="/app">Chat Tchatci ai</a></li>
