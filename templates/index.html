@@ -248,6 +248,52 @@
             overflow-y: auto;
         }
 
+        /* NOUVEAU : sur mobile, liste verticale claire plutôt qu'une grille
+           en plusieurs lignes (le défilement horizontal est souvent manqué
+           par les utilisateurs). Défilement vertical avec barre visible. */
+        @media (max-width: 767.98px) {
+            #options-container {
+                flex-direction: column;
+                flex-wrap: nowrap;
+                align-items: stretch;
+                justify-content: flex-start;
+                max-height: 180px;
+                scrollbar-width: thin;
+                scrollbar-color: #c9c9c9 transparent;
+            }
+            #options-container::-webkit-scrollbar {
+                width: 5px;
+            }
+
+            #options-container::-webkit-scrollbar-thumb {
+                background-color: #c9c9c9;
+                border-radius: 10px;
+            }
+
+            .option-button {
+                width: 100%;
+                text-align: center;
+            }
+        }
+
+        /* Conteneur parent : nécessaire pour positionner le dégradé "encore
+           des options en dessous" en overlay */
+        #options-wrapper {
+            position: relative;
+        }
+
+        #options-wrapper::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 24px;
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0.95));
+            pointer-events: none;
+            border-radius: 0 0 12px 12px;
+        }
+
         .option-button {
             border: 1px solid #c9c9c9;
             background-color: #fff;
@@ -257,6 +303,26 @@
             border-radius: 20px;
             font-size: 0.9rem;
             min-height: 44px;
+            box-sizing: border-box;
+            overflow-wrap: break-word;
+            word-break: break-word;
+            white-space: normal;
+            transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+            cursor: pointer;
+        }
+
+        /* NOUVEAU : survol (souris, desktop) */
+        .option-button:hover {
+            background-color: #e8f0fe;
+            border-color: var(--primary-color);
+        }
+
+        /* NOUVEAU : état "sélectionné" juste après le clic/tap, avant que
+           la liste ne se ferme — donne un vrai retour visuel de confirmation */
+        .option-button.selected {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
         }
 
         #chat-form .input-group {
@@ -516,15 +582,11 @@
                 padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
             }
             
-            #options-container {
-                max-height: 120px;
-                padding-bottom: 0.75rem;
-            }
             
             .option-button {
-                padding: 0.6rem 0.9rem;
-                font-size: 0.85rem;
-                min-height: 40px;
+                padding: 0.5rem 0.8rem;
+                font-size: 0.8rem;
+                min-height: 38px;
             }
         }
 
@@ -542,14 +604,9 @@
                 padding: 0.5rem 0.75rem;
             }
             
-            #options-container {
-                flex-direction: column;
-                align-items: center;
-            }
             
             .option-button {
                 width: 100%;
-                max-width: 280px;
                 text-align: center;
             }
             
@@ -1021,9 +1078,12 @@
             <!-- Zone d'input -->
             <div id="chat-input-area">
                 <div id="chat-input-area-content">
-                    <div id="options-container">
-                        <button class="btn option-button">🇬🇧 English</button>
-                        <button class="btn option-button">🇫🇷 Français</button>
+                    <div id="options-wrapper">
+                    <div id="options-wrapper">
+                        <div id="options-container">
+                            <button class="btn option-button">🇬🇧 English</button>
+                            <button class="btn option-button">🇫🇷 Français</button>
+                        </div>
                     </div>
                     <form id="chat-form">
                         <div class="input-group">
@@ -1965,7 +2025,8 @@ Chimie,12</textarea>
         // =======================================================================
         const api = {
             async sendMessage(userMessage) {
-                ui.addMessage('<div class="loading-content"><div class="spinner"></div><span>Veuillez patienter...</span></div>', 'ai');
+                const texteAttente = conversationState.lang === 'en' ? 'Please wait...' : 'Veuillez patienter...';
+                ui.addMessage(`<div class="loading-content"><div class="spinner"></div><span>${texteAttente}</span></div>`, 'ai');
                 const loadingElement = dom.chatMessages.lastElementChild;
 
                 try {
@@ -2109,15 +2170,28 @@ Chimie,12</textarea>
         // FONCTION DE GESTION DES CLICS (MAINTENANT INDÉPENDANTE)
         // =======================================================================
                 function handleOptionClick(event) {
+                    const bouton = event.target.closest('.option-button, .btn');
                     const userChoice = event.target.textContent;
-                    ui.addMessage(userChoice, 'user');
-                    ui.showOptions([]);
-                    
-                    if (userChoice.includes('PDF')) {
-                        api.downloadPdf();
-                    } else {
-                        api.sendMessage(userChoice);
+
+                    // NOUVEAU : on affiche l'état "sélectionné" (fond bleu) et on
+                    // désactive tous les autres boutons pour éviter un double-clic,
+                    // puis on laisse un court instant avant de continuer, pour que
+                    // l'utilisateur voie bien sa sélection confirmée visuellement.
+                    if (bouton) {
+                        dom.optionsContainer.querySelectorAll('.option-button, .btn').forEach(b => b.disabled = true);
+                        bouton.classList.add('selected');
                     }
+
+                    setTimeout(() => {
+                        ui.addMessage(userChoice, 'user');
+                        ui.showOptions([]);
+
+                        if (userChoice.includes('PDF')) {
+                            api.downloadPdf();
+                        } else {
+                            api.sendMessage(userChoice);
+                        }
+                    }, 150);
                 }
         // =======================================================================
         // MODULE APP : Le coordinateur qui lie tout ensemble
